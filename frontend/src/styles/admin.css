@@ -1,0 +1,66 @@
+.AdminPanel-remove{
+  color: red; /* Tailwind's red-500 */
+  font-size: 12px;
+  background: ;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-button{
+
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.admin-search {
+  border:none;
+}
+/* Admin panel styling */
+.swal-custom-popup {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.swal-custom-title {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.swal-custom-confirm {
+  font-weight: 600 !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.swal-custom-cancel {
+  font-weight: 600 !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Apply animations */
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.pulse-on-hover:hover {
+  animation: pulse 0.5s ease-in-out;
+}

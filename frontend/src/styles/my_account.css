@@ -1,0 +1,2050 @@
+/* MyAccount Component CSS with myaccount prefix to avoid conflicts */
+
+/* Base Styles */
+.myaccount-wrapper {
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary-color: #f43f5e;
+  --secondary-hover: #e11d48;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --light-color: #f9fafb;
+  --dark-color: #111827;
+  --gray-color: #6b7280;
+  --border-color: #e5e7eb;
+  --card-bg: #ffffff;
+  --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+
+  
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: none;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--dark-color);
+}
+
+.myaccount-container {
+  width: 100%;
+  height: auto;
+  max-width: 1000px;
+  background-color: var(--card-bg);
+  border-radius: 1.5rem;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  opacity: 1;
+  animation: myaccount-fade-in 0.6s ease-out;
+}
+
+
+
+/* Header Styles */
+.myaccount-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(to right, var(--primary-color), #6366f1);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.myaccount-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  transform: rotate(30deg);
+  pointer-events: none;
+}
+
+.myaccount-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+/* 📌 Tablets & Small Screens (Max: 1024px) */
+@media (max-width: 1024px) {
+  .myaccount-wrapper {
+    padding: 1.5rem 0.8rem;
+  }
+
+  .myaccount-container {
+    max-width: 850px;
+  }
+
+  .myaccount-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .myaccount-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-wrapper {
+    padding: 1rem 0.5rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .myaccount-container {
+    max-width: 90%;
+    border-radius: 1rem;
+  }
+
+  .myaccount-header {
+    padding: 1rem 1.2rem;
+  }
+
+  .myaccount-header h1 {
+    font-size: 1.3rem;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-wrapper {
+    padding: 0.75rem;
+  }
+
+  .myaccount-container {
+    max-width: 100%;
+    border-radius: 0.75rem;
+    box-shadow: none;
+  }
+
+  .myaccount-header {
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+
+  .myaccount-header h1 {
+    font-size: 1.15rem;
+  }
+}
+
+.myaccount-btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 0.75rem; /* Slightly more rounded */
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  backdrop-filter: blur(6px);
+  position: relative;
+  overflow: hidden;
+}
+
+.myaccount-btn-logout:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.myaccount-btn-logout::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0)
+  );
+  transition: left 0.5s ease;
+}
+
+.myaccount-btn-logout:hover::after {
+  left: 100%;
+}
+
+.myaccount-btn-logout svg {
+  transition: transform 0.3s ease;
+}
+
+.myaccount-btn-logout:hover svg {
+  transform: rotate(-90deg);
+}
+
+@media (max-width: 600px) {
+  .myaccount-btn-logout span {
+    display: none;
+  }
+}
+
+.myaccount-btn-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 0.75rem; /* Slightly more rounded for modern look */
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  backdrop-filter: blur(6px);
+  position: relative;
+  overflow: hidden;
+}
+
+.myaccount-btn-back:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.myaccount-btn-back::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0)
+  );
+  transition: left 0.5s ease;
+}
+
+.myaccount-btn-back:hover::after {
+  left: 100%;
+}
+
+.myaccount-btn-back svg {
+  transition: transform 0.3s ease;
+}
+
+.myaccount-btn-back:hover svg {
+  transform: translateX(-4px); /* Slight back motion */
+}
+
+@media (max-width: 600px) {
+  .myaccount-btn-back span {
+    display: none;
+  }
+}
+
+/* Layout Styles */
+.myaccount-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+@media (min-width: 768px) {
+  .myaccount-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .myaccount-profile-card {
+    grid-column: 1 / 2;
+  }
+  
+  .myaccount-progress-card {
+    grid-column: 2 / 3;
+  }
+  
+  .myaccount-actions {
+    grid-column: 1 / 3;
+  }
+}
+
+/* Profile Card Styles */
+.myaccount-profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: var(--card-bg);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform var(--transition-normal);
+}
+
+.myaccount-profile-card:hover {
+  transform: translateY(-5px);
+}
+
+.myaccount-profile-image-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.myaccount-profile-image-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform var(--transition-normal);
+}
+
+.myaccount-profile-image-container:hover {
+  transform: scale(1.05);
+}
+
+.myaccount-profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter var(--transition-normal);
+}
+
+.myaccount-profile-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.myaccount-profile-image-container:hover .myaccount-profile-image-overlay {
+  opacity: 1;
+}
+
+.myaccount-profile-image-overlay span {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.myaccount-profile-image-ring {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  
+  animation: myaccount-pulse 2s infinite;
+  pointer-events: none;
+}
+.myaccount-remove-profile-picture {
+  border: none;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+
+
+.myaccount-profile-info {
+  text-align: center;
+}
+
+.myaccount-profile-info h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--dark-color);
+}
+
+.myaccount-user-email {
+  font-size: 1rem;
+  color: var(--gray-color);
+  margin: 0;
+}
+/* 📌 Tablets & Small Screens (Max: 1024px) */
+@media (max-width: 1024px) {
+  .myaccount-profile-card {
+    padding: 1.5rem;
+    gap: 1.2rem;
+  }
+
+  .myaccount-profile-image-wrapper {
+    width: 130px;
+    height: 130px;
+  }
+
+  .myaccount-profile-info h2 {
+    font-size: 1.4rem;
+  }
+
+  .myaccount-user-email {
+    font-size: 0.95rem;
+  }
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-profile-card {
+    padding: 1.25rem;
+    gap: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  .myaccount-profile-image-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+
+  .myaccount-profile-info h2 {
+    font-size: 1.3rem;
+  }
+
+  .myaccount-user-email {
+    font-size: 0.9rem;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-profile-card {
+    padding: 1rem;
+    gap: 0.8rem;
+    border-radius: 0.5rem;
+  }
+
+  .myaccount-profile-image-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .myaccount-profile-image-ring {
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-width: 1.5px;
+  }
+
+  .myaccount-profile-info h2 {
+    font-size: 1.2rem;
+  }
+
+  .myaccount-user-email {
+    font-size: 0.85rem;
+  }
+}
+
+/* Progress Card Styles */
+.myaccount-progress-card {
+  padding: 2rem;
+  background-color: var(--card-bg);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform var(--transition-normal);
+}
+
+.myaccount-progress-card:hover {
+  transform: translateY(-5px);
+}
+
+.myaccount-progress-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem;
+  color: var(--dark-color);
+}
+
+.myaccount-progress-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.myaccount-progress-bar-container {
+  height: 12px;
+  background-color: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.myaccount-progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, var(--primary-color), #6366f1);
+  border-radius: 6px;
+  position: relative;
+  transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.myaccount-progress-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8));
+  animation: myaccount-glow 2s infinite;
+}
+
+@keyframes myaccount-glow {
+  0% {
+    transform: translateX(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+}
+
+.myaccount-progress-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.myaccount-progress-details p {
+  font-size: 0.875rem;
+  color: var(--gray-color);
+  margin: 0;
+}
+
+.myaccount-progress-details span {
+  font-weight: 600;
+  color: var(--dark-color);
+}
+/* 📌 Tablets & Small Screens (Max: 1024px) */
+@media (max-width: 1024px) {
+  .myaccount-progress-card {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+  }
+
+  .myaccount-progress-card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .myaccount-progress-bar-container {
+    height: 10px;
+    border-radius: 5px;
+  }
+
+  .myaccount-progress-details p {
+    font-size: 0.85rem;
+  }
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-progress-card {
+    padding: 1.25rem;
+    border-radius: 0.65rem;
+  }
+
+  .myaccount-progress-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .myaccount-progress-bar-container {
+    height: 9px;
+  }
+
+  .myaccount-progress-details p {
+    font-size: 0.8rem;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-progress-card {
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+
+  .myaccount-progress-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .myaccount-progress-bar-container {
+    height: 8px;
+  }
+
+  .myaccount-progress-details p {
+    font-size: 0.75rem;
+  }
+
+  .myaccount-progress-details span {
+    font-size: 0.85rem;
+  }
+}
+
+/* Actions Section Styles */
+.myaccount-actions {
+  padding: 2rem;
+  background-color: var(--card-bg);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.myaccount-button-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.myaccount-btn-edit,
+.myaccount-btn-feedback,
+.myaccount-btn-delete,
+.myaccount-btn-collab,
+.myaccount-helpandsupport-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.myaccount-btn-edit {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.myaccount-btn-edit:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+}
+
+.myaccount-btn-feedback {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.myaccount-btn-feedback:hover {
+  background-color: #0ca678;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+}
+
+.myaccount-btn-delete {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.myaccount-btn-delete:hover {
+  background-color: #dc2626;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+}
+
+.myaccount-btn-collab {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+.myaccount-btn-collab:hover {
+  background-color: #d97706;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
+}
+/* 📌 Tablets & Small Screens (Max: 1024px) */
+@media (max-width: 1024px) {
+  .myaccount-actions {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+  }
+
+  .myaccount-button-group {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .myaccount-btn-edit,
+  .myaccount-btn-feedback,
+  .myaccount-btn-delete,
+  .myaccount-btn-collab {
+    padding: 0.85rem;
+    border-radius: 0.65rem;
+  }
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-actions {
+    padding: 1.25rem;
+    border-radius: 0.65rem;
+  }
+
+  .myaccount-button-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .myaccount-btn-edit,
+  .myaccount-btn-feedback,
+  .myaccount-btn-delete,
+  .myaccount-btn-collab {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-actions {
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+
+  .myaccount-button-group {
+    grid-template-columns: 1fr;
+  }
+
+  .myaccount-btn-edit,
+  .myaccount-btn-feedback,
+  .myaccount-btn-delete,
+  .myaccount-btn-collab {
+    padding: 0.7rem;
+    font-size: 0.85rem;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Edit Form Styles */
+.myaccount-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: myaccount-slide-down 0.3s ease-out;
+}
+
+@keyframes myaccount-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.myaccount-edit-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color var(--transition-fast);
+}
+
+.myaccount-edit-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.myaccount-edit-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.myaccount-btn-save,
+.myaccount-btn-cancel {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex: 1;
+}
+
+.myaccount-btn-save {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.myaccount-btn-save:hover {
+  background-color: var(--primary-hover);
+}
+
+.myaccount-btn-cancel {
+  background-color: #f3f4f6;
+  color: var(--gray-color);
+}
+
+.myaccount-btn-cancel:hover {
+  background-color: #e5e7eb;
+}
+/* 📌 Tablets & Small Screens (Max: 1024px) */
+@media (max-width: 1024px) {
+  .myaccount-edit-form {
+    gap: 0.85rem;
+  }
+
+  .myaccount-edit-input {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .myaccount-edit-buttons {
+    gap: 0.85rem;
+    margin-top: 0.4rem;
+  }
+
+  .myaccount-btn-save,
+  .myaccount-btn-cancel {
+    padding: 0.7rem 1.4rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-edit-form {
+    gap: 0.75rem;
+  }
+
+  .myaccount-edit-input {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .myaccount-edit-buttons {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .myaccount-btn-save,
+  .myaccount-btn-cancel {
+    padding: 0.65rem 1.3rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-edit-form {
+    gap: 0.65rem;
+  }
+
+  .myaccount-edit-input {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .myaccount-edit-buttons {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .myaccount-btn-save,
+  .myaccount-btn-cancel {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    border-radius: 0.45rem;
+  }
+}
+
+/* Modal Styles */
+.myaccount-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: myaccount-fade-in 0.3s ease-out;
+}
+
+.myaccount-modal-content {
+  background-color: white;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 500px;
+  max-height: calc(100vh - 20px);
+  overflow-y: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: myaccount-scale-in 0.3s ease-out;
+}
+.myaccount-modal-content::-webkit-scrollbar {
+  width: 1px; /* Adjust the width of the scrollbar */
+}
+
+.myaccount-modal-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* Light color for the thumb */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.myaccount-modal-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3); /* Slightly darker on hover */
+}
+
+.myaccount-modal-content::-webkit-scrollbar-track {
+  background: transparent; /* Makes the track invisible */
+}
+
+@keyframes myaccount-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.myaccount-modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.myaccount-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.myaccount-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+/* 📌 Tablets & Small Screens (Max: 1024px) */
+@media (max-width: 1024px) {
+  .myaccount-modal-content {
+    max-width: 450px;
+  }
+
+  .myaccount-modal-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .myaccount-modal-actions {
+    padding: 1.25rem;
+    gap: 0.85rem;
+  }
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-modal-content {
+    width: 95%;
+    max-width: 400px;
+    border-radius: 0.85rem;
+  }
+
+  .myaccount-modal-header {
+    padding: 1.25rem;
+  }
+
+  .myaccount-modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .myaccount-modal-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-modal-content {
+    width: 92%;
+    max-width: 360px;
+    max-height: 85vh;
+    border-radius: 0.75rem;
+  }
+
+  .myaccount-modal-header {
+    padding: 1rem;
+  }
+
+  .myaccount-modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .myaccount-modal-actions {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+}
+
+/* Upload Modal Styles */
+.myaccount-upload-modal .myaccount-upload-area {
+  padding: 1.5rem;
+}
+
+.myaccount-upload-dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+  position: relative;
+}
+
+.myaccount-upload-dropzone:hover {
+  border-color: var(--primary-color);
+}
+
+.myaccount-upload-dropzone p {
+  margin-top: 1rem;
+  color: var(--gray-color);
+}
+
+.myaccount-file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.myaccount-upload-progress {
+  margin-top: 1.5rem;
+  background-color: #f3f4f6;
+  border-radius: 0.25rem;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.myaccount-upload-progress-bar {
+  height: 100%;
+  background-color: var(--primary-color);
+  transition: width 0.3s ease;
+}
+
+.myaccount-upload-progress span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--dark-color);
+}
+/* 📌 Tablets & Small Screens (Max: 1024px) */
+@media (max-width: 1024px) {
+  .myaccount-upload-modal .myaccount-upload-area {
+    padding: 1.25rem;
+  }
+
+  .myaccount-upload-dropzone {
+    padding: 1.75rem;
+  }
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-upload-modal .myaccount-upload-area {
+    padding: 1rem;
+  }
+
+  .myaccount-upload-dropzone {
+    padding: 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .myaccount-upload-dropzone p {
+    font-size: 0.85rem;
+  }
+
+  .myaccount-upload-progress {
+    height: 6px;
+  }
+
+  .myaccount-upload-progress span {
+    font-size: 0.7rem;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-upload-modal .myaccount-upload-area {
+    padding: 0.85rem;
+  }
+
+  .myaccount-upload-dropzone {
+    padding: 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  .myaccount-upload-dropzone p {
+    font-size: 0.8rem;
+  }
+
+  .myaccount-upload-progress {
+    height: 5px;
+  }
+
+  .myaccount-upload-progress span {
+    font-size: 0.65rem;
+  }
+}
+
+/* .myaccount-feedback-modal {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  box-sizing: border-box;
+} */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .myaccount-feedback-modal {
+    padding: 1.75rem 1.25rem;
+  }
+}
+
+/* Small Tablets & Landscape Phones */
+@media (max-width: 768px) {
+  .myaccount-feedback-modal {
+    max-width: 560px; /* ~93% of 600px */
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+  .myaccount-feedback-modal {
+    width: 92%;
+    padding: 1.25rem 0.85rem;
+    margin: 0 auto;
+  }
+}
+
+.myaccount-feedback-input {
+  width: 100%;
+  min-height: 200px;
+  max-height: 300px;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 1.5rem 0;
+  background-color: #fff;
+  color: #333;
+  box-sizing: border-box;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+  resize:none;
+}
+
+.myaccount-feedback-input:focus {
+  outline: none;
+  background-color: #f5f8ff;
+}
+
+.myaccount-feedback-input::placeholder {
+  color: #888;
+  font-style: italic;
+}
+
+
+/* Cancel Button */
+.myaccount-feedback-btn-cancel {
+  background-color: #e5e7eb;
+  color: #111;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  border: none;
+}
+
+.myaccount-feedback-btn-cancel:hover {
+  background-color: #9ca3af;
+}
+
+.myaccount-feedback-btn-cancel:focus {
+  outline: none;
+}
+
+/* Submit Button */
+.myaccount-btn-submit {
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.myaccount-btn-submit:hover {
+  background-color: var(--primary-hover);
+}
+
+.myaccount-btn-submit:disabled {
+  background-color: #c7d2fe;
+  cursor: not-allowed;
+}
+
+/* Thank You Message */
+.myaccount-thank-you-message {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--gray-color);
+}
+
+.myaccount-thank-you-message h3 {
+  color: var(--success-color);
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.myaccount-thank-you-message p {
+  font-size: 1rem;
+}
+
+/* RESPONSIVE DESIGN */
+
+/* Tablets (≤1024px) */
+@media (max-width: 1024px) {
+  .myaccount-feedback-input {
+    min-height: 180px;
+    font-size: 0.95rem;
+  }
+
+  .myaccount-btn-submit {
+    padding: 0.7rem 1.4rem;
+  }
+
+  .myaccount-thank-you-message {
+    padding: 1.75rem 1.25rem;
+  }
+}
+
+/* Small Tablets & Landscape Phones (≤768px) */
+@media (max-width: 768px) {
+  .myaccount-feedback-input {
+    min-height: 160px;
+    font-size: 0.9rem;
+  }
+
+  .myaccount-btn-submit {
+    padding: 0.65rem 1.3rem;
+  }
+
+  .myaccount-thank-you-message {
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Mobile Portrait (≤480px) */
+@media (max-width: 480px) {
+  .myaccount-feedback-input {
+    min-height: 140px;
+    font-size: 0.85rem;
+    padding: 0.65rem;
+  }
+
+  .myaccount-btn-submit {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .myaccount-thank-you-message {
+    padding: 1.25rem 0.85rem;
+  }
+
+  .myaccount-thank-you-message h3 {
+    font-size: 1.1rem;
+  }
+
+  .myaccount-thank-you-message p {
+    font-size: 0.85rem;
+  }
+}
+
+
+/* Delete Modal Styles */
+.myaccount-delete-modal .myaccount-delete-modal-content {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.myaccount-delete-warning-icon {
+  color: var(--danger-color);
+  margin-bottom: 1rem;
+}
+
+.myaccount-delete-modal-content p {
+  margin-bottom: 1.5rem;
+  color: var(--dark-color);
+}
+
+.myaccount-delete-consequences {
+  text-align: left;
+  margin: 0 auto 1.5rem;
+  padding-left: 1.5rem;
+  max-width: 400px;
+}
+
+.myaccount-delete-consequences li {
+  margin-bottom: 0.5rem;
+  color: var(--gray-color);
+}
+
+.myaccount-delete-progress-bar {
+  height: 4px;
+  background-color: #f3f4f6;
+  margin: 0 1.5rem 1.5rem;
+  overflow: hidden;
+}
+
+.myaccount-delete-progress-fill {
+  height: 100%;
+  background-color: var(--danger-color);
+  animation: myaccount-progress 2s linear infinite;
+}
+
+@keyframes myaccount-progress {
+  0% {
+    width: 0%;
+    margin-left: 0%;
+  }
+  50% {
+    width: 50%;
+    margin-left: 25%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
+
+.myaccount-delete-btn-confirm {
+  background-color: var(--danger-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.myaccount-delete-btn-confirm:hover {
+  background-color: #dc2626;
+}
+
+.myaccount-delete-btn-confirm:disabled {
+  background-color: #fca5a5;
+  cursor: not-allowed;
+}
+
+.myaccount-delete-btn-cancel {
+  background-color: #f3f4f6;
+  color: var(--gray-color);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.myaccount-delete-btn-cancel:hover {
+  background-color: #e5e7eb;
+}
+
+.myaccount-delete-btn-cancel:disabled {
+  cursor: not-allowed;
+}
+
+.myaccount-loading-icon {
+  animation: myaccount-spin 1s linear infinite;
+}
+
+@keyframes myaccount-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* 📌 Tablets & Small Screens (Max: 1024px) */
+@media (max-width: 1024px) {
+  .myaccount-delete-modal .myaccount-delete-modal-content {
+    padding: 1.25rem;
+  }
+
+  .myaccount-delete-consequences {
+    max-width: 90%;
+    padding-left: 1.2rem;
+  }
+
+  .myaccount-delete-btn-confirm,
+  .myaccount-delete-btn-cancel {
+    padding: 0.7rem 1.4rem;
+  }
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-delete-modal .myaccount-delete-modal-content {
+    padding: 1rem;
+  }
+
+  .myaccount-delete-warning-icon {
+    font-size: 1.8rem;
+  }
+
+  .myaccount-delete-modal-content p {
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .myaccount-delete-consequences {
+    max-width: 100%;
+    padding-left: 1rem;
+  }
+
+  .myaccount-delete-btn-confirm,
+  .myaccount-delete-btn-cancel {
+    padding: 0.65rem 1.3rem;
+    font-size: 0.95rem;
+  }
+
+  .myaccount-delete-progress-bar {
+    margin: 0 1rem 1.25rem;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-delete-modal .myaccount-delete-modal-content {
+    padding: 0.85rem;
+  }
+
+  .myaccount-delete-warning-icon {
+    font-size: 1.5rem;
+  }
+
+  .myaccount-delete-modal-content p {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .myaccount-delete-consequences {
+    padding-left: 0.75rem;
+  }
+
+  .myaccount-delete-consequences li {
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .myaccount-delete-btn-confirm,
+  .myaccount-delete-btn-cancel {
+    padding: 0.6rem 5.99rem;
+    font-size: 0.9rem;
+  }
+
+  .myaccount-delete-progress-bar {
+    margin: 0 0.75rem 1rem;
+  }
+}
+
+/* Collaboration Modal Styles */
+.myaccount-collab-modal {
+  max-width: 700px;
+  width: 90%;
+  padding-right: 1.5rem ;
+  max-height: 90vh; 
+  overflow-y: auto;  
+  box-sizing: border-box; 
+
+}
+@media (min-width: 1024px) {
+  .myaccount-collab-modal {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+
+.myaccount-collab-form {
+  padding: 1.5rem;
+  
+}
+
+.myaccount-collab-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 3.2rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+
+@media (max-width: 640px) {
+  .myaccount-collab-row {
+    grid-template-columns: 1fr;
+  }
+}
+.myaccount-collab-input,
+.myaccount-collab-dropdown {
+  padding: 0.9rem 1.2rem;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  color: #111827;
+  transition: all 0.2s ease-in-out;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.myaccount-collab-input:focus,
+.myaccount-collab-dropdown:focus {
+  outline: none;
+  
+}
+
+.myaccount-collab-textarea {
+  padding: 0.9rem 1.2rem;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  width: 100%;
+  min-height: 130px;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  color: #111827;
+  transition: all 0.2s ease-in-out;
+  font-family: inherit;
+  font-size: inherit;
+  resize:none;
+}
+
+.myaccount-collab-textarea:focus {
+  outline: none;
+}
+
+
+.myaccount-collab-modal-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.myaccount-collab-submit-button {
+  background-color: var(--warning-color);
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.myaccount-collab-submit-button:hover {
+  background-color: #d97706;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.myaccount-collab-submit-button:disabled {
+  background-color: #fcd34d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.myaccount-collab-success-message {
+  background-color: #ecfdf5;
+  border-left: 4px solid var(--success-color);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.myaccount-collab-credits {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--gray-color);
+}
+
+.myaccount-collab-credits a {
+  color: var(--primary-color);
+  text-decoration: none;
+  margin: 0 0.25rem;
+  transition: color var(--transition-fast);
+}
+
+.myaccount-collab-credits a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* Loading Spinner */
+.myaccount-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f6f7ff 0%, #e9eeff 100%);
+}
+
+.myaccount-loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(79, 70, 229, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: myaccount-spin 1s linear infinite;
+}
+
+/* 📌 Mobile Landscape & Smaller Tablets (Max: 768px) */
+@media (max-width: 768px) {
+  .myaccount-collab-modal {
+    max-width: 95%;
+  }
+
+  .myaccount-collab-form {
+    padding: 1rem;
+  }
+
+  .myaccount-collab-row {
+    gap: 0.7rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .myaccount-collab-input,
+  .myaccount-collab-dropdown,
+  .myaccount-collab-textarea {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .myaccount-collab-textarea {
+    min-height: 80px;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .myaccount-collab-submit-button {
+    padding: 0.65rem 1.6rem;
+    font-size: 0.9rem;
+  }
+
+  .myaccount-collab-success-message {
+    padding: 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* 📌 Mobile Portrait (Max: 480px) */
+@media (max-width: 480px) {
+  .myaccount-collab-modal {
+    max-width: 100%;
+  }
+
+  .myaccount-collab-form {
+    padding: 0.85rem;
+    padding-left: 2rem;
+    margin-right: -1rem;
+    margin-left: -1rem;
+  }
+
+  .myaccount-collab-row {
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .myaccount-collab-input,
+  .myaccount-collab-dropdown,
+  .myaccount-collab-textarea {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .myaccount-collab-textarea {
+    min-height: 100px;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .myaccount-collab-modal-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .myaccount-collab-submit-button {
+    padding: 0.6rem 6.4rem;
+    font-size: 0.85rem;
+  }
+
+  .myaccount-collab-success-message {
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .myaccount-collab-credits {
+    font-size: 0.8rem;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* 📌 Loading Spinner - Adjusted for Small Screens */
+@media (max-width: 768px) {
+  .myaccount-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 2.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .myaccount-loading-spinner {
+    width: 35px;
+    height: 35px;
+    border-width: 2px;
+  }
+}
+.myaccount-btn-clearchat {
+  display: flex;
+  align-items: center;
+  background-color: #f44336;
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+
+.myaccount-btn-clearchat:hover {
+  background-color: #d32f2f;
+  transform: scale(1.05);
+}
+
+.myaccount-btn-clearchat svg {
+  margin-right: 8px;
+}
+
+.myaccount-btn-clearchat span {
+  font-weight: 500;
+}
+/* Preflight resets + border: none for Help & Support */
+
+.myaccount-helpandsupport-button,
+.myaccount-helpandsupport-modal,
+.myaccount-helpandsupport-content,
+.myaccount-helpandsupport-icon,
+.myaccount-helpandsupport-text,
+.myaccount-helpandsupport-options,
+.myaccount-helpandsupport-actions,
+.myaccount-helpandsupport-btn-close {
+  border: none;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  box-sizing: border-box;
+  vertical-align: baseline;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.myaccount-helpandsupport-options {
+  list-style: none;
+  padding-left: 0;
+}
+
+
+
+
+/* 📌 Notification System */
+.myaccount-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  z-index: 1100;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  animation: myaccount-slide-in 0.3s ease-out forwards, myaccount-fade-out 0.3s ease-in forwards 3s;
+  max-width: 350px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ✅ Success Style */
+.myaccount-notification-success {
+  background-color: #10b981; /* Success Green */
+}
+
+/* ❌ Error Style */
+.myaccount-notification-error {
+  background-color: #ef4444; /* Error Red */
+}
+
+/* ℹ️ Info Style */
+.myaccount-notification-info {
+  background-color: #3b82f6; /* Info Blue */
+}
+
+/* 📌 Close Button */
+.myaccount-notification-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.myaccount-notification-close:hover {
+  opacity: 0.8;
+}
+
+/* ✅ Mobile-Friendly Notifications */
+@media (max-width: 768px) {
+  .myaccount-notification {
+    top: 15px;
+    right: 15px;
+    padding: 0.85rem 1.25rem;
+    font-size: 0.9rem;
+    max-width: 280px;
+  }
+
+  .myaccount-notification-close {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .myaccount-notification {
+    top: 10px;
+    right: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    max-width: 250px;
+  }
+
+  .myaccount-notification-close {
+    font-size: 0.9rem;
+  }
+}
+
+
+/* 📌 Slide-In Animation */
+@keyframes myaccount-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 📌 Fade-Out Animation */
+@keyframes myaccount-fade-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(10%);
+    opacity: 0;
+  }
+}
+/* Preflight reset for myaccount-swal-type elements */
+.myaccount-swal-type,
+.myaccount-swal-type * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Remove default button border and outline */
+.myaccount-swal-type-button {
+    border: none;
+    outline: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+/* Specific styling for your modal */
+.myaccount-swal-type {
+    padding: 1rem; /* Default padding for modal */
+    border-radius: 0.5rem;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Button styling inside modal */
+.myaccount-swal-type-button {
+    border-radius: 0.375rem; /* Rounded corners */
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Button hover effects */
+.myaccount-swal-type-button:hover {
+    opacity: 0.9;
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 640px) {
+    .myaccount-swal-type {
+        padding: 1rem 2rem;
+        max-width: 90%; /* Ensure modal fits on mobile screens */
+    }
+
+    .myaccount-swal-type h2 {
+        font-size: 1rem; /* Smaller font for mobile */
+    }
+
+    .myaccount-swal-type p {
+        font-size: 0.875rem; /* Smaller font for mobile */
+    }
+
+    .myaccount-swal-type-button {
+        font-size: 0.875rem; /* Smaller font for buttons */
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Add any additional styles or adjustments you want */
+
+
+.myaccount-clear-chat-swal-popup {
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background-color: #ffffff;
+}
+
+.myaccount-clear-chat-swal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333333;
+}
+
+.myaccount-clear-chat-swal-title-error {
+  color: #dc2626;
+}
+
+.myaccount-clear-chat-swal-title-success {
+  color: #16a34a;
+}
+
+.myaccount-clear-chat-swal-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  margin: 0.25rem;
+}
+
+.myaccount-clear-chat-swal-btn-red {
+  background-color: #dc2626;
+  color: #fff;
+}
+
+.myaccount-clear-chat-swal-btn-red:hover {
+  background-color: #b91c1c;
+}
+
+.myaccount-clear-chat-swal-btn-green {
+  background-color: #16a34a;
+  color: #fff;
+}
+
+.myaccount-clear-chat-swal-btn-green:hover {
+  background-color: #15803d;
+}
+
+.myaccount-clear-chat-swal-btn-gray {
+  background-color: #e5e7eb;
+  color: #333;
+}
+
+.myaccount-clear-chat-swal-btn-gray:hover {
+  background-color: #d1d5db;
+}

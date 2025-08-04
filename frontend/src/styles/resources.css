@@ -1,0 +1,42 @@
+/* Preflight Reset + Custom Styles */
+.resource-page-wrapper,
+.resource-container,
+.resource-header,
+.resource-icon-wrapper,
+.resource-title,
+.resource-subtitle,
+.resource-feature-grid,
+.resource-feature-card,
+.resource-feature-icon,
+.resource-feature-title,
+.resource-feature-description,
+.resource-back-button-wrapper,
+.resource-back-button,
+.resource-footer,
+.resource-footer-text {
+  border: none;
+  box-sizing: border-box;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  box-sizing: border-box;
+  vertical-align: baseline;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optional Enhancements */
+.resource-title {
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.resource-feature-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.resource-back-button {
+  cursor: pointer;
+}

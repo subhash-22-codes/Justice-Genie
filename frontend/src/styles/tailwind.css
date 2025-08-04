@@ -1,0 +1,57 @@
+/* Global reset styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif; /* Use a consistent font for the body */
+  line-height: 1.5;
+  background-color: #fff; /* Set the base background */
+}
+
+ul, ol {
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Tailwind's base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom classes for gradients */
+@layer base {
+  .text-gradient {
+    background-image: linear-gradient(to right, #4c6ef5, #3c8d99, #9b4c96);
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Heading styles */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+  }
+}
+/* Prevent zoom on input focus (Safari & mobile Chrome) */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  caret-color: #333;
+
+}
+/* Remove focus outline for all input, textarea, and select elements globally */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: none; /* Optional: Removes the shadow too */
+}

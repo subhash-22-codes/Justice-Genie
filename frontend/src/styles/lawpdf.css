@@ -1,0 +1,411 @@
+.law-pdf-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.law-pdf-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.law-pdf-back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+
+
+.law-pdf-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  background: linear-gradient(to right, #1e293b, #334155);
+  
+  /* Standard property */
+  background-clip: text;
+
+  /* Vendor prefixes for compatibility */
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  -o-background-clip: text;
+  -ms-background-clip: text;
+
+  /* Ensure text is transparent for the gradient to be visible */
+  -webkit-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+}
+
+
+.law-pdf-search-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.law-pdf-search {
+  position: relative;
+  max-width: 600px;
+}
+
+.law-pdf-search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.law-pdf-search-input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 1rem;
+  font-size: 1rem;
+  color: #334155;
+  background-color: white;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.law-pdf-search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.law-pdf-categories {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+  border:None;
+}
+
+.law-pdf-category-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: white;
+  color: #475569;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.law-pdf-category-btn:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+
+
+.law-pdf-category-btn.law-pdf-active {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.law-pdf-error {
+  text-align: center;
+  padding: 2rem;
+  background-color: #fee2e2;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+}
+
+.law-pdf-retry-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.law-pdf-retry-btn:hover {
+  background-color: #dc2626;
+}
+
+.law-pdf-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 4rem 0;
+}
+
+.law-pdf-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: law-pdf-spin 1s linear infinite;
+}
+
+@keyframes law-pdf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.law-pdf-no-results {
+  text-align: center;
+  padding: 4rem 0;
+  color: #64748b;
+}
+
+.law-pdf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2rem;
+}
+
+.law-pdf-card {
+  background-color: white;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.law-pdf-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* .law-pdf-card:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+} */
+
+.law-pdf-card-content {
+  padding: 1.5rem;
+}
+
+.law-pdf-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.law-pdf-tag {
+  padding: 0.375rem 1rem;
+  background-color: #eff6ff;
+  color: #3b82f6;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.law-pdf-card-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+
+
+.law-pdf-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.4;
+}
+
+.law-pdf-author {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0 0 1rem 0;
+}
+
+.law-pdf-author span {
+  font-weight: 500;
+  color: #475569;
+}
+
+.law-pdf-description {
+  font-size: 0.875rem;
+  color: #475569;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+.law-pdf-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.law-pdf-views, .law-pdf-downloads {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.law-pdf-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.law-pdf-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex: 1;
+  border: none;
+  cursor: pointer;
+}
+
+.law-pdf-view-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.law-pdf-view-btn:hover {
+  background-color: #2563eb;
+}
+
+.law-pdf-download-btn {
+  background-color: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.law-pdf-download-btn:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+
+.law-pdf-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #64748b;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.law-pdf-file-info {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.law-pdf-file-type {
+  font-weight: 500;
+  color: #475569;
+}
+
+/* Responsive Design */
+@media (max-width: 1280px) {
+  .law-pdf-container {
+    padding: 1.5rem;
+  }
+  
+  .law-pdf-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .law-pdf-title {
+    font-size: 2rem;
+  }
+  
+  .law-pdf-categories {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+}
+
+@media (max-width: 768px) {
+  .law-pdf-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .law-pdf-search-filter {
+    gap: 1rem;
+  }
+  
+  .law-pdf-search {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .law-pdf-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .law-pdf-container {
+    padding: 1rem;
+  }
+  
+  .law-pdf-title {
+    font-size: 1.75rem;
+  }
+  
+  .law-pdf-actions {
+    flex-direction: column;
+  }
+  
+  .law-pdf-btn {
+    width: 100%;
+  }
+  
+  .law-pdf-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .law-pdf-reactions {
+    flex-direction: column;
+  }
+  
+  .law-pdf-reaction-btn {
+    width: 100%;
+  }
+}
