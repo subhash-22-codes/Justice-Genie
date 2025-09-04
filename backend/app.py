@@ -700,9 +700,9 @@ def register():
     data = request.get_json()
     email = data['email']
     username = data['username']
-    # if not is_valid_email(email):
-    #      return jsonify({'error': 'Invalid or non-existent email address.'}), 400
-    #Check if the username already exists
+    if not is_valid_email(email):
+         return jsonify({'error': 'Invalid or non-existent email address.'}), 400
+    # Check if the username already exists
     existing_user = users_collection.find_one({'username': username})
     if existing_user:
         return jsonify({'error': 'Username already exists. Please choose a different username.'}), 400
