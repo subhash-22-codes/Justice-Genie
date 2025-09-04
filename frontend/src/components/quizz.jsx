@@ -458,7 +458,7 @@ const Quiz = () => {
         </div>
         {!quizStarted && (
             <div className="quiz-placeholder">
-              <img src="http://www.clipartbest.com/cliparts/yTk/6po/yTk6poGAc.png" alt="Justice Quiz" className="quiz-banner" />
+              <img src="/images/right-image.png" alt="Justice Quiz" className="quiz-banner" />
               <h2 className="quiz-welcome">📜 Justice Genie Quiz</h2>
               <p className="quiz-instruction">
                 Once you start, <strong>there's no turning back!</strong> 
