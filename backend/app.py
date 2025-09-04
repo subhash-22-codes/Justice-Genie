@@ -39,7 +39,7 @@ from pytz import timezone,utc
 from dotenv import load_dotenv
 load_dotenv()
 IST = timezone('Asia/Kolkata')
-ABSTRACT_API_KEY = "0f64bc36466f4fcf905dc443769b0af5"
+# ABSTRACT_API_KEY = os.getenv("ABSTRACT_API_KEY")
 
 # Email setup
 EMAIL_USER = os.getenv("JG_EMAIL")
@@ -685,12 +685,12 @@ def send_verification_email(email, verification_code):
         print(f"❌ Error sending email: {e}")
 
         
-def is_valid_email(email):
-    url = f"https://emailvalidation.abstractapi.com/v1/?api_key={ABSTRACT_API_KEY}&email={email}"
-    response = requests.get(url).json()
+# def is_valid_email(email):
+#     url = f"https://emailvalidation.abstractapi.com/v1/?api_key={ABSTRACT_API_KEY}&email={email}"
+#     response = requests.get(url).json()
     
-    # Check if the email is deliverable
-    return response.get("deliverability") == "DELIVERABLE"
+#     # Check if the email is deliverable
+#     return response.get("deliverability") == "DELIVERABLE"
 
 # Temporary storage for unverified users
 unverified_users = {}
@@ -700,8 +700,8 @@ def register():
     data = request.get_json()
     email = data['email']
     username = data['username']
-    if not is_valid_email(email):
-         return jsonify({'error': 'Invalid or non-existent email address.'}), 400
+    # if not is_valid_email(email):
+    #      return jsonify({'error': 'Invalid or non-existent email address.'}), 400
     # Check if the username already exists
     existing_user = users_collection.find_one({'username': username})
     if existing_user:
