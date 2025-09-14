@@ -59,10 +59,7 @@ app.config['SESSION_COOKIE_SECURE'] = True  # must be HTTPS
 CORS(
     app,
     supports_credentials=True,
-    origins=[
-        "http://localhost:3000",  # local dev
-        "https://justice-genie-mu.vercel.app"  # deployed frontend
-    ]
+    origins=["https://justice-genie-mu.vercel.app"]
 )
 
 app.secret_key = 'supersecretkey'
