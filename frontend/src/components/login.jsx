@@ -29,7 +29,7 @@ const Login = () => {
   }
 
   setLoading(true);
-  setLoginMessage('');
+  setLoginMessage('🌐 Contacting server… it may take a few seconds if it’s waking up');
 
   try {
     const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
@@ -177,10 +177,17 @@ const Login = () => {
 
 
 
-              <button type="submit" className={`login-button ${loading ? 'login-loading' : ''}`}>
-                <span className="login-button-text">Login</span>
-                <div className="login-spinner"></div>
+              <button
+                type="submit"
+                className={`login-button ${loading ? 'login-loading' : ''}`}
+                disabled={loading}
+              >
+                <span className="login-button-text">
+                  {loading ? 'Waking up server…' : 'Login'}
+                </span>
+                {loading && <div className="login-spinner"></div>}
               </button>
+
             </form>
 
             <p className="login-register-link">
@@ -188,18 +195,20 @@ const Login = () => {
               <Link to="/register" className="login-register-anchor">Create one now</Link>
             </p>
 
-            {loginMessage && (
-              <div
-                className={`w-full px-4 py-2 rounded-lg text-sm font-medium text-center mb-4 border ${
+           {loginMessage && (
+            <div
+              className={`w-full px-4 py-2 rounded-lg text-sm font-medium text-center mb-4 border
+                ${
                   loginMessage.toLowerCase().includes('successful')
                     ? 'bg-white text-green-600 border-green-300'
+                    : loginMessage.toLowerCase().includes('contacting')
+                    ? 'bg-white text-blue-600 border-blue-300'   // 👈 info / waking up
                     : 'bg-white text-red-600 border-red-300'
                 }`}
-              >
-                {loginMessage}
-              </div>
-            )}
-
+            >
+              {loginMessage}
+            </div>
+          )}
 
           </div>
         </div>
