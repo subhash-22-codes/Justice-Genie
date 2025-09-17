@@ -8,29 +8,27 @@ from werkzeug.utils import secure_filename
 import os
 import re
 import random
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from flask import Flask, request, jsonify, send_file
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from textwrap import wrap
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-import uuid
 from datetime import datetime, timedelta
 import threading
 from reportlab.lib.enums import TA_CENTER
 from markdown2 import markdown
-from flask import g
-from bs4 import BeautifulSoup
 from pytz import timezone,utc
 from dotenv import load_dotenv
 import logging
-# from werkzeug.middleware.proxy_fix import ProxyFix
 import cloudinary
 import cloudinary.uploader
 from urllib.parse import quote_plus
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
+from pprint import pprint
+from sib_api_v3_sdk.models import SendSmtpEmail
+
 #--Unused imports, In future may use--#
 '''
 from PIL import Image
@@ -43,12 +41,15 @@ import json
 from bson import json_util
 import traceback
 from googletrans import Translator
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from bs4 import BeautifulSoup
+import uuid
 '''
 
 # load environment variables from .env file
 load_dotenv()
-
-
 
 app = Flask(__name__)
 
@@ -59,7 +60,7 @@ app.config['SESSION_COOKIE_SECURE'] = True  # must be HTTPS
 CORS(
     app,
     supports_credentials=True,
-    origins=["https://justice-genie-mu.vercel.app"]
+    origins=["http://localhost:3000", "https://justice-genie-mu.vercel.app"]
 )
 
 app.secret_key = 'supersecretkey'
@@ -80,9 +81,19 @@ IST = timezone('Asia/Kolkata')
 
 TEST_MODE = False # Set to False in production
 
-# Email setup
-EMAIL_USER = os.getenv("JG_EMAIL")
-EMAIL_PASS = os.getenv("JG_PASSWORD")
+# ------------------
+# Brevo Email Setup
+# ------------------
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL")
+BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME")
+
+# Configure client
+# Configure client for transactional emails
+brevo_config = sib_api_v3_sdk.Configuration()
+brevo_config.api_key['api-key'] = BREVO_API_KEY
+brevo_client = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(brevo_config))
+
 
 # Get API key from environment
 api_key = os.getenv("GEMINI_API_KEY")
@@ -112,6 +123,8 @@ cluster  = os.getenv("MONGO_CLUSTER")
 
 MONGO_URI = f"mongodb+srv://{username}:{password}@{cluster}/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGO_URI)   # single global client
+# client = MongoClient('mongodb://localhost:27017/') # local testing
+
 db = client["law_chatbot"]
 
 users_collection = db["users"]
@@ -124,6 +137,48 @@ chats_collection = db["chats"]
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def send_email(recipient_emails, subject, html_body):
+    """
+    Send transactional email via Brevo.
+    
+    recipient_emails: str (single) or list of dicts [{'email':..,'name':..}, ...]
+    """
+    # Prepare recipient list
+    if isinstance(recipient_emails, str):
+        to_list = [{"email": recipient_emails}]
+    elif isinstance(recipient_emails, list):
+        to_list = []
+        for r in recipient_emails:
+            if isinstance(r, str):
+                to_list.append({"email": r})
+            elif isinstance(r, dict) and "email" in r:
+                to_list.append(r)
+    else:
+        raise ValueError("recipient_emails must be str or list of emails/dicts")
+
+    # Construct Brevo email
+    email_to_send = SendSmtpEmail(
+        to=to_list,
+        html_content=html_body,
+        sender={"name": BREVO_SENDER_NAME, "email": BREVO_SENDER_EMAIL},
+        subject=subject
+    )
+
+    try:
+        # Try sending via Brevo
+        response = brevo_client.send_transac_email(email_to_send)
+        print(f"✅ Email sent successfully to {to_list} via Brevo!")
+        return True
+
+    except ApiException as api_err:
+        print(f"❌ Brevo API exception: {api_err}")
+        return False
+
+    except Exception as e:
+        print(f"❌ General error sending email: {e}")
+        return False
+
 
 @app.route('/api/text-to-speech', methods=['POST'])
 def text_to_speech():
@@ -397,7 +452,6 @@ def get_feedback_status():
 @app.route('/api/collab', methods=['POST'])
 def collab():
     collab_data = request.get_json()
-    
     print(f"Received collab data: {collab_data}")
 
     # Validate input fields
@@ -407,16 +461,15 @@ def collab():
 
     user_email = collab_data['email']
     username = session.get('username')  # Ensure the user is logged in
-
     if not username:
         return jsonify({'error': 'Unauthorized. Please log in.'}), 401
 
     # Check if the logged-in user has already submitted a collaboration request
-    existing_collab = collab_collection.find_one({"submitted_by": username})  # ✅ add ()
+    existing_collab = collab_collection.find_one({"submitted_by": username})
     if existing_collab:
         return jsonify({'error': 'You have already submitted a collaboration request.'}), 400
 
-    # Store the request in MongoDB with additional fields
+    # Store the request in MongoDB
     collab_entry = {
         "name": collab_data['name'],
         "email": user_email,
@@ -429,18 +482,14 @@ def collab():
         "submitted_by": username,
         "submitted_at": datetime.utcnow()
     }
-
     try:
-        collab_collection.insert_one(collab_entry)  # ✅ add ()
+        collab_collection.insert_one(collab_entry)
     except Exception as e:
         print(f"Error inserting into MongoDB: {e}")
         return jsonify({'error': 'Failed to store collaboration data'}), 500
 
     # Send confirmation email with a professional & visually enhanced style
     try:
-        sender_email = os.getenv("JG_EMAIL")
-        sender_password = os.getenv("JG_PASSWORD")
-
         subject = f"🚀 Collaboration Request Received – Justice Genie ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
         body = f"""
         <html>
@@ -531,23 +580,23 @@ def collab():
         </html>
         """
 
-        msg = MIMEMultipart()
-        msg["From"] = sender_email
-        msg["To"] = user_email
-        msg["Subject"] = subject
-        msg.attach(MIMEText(body, "html"))
-
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, user_email, msg.as_string())
-
-        print(f"✅ Email sent successfully to {user_email}")
-
+        # In your collab endpoint, replace threading line:
+        threading.Thread(target=send_collab_email_safe, args=(user_email, subject, body)).start()
+        print(f"⏳ Collaboration email scheduled for: {user_email}")
+        
+        
     except Exception as e:
         print(f"❌ Error sending email: {e}")
         return jsonify({'error': 'Failed to send confirmation email'}), 500
 
     return jsonify({'success': 'Your collaboration request has been submitted successfully!'})
+
+def send_collab_email_safe(user_email, subject, body):
+    try:
+        send_email(user_email, subject, body)
+        print(f"✅ Collaboration email successfully sent to: {user_email}")
+    except Exception as e:
+        print(f"❌ Failed to send collaboration email to {user_email}: {e}")
 
 @app.route('/api/get_collab_status', methods=['GET'])
 def get_collab_status():
@@ -614,90 +663,61 @@ def serve_react(path):
 def serve_static_files(filename):
     return send_from_directory('static', filename)
 
+
 # Register endpoint
 def send_verification_email(email, verification_code):
     if TEST_MODE:
         print(f"[TEST MODE] Skipping email to {email}")
         return
-    
-    sender_email = os.getenv("JG_EMAIL")
-    receiver_email = email
-    password = os.getenv("JG_PASSWORD")
 
     # Unique Subject Line to Prevent Email Threading
     subject = f"🔹 Justice Genie - Verify Your Email ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
-
-    # Justice Genie Logo (Replace with actual URL)
+    
+    # Justice Genie Logo
     logo_url = "https://images.nightcafe.studio/jobs/DLZmuOJUEdalL84u3voe/DLZmuOJUEdalL84u3voe--1--t6av2.jpg?tr=w-1600,c-at_max"
 
     # HTML Email Body
     body = f"""
     <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="margin: 0; padding: 0; background-color: #f7f9fc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-        <div style="max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
-            <!-- Logo -->
-            <div style="text-align: center; margin-bottom: 32px;">
-                <img src="{logo_url}" alt="Justice Genie Logo" style="width: 120px; height: auto;">
+    <head><meta charset="UTF-8"></head>
+    <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#f7f9fc;">
+        <div style="max-width:600px;margin:40px auto;background:white;padding:40px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            <div style="text-align:center;margin-bottom:32px;">
+                <img src="{logo_url}" alt="Justice Genie Logo" style="width:120px;height:auto;">
             </div>
-
-            <h1 style="color: #1a1a1a; font-size: 24px; text-align: center; margin-bottom: 24px;">
-                Verify Your Email Address
-            </h1>
-
-            <p style="color: #444444; font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 32px;">
+            <h1 style="color:#1a1a1a;font-size:24px;text-align:center;margin-bottom:24px;">Verify Your Email Address</h1>
+            <p style="color:#444;font-size:16px;line-height:1.6;text-align:center;margin-bottom:32px;">
                 Welcome to <strong>Justice Genie</strong>. To ensure the security of your account, please use the verification code below.
             </p>
-
-            <!-- Verification Code Box -->
-            <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin: 24px 0; text-align: center;">
-                <span style="font-family: monospace; font-size: 32px; font-weight: 600; color: #2563eb; letter-spacing: 4px;">
+            <div style="background:#f8f9fa;border-radius:8px;padding:24px;margin:24px 0;text-align:center;">
+                <span style="font-family:monospace;font-size:32px;font-weight:600;color:#2563eb;letter-spacing:4px;">
                     {verification_code}
                 </span>
             </div>
-
-            <p style="color: #666666; font-size: 14px; text-align: center; margin-top: 24px;">
+            <p style="color:#666;font-size:14px;text-align:center;margin-top:24px;">
                 This code will expire shortly. If you didn't request this verification, please ignore this email.
             </p>
-
-            <!-- Footer -->
-            <div style="border-top: 1px solid #eaeaea; margin-top: 32px; padding-top: 32px; text-align: center;">
-                <p style="color: #666666; font-size: 14px; margin: 0;">
-                    Justice Genie - Empowering citizens with knowledge
-                </p>
-                <p style="color: #666666; font-size: 12px; margin-top: 8px;">
-                    This is an automated message, please do not reply.
-                </p>
+            <div style="border-top:1px solid #eaeaea;margin-top:32px;padding-top:32px;text-align:center;">
+                <p style="color:#666;font-size:14px;margin:0;">Justice Genie - Empowering citizens with knowledge</p>
+                <p style="color:#666;font-size:12px;margin-top:8px;">This is an automated message, please do not reply.</p>
             </div>
         </div>
     </body>
     </html>
     """
-
-
-    # Email Setup
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
-
-    # Prevent Email Threading with a Unique Message-ID
-    msg.add_header('Message-ID', f"<{uuid.uuid4()}@justicegenie.com>")
-
-    msg.attach(MIMEText(body, 'html'))  # Set as HTML
-
-    # Send Email
+    
+    # Send the email in a separate thread to avoid blocking
+    
+    print(f"📩 Preparing to send verification email to: {email}")    
     try:
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-        print("✅ Verification email sent successfully!")
+         send_email(email, subject, body)
+         print(f"✅ Verification email successfully queued for: {email}")
+         return True
     except Exception as e:
-        print(f"❌ Error sending email: {e}")
+         print(f"❌ Failed to send verification email to {email}: {e}")
+         return False
+        
+
 
         
 # def is_valid_email(email):
@@ -780,23 +800,17 @@ def verify_code():
         })
 
         # ✅ Send Welcome Email in the Background
-        threading.Thread(
-            target=send_welcome_email,
-            args=(email, user_data['username'])
-        ).start()
+        
+        threading.Thread(target=send_welcome_email, args=(email, user_data['username'])).start()
+
 
         return jsonify({'message': 'Registration successful! You can now log in.'}), 200
     else:
         return jsonify({'error': 'Invalid verification code.'}), 400
 
     
-
-
 def send_welcome_email(email, username):
-    sender_email = os.getenv("JG_EMAIL")
-    receiver_email = email
-    password = os.getenv("JG_PASSWORD")
-
+    
     subject = f"🎉 Welcome to Justice Genie - Your Legal Empowerment Journey Begins!({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
 
     # Enhanced HTML template with better email client compatibility
@@ -988,21 +1002,15 @@ def send_welcome_email(email, username):
     </body>
     </html>
     """
-
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'html'))
-
+    print(f"📩 Preparing to send welcome email to: {email}")
+    
     try:
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-        print("✅ Welcome email sent successfully!")
+        send_email(email, subject, body)
+        print(f"✅ Welcome email successfully queued for: {email}")
+        return True
     except Exception as e:
-        print(f"❌ Error sending welcome email: {e}")
+        print(f"❌ Failed to send welcome email to {email}: {e}")
+        return False
 
 
 # Resend verification code endpoint
@@ -1054,9 +1062,6 @@ def forgot_password():
 
 
 def send_forgot_password_email(email, reset_code):
-    sender_email = os.getenv("JG_EMAIL")
-    receiver_email = email
-    password = os.getenv("JG_PASSWORD")
     
     subject = f"🔑 JUSTICE GENIE - Reset Your Password & Unlock Your Legal Power ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
 
@@ -1112,21 +1117,14 @@ def send_forgot_password_email(email, reset_code):
 
 
     # Email Setup
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'html'))  # Set as HTML
-
-    # Send Email
+    print(f"📩 Preparing to send password reset email to: {email}")
     try:
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
-        print("✅ Password reset email sent successfully!")
+        send_email(email, subject, body)
+        print(f"✅ Password reset email successfully queued for: {email}")
+        return True
     except Exception as e:
-        print(f"❌ Error sending email: {e}")
+        print(f"❌ Failed to send password reset email to {email}: {e}")
+        return False
 
 # Verify Forgot Password Code Endpoint
 @app.route('/api/verify-forgot-password-code', methods=['POST'])
@@ -1559,10 +1557,8 @@ def export_pdf():
         return jsonify({'error': f'Failed to generate PDF: {str(e)}'}), 400
     
 def send_goodbye_email(email, username, score=None, rank=None):
-    sender_email = os.getenv("JG_EMAIL")
+   
     receiver_email = email
-    password = os.getenv("JG_PASSWORD")  # Your app password
-
     subject = f"It's Not Goodbye, Just See You Later – Justice Genie 🪄💙 ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
 
     # Only show rank info if both score and rank are provided
@@ -1702,23 +1698,17 @@ def send_goodbye_email(email, username, score=None, rank=None):
     </html>
     """
 
-    msg = MIMEText(body, "html")
-    msg["Subject"] = subject
-    msg["From"] = sender_email
-    msg["To"] = receiver_email
-
+    # Email Setup
+    print(f"📩 Preparing to send goodbye email to: {receiver_email}")
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, msg.as_string())
-        server.quit()
-        print("Goodbye email sent successfully! 📨✅")
+        send_email(receiver_email, subject, body)
+        print(f"✅ Goodbye email successfully queued for: {receiver_email}")
         return True
     except Exception as e:
-        print(f"Error sending email: {e} ❌")
+        print(f"❌ Failed to send goodbye email to {receiver_email}: {e}")
         return False
-    
+        
+            
 @app.route('/api/delete_account', methods=['DELETE'])
 def delete_account():
     print("Current Session Data:", session)  
@@ -2011,9 +2001,6 @@ def get_lock_status():
 
 
 def send_email_alert(receiver_email, subject, username):
-    sender_email = os.getenv("JG_EMAIL")
-    password = os.getenv("JG_PASSWORD")
-
     body = f"""
     <html>
     <head>
@@ -2066,7 +2053,7 @@ def send_email_alert(receiver_email, subject, username):
           <p>At this time, your account remains fully active. However, we recommend reviewing your recent activity to ensure everything looks normal.</p>
           <p>If this activity was not done by you, please change your password immediately and contact our support team.</p>
           <p>
-            <a href="mailto:{sender_email}" class="button">Contact Support</a>
+            <a href="mailto:justicegenie2.0@gmail.com" class="button">Contact Support</a>
           </p>
         </div>
         <div class="footer">
@@ -2077,21 +2064,12 @@ def send_email_alert(receiver_email, subject, username):
     </html>
     """
 
-    msg = MIMEText(body, "html")
-    msg["Subject"] = subject
-    msg["From"] = sender_email
-    msg["To"] = receiver_email
-
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, msg.as_string())
-        server.quit()
-        print("Warning email sent successfully! 📨✅")
+        send_email(receiver_email, subject, body)
+        print(f"Alert email sent to {receiver_email}")
         return True
     except Exception as e:
-        print(f"Error sending email: {e} ❌")
+        print(f"Failed to send alert email to {receiver_email}: {e}")
         return False
 
 
