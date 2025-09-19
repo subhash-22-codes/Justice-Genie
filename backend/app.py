@@ -56,6 +56,7 @@ app = Flask(__name__)
 # Important session settings
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True  # must be HTTPS
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # sessions last 7 days
 
 CORS(
     app,
@@ -126,7 +127,6 @@ client = MongoClient(MONGO_URI)   # single global client
 # client = MongoClient('mongodb://localhost:27017/') # local testing
 
 db = client["law_chatbot"]
-
 users_collection = db["users"]
 feedback_collection = db["feedback"]
 quizzquestions_collection = db["quizzquestions"]
@@ -1188,6 +1188,7 @@ def login():
     })
 
     if user and check_password_hash(user['password'], password):
+        session.permanent = True 
         session['username'] = user['username']
         session['email'] = user['email']
         session['role'] = user.get('role', 'user')  # store role in session
@@ -1197,6 +1198,25 @@ def login():
         return jsonify({'message': 'Login successful', 'isAdmin': is_admin})
 
     return jsonify({'error': 'Invalid credentials'}), 401
+
+# API Endpoint to check session
+@app.route("/api/check-session", methods=["GET"])
+def check_session():
+    print("🔎 /api/check-session called")   # log every request
+    print("➡️ Current session contents:", dict(session))  # show what's stored
+
+    if "username" in session and "email" in session:
+        print("✅ Session found for user:", session["username"])
+        return jsonify({
+            "loggedIn": True,
+            "username": session["username"],
+            "role": session.get("role", "user")
+        })
+
+    print("❌ No valid session found")
+    return jsonify({"loggedIn": False})
+
+
 
 # Chat Endpoint
 @app.route('/api/chat', methods=['POST'])
