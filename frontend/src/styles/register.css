@@ -1,725 +1,769 @@
-/* Justice Genie Registration Page - High-End Responsive CSS */
+/* Justice Genie Register Component - Professional Design */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-/* Container Layout */
-.register-page {
+/* Hide scrollbars globally for this component */
+.register-container,
+.register-container *,
+.register-form-section,
+.register-illustration-section {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.register-container::-webkit-scrollbar,
+.register-container *::-webkit-scrollbar,
+.register-form-section::-webkit-scrollbar,
+.register-illustration-section::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* Base Container */
+.register-container {
   min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: white;
+  overflow-x: hidden;       
+}
+
+
+/* Main Layout */
+.register-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Left Side - Illustration Section (Desktop Only) */
+.register-illustration-section {
+  flex: 1;
+  background: white;
+  padding: 60px 40px;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+/* Desktop (large screens) */
+@media (min-width: 1024px) {
+  .register-illustration-section {
+    transform: translateX(50px); /* push section a little right */
+  }
+}
+
+.register-illustration-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  z-index: 1;
+}
+
+.register-illustration-content {
+  position: relative;
+  z-index: 2;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Brand Section */
+.register-brand {
+  margin-bottom: 60px;
+}
+
+.register-brand-icon {
+  width: 80px;
+  height: 80px;
+  background: royalblue;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Inter', sans-serif;
-  color: #1a1a1a;
-  padding: clamp(1rem, 2vw, 2rem);
-  background-color: #f8fafc;
+  margin: 0 auto 24px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.register-container {
-  width: 100%;
-  max-width: min(1200px, 95vw);
-  min-height: min(600px, 90vh);
+.register-brand-icon i {
+  font-size: 36px;
+  color: #ffffff;
+}
+
+.register-brand-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: royalblue;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+
+.register-brand-subtitle {
+  font-size: 18px;
+  color: black;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Illustration Dashboard */
+.register-legal-dashboard {
+  background: rgba(243, 243, 243, 0.95);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.register-dashboard-header {
+  margin-bottom: 24px;
+}
+
+.register-dashboard-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a365d;
+  margin: 0 0 16px;
+}
+
+.register-dashboard-stats {
   display: flex;
-  flex-direction: row;
-  border-radius: clamp(12px, 2vw, 16px);
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  transition: transform 0.3s ease, box-shadow 0.3s ease-in-out;
+  gap: 20px;
+  justify-content: center;
 }
 
-.register-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 50px rgba(0, 0, 0, 0.12);
-}
-
-/* Left Panel Styles */
-.register-left {
-  flex: 1;
-  background-color: #ffffff;
-  color: #27408b; /* Royal Blue text */
-  padding: clamp(1.5rem, 4vw, 3rem);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-}
-
-.register-left::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 60% 20%, rgba(39, 64, 139, 0.1) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.register-left-content {
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Logo and Branding */
-.register-logo {
+.register-stat {
   display: flex;
   align-items: center;
-  margin-bottom: clamp(1rem, 3vw, 1.5rem);
-  transition: transform 0.3s ease-in-out;
-}
-
-.register-logo:hover {
-  transform: translateX(4px);
-}
-
-.register-logo-icon {
-  width: clamp(28px, 4vw, 36px);
-  height: clamp(28px, 4vw, 36px);
-  margin-right: clamp(8px, 2vw, 12px);
-  color: #27408b; /* Icon color */
-  transition: transform 0.3s ease-in-out;
-}
-
-.register-logo:hover .register-logo-icon {
-  transform: rotate(-8deg);
-}
-
-.register-logo h1 {
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
-  font-weight: 700;
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  color: #27408b;
-}
-
-.register-tagline {
-  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  gap: 8px;
+  font-size: 14px;
+  color: #4a5568;
   font-weight: 500;
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
-  color: #27408b;
-  opacity: 0.9;
-}
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .register-container {
-    flex-direction: column;
-    min-height: auto;
-  }
-
-  .register-left {
-    padding: 2rem;
-    text-align: center;
-  }
-
-  .register-logo {
-    justify-content: center;
-  }
 }
 
+.register-stat i {
+  color: #1a365d;
+}
 
-/* Features Section */
-.register-features {
-  margin-bottom: clamp(2rem, 5vw, 3rem);
+/* Chart */
+.register-chart-container {
+  margin-bottom: 24px;
+}
+
+.register-chart {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 8px;
+  height: 120px;
+  margin-bottom: 12px;
+}
+
+.register-bar {
+  width: 24px;
+  height: 0;
+  background: linear-gradient(to top, #333030ff, #454141ff); /* deep black gradient */
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  animation: register-bar-grow 1.2s ease-out forwards;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4); /* subtle depth */
+}
+
+@keyframes register-bar-grow {
+  to {
+    height: var(--height, 50%);
+  }
+}
+
+/* Tooltip on hover */
+.register-bar::after {
+  content: var(--value, "");
+  position: absolute;
+  bottom: 100%; /* show above the bar */
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  background: #726666ff; /* black tooltip */
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5); /* tooltip shadow */
+}
+
+.register-bar:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+
+
+.register-chart-labels {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.register-chart-labels span {
+  width: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+
+/* Legal Features */
+.register-legal-features {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .register-feature {
   display: flex;
-  align-items: flex-start;
-  gap: clamp(0.75rem, 2vw, 1rem);
-  padding: clamp(0.75rem, 2vw, 1rem);
-  border-radius: clamp(8px, 1.5vw, 12px);
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
 }
 
-.register-feature:hover {
-  transform: translateX(4px);
-  background-color: rgba(39, 64, 139, 0.06); /* Light royal blue background */
+.register-feature i {
+  font-size: 24px;
+  color: #1a365d;
+  margin-bottom: 4px;
 }
 
-.register-feature-icon {
-  background-color: rgba(39, 64, 139, 0.1);
-  border-radius: 50%;
-  width: clamp(36px, 6vw, 48px);
-  height: clamp(36px, 6vw, 48px);
+.register-feature span {
+  font-size: 12px;
+  color: #4a5568;
+  font-weight: 500;
+  text-align: center;
+}
+
+
+
+/* Right Side - Form Section */
+.register-form-section {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  color: #27408b;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.register-feature:hover .register-feature-icon {
-  background-color: rgba(39, 64, 139, 0.2);
-  transform: scale(1.1);
-}
-
-.register-feature-text h3 {
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  margin: 0 0 0.3rem;
-  font-weight: 600;
-  color: #27408b;
-  font-family: 'Poppins', sans-serif;
-  transition: color 0.3s ease;
-}
-
-.register-feature-text p {
-  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
-  margin: 0;
-  color: #27408b;
-  opacity: 0.75;
-  line-height: 1.6;
-  transition: opacity 0.3s ease;
-}
-
-.register-feature:hover .register-feature-text p {
-  opacity: 1;
-}
-/* Right Panel - Form */
-.register-right {
-  flex: 1.2;
-  padding: clamp(1.5rem, 4vw, 3rem);
+  padding: 40px;
+  background: #ffffff;
   overflow-y: auto;
-  background-color: #ffffff;
 }
+/* Desktop (large screens) */
+@media (min-width: 1024px) {
+  .register-form-section {
+    transform: translateX(-50px); /* push section a little right */
+  }
+}
+
+/* Tablets */
+@media (max-width: 1023px) and (min-width: 600px) {
+  .register-form-section {
+    max-width: 90%;
+    margin: 0 auto; /* centered for balance */
+  }
+}
+
+/* Mobile */
+@media (max-width: 599px) {
+  .register-form-section {
+    max-width: 95%; /* smaller width */
+    padding: 20px; /* reduce padding */
+    margin: 0 auto; /* keeps it centered */
+  }
+}
+
 
 .register-form-container {
-  max-width: min(500px, 90%);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1rem, 2.5vw, 1.5rem);
+  width: 100%;
+  max-width: 480px;
 }
 
-.register-form-title {
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
-  font-weight: 700;
-  margin-bottom: clamp(0.3rem, 1vw, 0.5rem);
+/* Mobile Brand (Hidden on Desktop) */
+.register-mobile-brand {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.register-mobile-icon {
+  width: 48px;
+  height: 48px;
+  background: royalblue;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-mobile-icon i {
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.register-mobile-brand h1 {
+  font-size: 24px;
+  font-weight: 800;
   color: #1a365d;
+  margin: 0;
+}
+
+/* Header */
+.register-header {
   text-align: center;
+  margin-bottom: 40px;
 }
 
-.register-form-subtitle {
-  font-size: clamp(0.9rem, 1.5vw, 1rem);
-  color: #4a5568;
-  text-align: center;
-  margin-bottom: clamp(1.5rem, 3vw, 2rem);
+.register-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .register-feature {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .register-feature-icon {
-    margin-bottom: 0.5rem;
-  }
-
-  .register-right {
-    padding: 2rem 1.5rem;
-  }
-
-  .register-form-container {
-    max-width: 100%;
-  }
+.register-subtitle {
+  font-size: 16px;
+  color: #718096;
+  margin: 0;
+  line-height: 1.5;
 }
 
-/* Form Elements */
+/* Verification Icon */
+.register-verification-icon {
+  width: 80px;
+  height: 80px;
+  background: #48bb78;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.register-verification-icon i {
+  font-size: 36px;
+  color: #ffffff;
+}
+
+/* Form */
 .register-form {
+  width: 100%;
+}
+
+.register-form-grid {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.register-input-group {
   display: flex;
   flex-direction: column;
-  gap: clamp(1rem, 2.5vw, 1.5rem);
 }
 
-.register-form-group {
-  display: flex;
-  flex-direction: column;
+.register-full-width {
+  grid-column: 1 / -1;
 }
 
-.register-form-row {
-  display: flex;
-  gap: clamp(0.75rem, 2vw, 1rem);
-}
-
+/* Labels */
 .register-label {
-  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
-  font-weight: 500;
-  margin-bottom: clamp(0.3rem, 1vw, 0.5rem);
-  color: #4a5568;
-  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 8px;
 }
 
+.register-label i {
+  font-size: 14px;
+  color: #1a365d;
+  width: 16px;
+}
+/* Username (user icon) */
+.register-label .fa-user {
+  color: #4a5568; /* neutral gray */
+}
+
+/* Email (envelope icon) */
+.register-label .fa-envelope {
+  color: #3182ce; /* blue */
+}
+
+/* Phone (phone icon) */
+.register-label .fa-phone {
+  color: #38a169; /* green */
+}
+
+/* Date of Birth (calendar icon) */
+.register-label .fa-calendar {
+  color: #dd6b20; /* orange */
+}
+
+/* Profession (briefcase icon) */
+.register-label .fa-briefcase {
+  color: #6b46c1; /* purple */
+}
+
+/* Password (lock icon) */
+.register-label .fa-lock {
+  color: #2b6cb0; /* deep blue for security */
+}
+
+
+/* Inputs */
 .register-input {
-  padding: clamp(0.6rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
-  border: 1px solid #e2e8f0;
-  border-radius: clamp(6px, 1.5vw, 8px);
-  font-size: clamp(0.9rem, 1.5vw, 1rem);
-  transition: all 0.3s ease;
-  background-color: #f8fafc;
-}
-
-.register-input:hover {
-  border-color: #cbd5e0;
-  background-color: #fff;
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #2d3748;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  outline: none;
+  font-family: inherit;
 }
 
 .register-input:focus {
-  outline: none;
-  border-color: #3182ce;
-  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
-  background-color: #fff;
+  border-color: #1a365d;
 }
 
 .register-input::placeholder {
   color: #a0aec0;
-  transition: color 0.3s ease;
 }
 
-.register-input:focus::placeholder {
-  color: #cbd5e0;
-}
+/* Special case for date inputs */
+.register-input[type="date"] {
+  -webkit-appearance: none; /* reset default iOS style */
+  -moz-appearance: none;    /* reset Firefox style */
+  appearance: none;         /* reset general */
 
-
-/* Profession Selection - Compact & Clean */
-.register-profession-options {
-  display: flex;
-  gap: clamp(0.4rem, 1vw, 0.6rem);
-  margin-top: clamp(0.2rem, 0.5vw, 0.4rem);
-}
-
-.register-profession-option {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(0.5rem, 1.2vw, 0.75rem);
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  background-color: #f9fafb;
-  font-size: clamp(0.8rem, 1vw, 0.9rem);
-  min-width: 70px;
-  text-align: center;
-}
-
-/* Hover Effect - Soft highlight */
-.register-profession-option:hover {
-  background-color: #eef2ff;
-  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
-}
-
-/* Selected State - Subtle glow */
-.register-profession-selected {
-  border-color: #2563eb;
-  background-color: #e0e7ff;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
-}
-
-/* Icon Styling */
-.register-profession-icon {
-  margin-bottom: 0.3rem;
-  color: #374151;
-  font-size: clamp(1rem, 1.2vw, 1.2rem);
-  transition: color 0.2s ease-in-out;
-}
-
-.register-profession-option:hover .register-profession-icon,
-.register-profession-selected .register-profession-icon {
-  color: #2563eb;
-}
-
-/* Mobile Adjustments */
-@media (max-width: 640px) {
-  .register-profession-options {
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-  .register-profession-option {
-    flex: 0 1 calc(50% - 0.4rem);
-    min-width: auto;
-    padding: 0.5rem;
-    font-size: 0.8rem;
-  }
-}
-
-
-/* Terms and Submit Button */
-.register-terms {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
-  color: #4a5568;
-}
-
-.register-terms a {
-  color: #3182ce;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.register-terms a::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
   width: 100%;
-  height: 1px;
-  background-color: #3182ce;
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.register-terms a:hover::after {
-  transform: scaleX(1);
-}
-
-.register-submit-btn {
-  padding: clamp(0.75rem, 2vw, 0.875rem) clamp(1.25rem, 3vw, 1.5rem);
-  color: white;
-  border: none;
-  border-radius: clamp(6px, 1.5vw, 8px);
-  font-size: clamp(0.9rem, 1.5vw, 1rem);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  font-family: 'Poppins', sans-serif;
-
-}
-
-/* .register-submit-btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 120%;
-  height: 120%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-  transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.5s ease;
-} */
-
-/* .register-submit-btn:hover {
-  background-color: #2c5282;
-  transform: translateY(-2px);
-}
-
-.register-submit-btn:hover::before {
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.register-submit-btn:disabled {
-  background-color: #a0aec0;
-  cursor: not-allowed;
-  transform: none;
-} */
-
-/* Loading States */
-.register-loading {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.register-spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Messages and Links */
-.register-message {
-  padding: clamp(0.6rem, 1.5vw, 0.75rem);
-  border-radius: clamp(6px, 1.5vw, 8px);
-  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.register-login-link {
-  text-align: center;
-  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
-  color: #4a5568;
-  margin-top: clamp(1rem, 2vw, 1.5rem);
-}
-
-.register-login-link a {
-  color: #3182ce;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.register-login-link a::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background-color: #3182ce;
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.register-login-link a:hover::after {
-  transform: scaleX(1);
-}
-
-/* Verification Form */
-/* Main Container */
-.register-verification-container {
-  background-color: #f8fafc;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border-radius: clamp(16px, 3vw, 24px);
-  border: 1px solid #e2e8f0;
-  margin: clamp(32px, 6vw, 64px) auto;
-  max-width: min(95%, 480px);
-  transition: all 0.4s ease-in-out;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.register-verification-container:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-
-/* Title */
-.register-verification-title {
-  font-size: clamp(1.2rem, 2vw, 1.4rem);
-  font-weight: 600;
-  margin-bottom: clamp(0.8rem, 2vw, 1.2rem);
-  color: #1a365d;
-  text-align: center;
-}
-
-/* Input Field */
-.register-verification-input {
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  letter-spacing: 0.15em; 
-  text-align: center;
-  padding: clamp(0.5rem, 1vw, 0.8rem); 
+  max-width: 100%;          /* prevent stretching */
+  height: 48px;             /* same as other inputs */
+  padding: 0 12px;          /* balanced padding */
   border: 2px solid #e2e8f0;
-  border-radius: clamp(6px, 1vw, 10px);
-  width: 100%;
-  max-width: 100%; 
-  box-sizing: border-box; 
-  margin: clamp(0.6rem, 1.2vw, 1rem) 0;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #2d3748;
+  background: #ffffff;
+  box-sizing: border-box;
+  line-height: normal;
 }
 
-
-.register-verification-input:focus {
-  border-color: #3182ce;
-  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
-  outline: none;
-}
-
-/* Resend Button */
-.register-resend-btn {
-  width: 100%;
-  max-width: 450px;
-  padding: clamp(0.5rem, 1.2vw, 0.7rem) clamp(1.2rem, 3vw, 1.8rem);
-  background-color: transparent;
-  color: #3182ce;
-  border: 2px solid #3182ce;
-  border-radius: clamp(6px, 1.5vw, 10px);
-  font-size: clamp(0.9rem, 1.5vw, 1rem);
-  font-weight: 500;
+/* Ensure native calendar icon doesn't expand box */
+.register-input[type="date"]::-webkit-calendar-picker-indicator {
+  margin: 0;
+  padding: 0;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  height: 20px;
+  width: 20px;
+}
+
+
+/* Select */
+.register-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+/* Password Container */
+.register-password-container {
+  position: relative;
+}
+
+.register-password-toggle {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.register-password-toggle:hover {
+  color: #1a365d;
+}
+
+/* Verification Input */
+.register-verification-input {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* Messages */
+.register-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  margin-top: 16px;
+}
+
+.register-message-success {
+  background: #f0fff4;
+  color: #22543d;
+  border: 1px solid #c6f6d5;
+}
+
+.register-message-error {
+  background: #fed7d7;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+}
+
+/* Buttons */
+.register-submit-btn {
+  width: 100%;
+  height: 52px;
+  background: #414bd8ff;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  margin-top: clamp(0.8rem, 2vw, 1.2rem);
-  text-align: center;
+  gap: 8px;
+  font-family: inherit;
+  margin-bottom: 16px;
 }
 
-.register-resend-btn:hover {
-  background-color: #ebf8ff;
+.register-submit-btn:hover:not(:disabled) {
+  background: #182cc0ff;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(49, 130, 206, 0.1);
+  box-shadow: 0 4px 12px rgba(26, 54, 93, 0.3);
 }
 
-.register-resend-btn:active {
+.register-submit-btn:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.register-resend-btn:disabled {
-  border-color: #cbd5e0;
-  color: #a0aec0;
-  background-color: #f7fafc;
+.register-submit-btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  box-shadow: none;
+  transform: none;
 }
 
-/* Submit Button */
-.register-verification-submit-btn {
+.register-resend-btn {
   width: 100%;
-  max-width: 450px;
-  padding: clamp(0.7rem, 1.5vw, 1rem);
-  background-color: #059669;
-  color: #ffffff;
-  border: none;
-  border-radius: clamp(6px, 1.5vw, 10px);
-  font-size: clamp(1rem, 1.8vw, 1.1rem);
+  height: 48px;
+  background: transparent;
+  color: #1a365d;
+  border: 2px solid #1a365d;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  text-align: center;
-  margin-top: clamp(0.8rem, 2vw, 1.2rem);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  margin-top: 16px;
 }
 
-.register-verification-submit-btn:hover {
-  background-color: #047857;
-  transform: translateY(-1px);
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+.register-resend-btn:hover:not(:disabled) {
+  background: #1a365d;
+  color: #ffffff;
 }
 
-.register-verification-submit-btn:disabled {
-  background-color: #9ca3af;
+.register-resend-btn:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
+}
+
+/* Footer */
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.register-footer p {
+  font-size: 14px;
+  color: #718096;
+  margin: 0;
+}
+
+.register-link {
+  color: #2065c6ff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.register-link:hover {
+  color: #2133d1ff;
+  text-decoration: underline;
 }
 
 
-
-/* Media Queries */
- @media (max-width: 768px) {
-  .register-verification-container {
-    width: 90%;  
-    max-width: 400px; 
-    padding: 1.5rem;
-    margin: auto;  
+/* Desktop Layout */
+@media (min-width: 1024px) {
+  .register-illustration-section {
+    display: flex;
   }
-
-  .register-verification-input {
-    width: 100%;  
-    max-width: 100%;
-    font-size: 1rem;
-    padding: 0.8rem;
+  
+  .register-form-grid {
+    grid-template-columns: 1fr 1fr;
   }
-
-  .register-resend-btn,
-  .register-verification-submit-btn {
-    width: 100%;
-    max-width: 100%;
-    padding: 0.8rem;
-    font-size: 0.9rem;
+  
+  .register-form-section {
+    padding: 60px;
   }
 }
 
+/* Tablet Layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .register-form-section {
+    padding: 40px;
+  }
+  
+  .register-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .register-mobile-brand {
+    display: flex;
+  }
+}
 
+/* Mobile Layout */
+@media (max-width: 767px) {
+  .register-form-section {
+    padding: 24px 20px;
+  }
+  
+  .register-mobile-brand {
+    display: flex;
+  }
+  
+  .register-title {
+    font-size: 28px;
+  }
+  
+  .register-subtitle {
+    font-size: 14px;
+  }
+  
+  .register-input {
+    height: 44px;
+    font-size: 16px;
+  }
+  
+  .register-submit-btn {
+    height: 48px;
+  }
+  
+  .register-form-grid {
+    gap: 20px;
+  }
+  
+  .register-header {
+    margin-bottom: 32px;
+  }
+}
+
+/* Small Mobile */
 @media (max-width: 480px) {
-  .register-verification-container {
-    padding: 1.2rem;
+  .register-form-section {
+    padding: 20px 16px;
+  }
+  
+  .register-title {
+    font-size: 24px;
+  }
+  
+  .register-mobile-brand h1 {
+    font-size: 20px;
+  }
+  
+  .register-mobile-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .register-mobile-icon i {
+    font-size: 20px;
+  }
+  .register-input[type="date"] {
+    max-width: 90%;   /* keeps some breathing room */
+    margin: 0 auto;   /* centers it */
   }
 
-  .register-verification-title {
-    font-size: 1.2rem;
-  }
+}
 
-  .register-verification-input {
-    font-size: 1rem;
-    letter-spacing: 0.15em;
-    padding: 0.7rem;
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .register-input {
+    border-width: 1px;
   }
-
-  .register-resend-btn,
-  .register-verification-submit-btn {
-    font-size: 0.9rem;
-    padding: 0.6rem;
+  
+  .register-input:focus {
+    border-width: 2px;
   }
 }
 
 
-
-@media (max-width: 1200px) {
-  .register-container {
-    max-width: 90vw;
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .register-submit-btn:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .register-bar {
+    animation: none;
   }
 }
 
-@media (max-width: 992px) {
-  .register-container {
-    flex-direction: column;
-    max-width: min(600px, 95vw);
-  }
-  
-  .register-left {
-    padding: clamp(1.5rem, 3vw, 2rem);
-  }
-  
-  .register-features {
-    margin-bottom: clamp(1rem, 2vw, 1.5rem);
-  }
-  
-  .register-feature-icon {
-    width: clamp(32px, 5vw, 40px);
-    height: clamp(32px, 5vw, 40px);
-  }
-}
-
-@media (max-width: 768px) {
-  .register-form-row {
-    flex-direction: column;
-    gap: clamp(1rem, 2vw, 1.5rem);
-  }
-  
-  .register-profession-options {
-    flex-direction: column;
-  }
-  
-  .register-profession-option {
-    padding: clamp(0.75rem, 1.5vw, 1rem);
-  }
-}
-
-@media (max-width: 480px) {
-  .register-page {
-    padding: 0.5rem;
-  }
-  
-  .register-container {
-    border-radius: clamp(8px, 1.5vw, 12px);
-  }
-  
-  .register-left,
-  .register-right {
-    padding: clamp(1rem, 2vw, 1.5rem);
-  }
-  
-  .register-logo h1 {
-    font-size: clamp(1.2rem, 2.5vw, 1.4rem);
-  }
-  
-  .register-tagline {
-    font-size: clamp(1rem, 2vw, 1.2rem);
-  }
-}
-
-
+/* Print Styles */
 @media print {
-  .register-page {
-    padding: 0;
-    background: none;
+  .register-illustration-section {
+    display: none;
   }
   
-  .register-container {
-    box-shadow: none;
-    border: 1px solid #e2e8f0;
+  .register-form-section {
+    background: #ffffff;
+    color: #000000;
   }
-  
-  .register-submit-btn,
-  .register-profession-option {
-    break-inside: avoid;
-  }
-} 
+}

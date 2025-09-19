@@ -95,7 +95,7 @@ const Login = () => {
             alt="Justice Genie Logo" 
             className="w-16 h-16 sm:w-20 sm:h-20 object-contain mt-4 mb-4" 
           />
-            <p className="login-brand-subtitle"><strong>Justice Genie 2.0</strong></p>
+            <p className="login-brand-subtitle"><strong>Justice Genie</strong></p>
             <p className="login-welcome-message">
               Welcome to <strong>GENIE</strong>! Log in to unlock a world of legal insights and resources tailored to your needs.
             </p>

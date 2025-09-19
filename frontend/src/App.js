@@ -20,13 +20,14 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminFeedback from './components/AdminFeedback';
 import NotFound from './components/NotFound';
 import AdminQuiz from './components/AdminQuiz'; 
+import LandingPage from './components/LandingPage'; // Import LandingPage
 function AnimatedRoutes() {
   const location = useLocation(); // Get current route location
 
   return (
     <AnimatePresence mode="wait"> 
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />

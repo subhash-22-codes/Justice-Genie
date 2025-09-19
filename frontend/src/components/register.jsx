@@ -3,11 +3,10 @@ import '../styles/register.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
-import { Loader2, Scale, BookOpen, Briefcase, GraduationCap,Layers,Globe ,Lightbulb} from 'lucide-react';
-// import { motion } from 'framer-motion';
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import Mailcheck from 'mailcheck';
+
 const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -21,7 +20,10 @@ const Register = () => {
   const [messageColor, setMessageColor] = useState('');
   const [isVerified, setIsVerified] = useState(false);
   const [profession, setProfession] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+
   const validatePhone = (phone) => {
     const phoneRegex = /^\d{10}$/;
     return phoneRegex.test(phone);
@@ -32,7 +34,6 @@ const Register = () => {
   };
   
   const validateEmail = (email) => {
-    // Simple regex for basic email validation
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(email);
   };
@@ -40,67 +41,53 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Validate phone number
     if (!validatePhone(phone)) {
-      setMessage('Phone number must be 10 digits.');
-      setMessageColor('red');
+      toast.error('Phone number must be 10 digits.');
       return;
     }
   
-    // Validate password
     if (!validatePassword(password)) {
-      setMessage('Password must be at least 6 characters long.');
-      setMessageColor('red');
+      toast.error('Password must be at least 6 characters long.');
       return;
     }
   
-    // Check password match
     if (password !== confirmPassword) {
-      setMessage('Passwords do not match.');
-      setMessageColor('red');
+      toast.error('Passwords do not match.');
       return;
     }
   
-    // Validate profession selection
     if (!profession) {
-      setMessage('Please select your profession.');
-      setMessageColor('red');
+      toast.error('Please select your profession.');
       return;
     }
   
-    // Validate email format with regex
     if (!validateEmail(email)) {
-      setMessage('Invalid email format. Please enter a valid email address.');
-      setMessageColor('red');
+      toast.error('Invalid email format. Please enter a valid email address.');
       return;
     }
   
-    // 🧠 Mailcheck suggestion instead of hard regex
     Mailcheck.run({
       email: email,
       suggested: function (suggestion) {
-        // If Mailcheck finds a suggestion, show it to the user
         setMessage(`Did you mean ${suggestion.full}?`);
         setMessageColor('red');
-        return; // Stop further execution if suggestion is found
+        return;
       },
       empty: async function () {
-        // Proceed to email confirmation if no suggestion
-        setMessage(''); // Clear any previous message
+        setMessage('');
   
-        // Ask user to confirm the email
         const confirmEmail = await Swal.fire({
           title: 'Confirm Email',
           text: `Is this your correct email? ${email}`,
           icon: 'question',
           showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
+          confirmButtonColor: '#1a365d',
+          cancelButtonColor: '#e53e3e',
           confirmButtonText: 'Yes, proceed!',
           cancelButtonText: 'No, let me check'
         });
   
-        if (!confirmEmail.isConfirmed) return; // Stop if user doesn't confirm
+        if (!confirmEmail.isConfirmed) return;
   
         setIsLoading(true);
         try {
@@ -125,7 +112,6 @@ const Register = () => {
             setIsVerified(false);
             toast.error(data.error || 'Registration failed');
   
-            // Handle "Username already exists" error
             if (data.error === 'Username already exists. Please choose a different username.') {
               setUsername('');
             }
@@ -145,6 +131,7 @@ const Register = () => {
       }
     });
   };
+
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
 
@@ -167,7 +154,7 @@ const Register = () => {
         toast.success('Verification successful! Redirecting to login...');
       
         setTimeout(() => {
-          navigate('/login'); // Soft navigation without a page reload
+          navigate('/login');
         }, 2000);
       } else {
         setMessage(data.error || 'Verification failed.');
@@ -187,8 +174,8 @@ const Register = () => {
       text: 'Are you sure you want to resend the verification code?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#1a365d',
+      cancelButtonColor: '#e53e3e',
       confirmButtonText: 'Yes, resend!'
     });
 
@@ -226,322 +213,349 @@ const Register = () => {
   };
 
   return (
-    
-    <>
-      <ToastContainer />
-      <div className="register-page">
-        <div className="register-container">
-          
-          <div className="register-left">
-            <div className="register-left-content">
-            <div className="register-logo">
-            <img
-              src="./images/JGLogo.png"
-              alt="Justice Genie Logo"
-              className="register-logo-icon w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] md:w-[64px] md:h-[64px]"
-            />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-900"><strong>Justice Genie 2.0</strong></h1>
-          </div>
-
-
-              <h2 className="register-tagline">Understand Your Legal Rights</h2>
-              
-              <div className="register-features">
-                <div className="register-feature">
-                  <div className="register-feature-icon">
-                    <BookOpen />
-                  </div>
-                  <div className="register-feature-text">
-                    <h3>Legal Knowledge</h3>
-                    <p>Access comprehensive legal information tailored to your needs</p>
+    <div className="register-container">
+      <div className="register-layout">
+        {/* Left Side - Illustration (Desktop Only) */}
+        <div className="register-illustration-section">
+          <div className="register-illustration-content">
+            <div className="register-brand">
+              <div className="register-brand-icon">
+                <i className="fas fa-balance-scale"></i>
+              </div>
+              <h1 className="register-brand-title">Justice Genie</h1>
+              <p className="register-brand-subtitle">Your AI-Powered Legal Assistant</p>
+            </div>
+            
+            <div className="register-illustration">
+              <div className="register-legal-dashboard">
+                <div className="register-dashboard-header">
+                  <h3>Legal Case Analytics</h3>
+                  <div className="register-dashboard-stats">
+                    <div className="register-stat">
+                      <i className="fas fa-gavel"></i>
+                      <span>Accuracy: 95%</span>
+                    </div>
+                    <div className="register-stat">
+                      <i className="fas fa-clock"></i>
+                      <span>Avg Response: 2min</span>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="register-feature">
-                  <div className="register-feature-icon">
-                    <Scale />
+                <div className="register-chart-container">
+                  <div className="register-chart">
+                    <div className="register-bar" style={{'--height': '60%', '--value': '"60%"'}}></div>
+                    <div className="register-bar" style={{'--height': '80%', '--value': '"80%"'}}></div>
+                    <div className="register-bar" style={{'--height': '45%', '--value': '"45%"'}}></div>
+                    <div className="register-bar" style={{'--height': '90%', '--value': '"90%"'}}></div>
+                    <div className="register-bar" style={{'--height': '70%', '--value': '"70%"'}}></div>
+                    <div className="register-bar" style={{'--height': '85%', '--value': '"85%"'}}></div>
+                    <div className="register-bar" style={{'--height': '55%', '--value': '"55%"'}}></div>
+                    <div className="register-bar" style={{'--height': '75%', '--value': '"75%"'}}></div>
+                    <div className="register-bar" style={{'--height': '65%', '--value': '"65%"'}}></div>
+                    <div className="register-bar" style={{'--height': '95%', '--value': '"95%"'}}></div>
+                    <div className="register-bar" style={{'--height': '50%', '--value': '"50%"'}}></div>
+                    <div className="register-bar" style={{'--height': '100%', '--value': '"100%"'}}></div>
                   </div>
-                  <div className="register-feature-text">
-                    <h3>Case Analysis</h3>
-                    <p>Get AI-powered insights on legal precedents and case outcomes</p>
+                  <div className="register-chart-labels">
+                    <span>Jan</span>
+                    <span>Feb</span>
+                    <span>Mar</span>
+                    <span>Apr</span>
+                    <span>May</span>
+                    <span>Jun</span>
+                    <span>Jul</span>
+                    <span>Aug</span>
+                    <span>Sep</span>
+                    <span>Oct</span>
+                    <span>Nov</span>
+                    <span>Dec</span>
                   </div>
                 </div>
                 
-                <div className="register-feature">
-                  <div className="register-feature-icon">
-                    <Briefcase />
+                <div className="register-legal-features">
+                  <div className="register-feature">
+                    <i className="fas fa-robot"></i>
+                    <span>AI Legal Research</span>
                   </div>
-                  <div className="register-feature-text">
-                    <h3>Document Assistance</h3>
-                    <p>Generate and review legal documents with expert guidance</p>
+                  <div className="register-feature">
+                    <i className="fas fa-file-contract"></i>
+                    <span>Document Analysis</span>
                   </div>
-                </div>
-                <div className="register-feature">
-              <div className="register-feature-icon">
-                <Lightbulb />
-              </div>
-              <div className="register-feature-text">
-                <h3>Know Your Legal Rights</h3>
-                <p>Explore easy-to-understand legal insights that empower you to navigate the law with confidence.</p>
-              </div>
-            </div>
-
-              <div className="register-feature">
-                <div className="register-feature-icon">
-                  <Globe />
-                </div>
-                <div className="register-feature-text">
-                  <h3>Multilingual Support</h3>
-                  <p>Get legal assistance in multiple languages for better accessibility</p>
-                </div>
-              </div>
-
-              <div className="register-features">
-                <div className="register-feature">
-                  <div className="register-feature-icon">
-                    <Layers />
-                  </div>
-                  <div className="register-feature-text">
-                    <h3>5-Level Quiz</h3>
-                    <p>Test your legal knowledge with quizzes designed to enhance your understanding</p>
+                  <div className="register-feature">
+                    <i className="fas fa-users"></i>
+                    <span>Client Management</span>
                   </div>
                 </div>
-              </div>
               </div>
             </div>
           </div>
-          
-          <div className="register-right">
-            <div className="register-form-container">
-              <h2 className="register-form-title">Create Your Account</h2>
-              <p className="register-form-subtitle">Join thousands of users getting legal assistance</p>
-              
-              {!isVerified ? (
-                <form className="register-form" onSubmit={handleSubmit}>
-                  <div className="register-form-group">
-                    <label className="register-label" htmlFor="username">Username</label>
-                    <input
-                      className="register-input"
-                      type="text"
-                      id="username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      required
-                      placeholder="Choose a username"
-                    />
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="register-form-section">
+          <div className="register-form-container">
+            {!isVerified ? (
+              <>
+                <div className="register-header">
+                  <div className="register-mobile-brand">
+                    <div className="register-mobile-icon">
+                      <i className="fas fa-balance-scale"></i>
+                    </div>
+                    <h1>Justice Genie</h1>
                   </div>
-                  
-                  <div className="register-form-group">
-                    <label className="register-label" htmlFor="email">Email Address</label>
-                    <input
-                      className="register-input"
-                      type="email"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="Your email address"
-                    />
-                  </div>
-                  
-                  <div className="register-form-row">
-                    <div className="register-form-group">
-                      <label className="register-label" htmlFor="phone">Phone Number</label>
+                  <h2 className="register-title">Create Your Account</h2>
+                  <p className="register-subtitle">Join thousands of legal professionals using AI-powered assistance</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="register-form">
+                  <div className="register-form-grid">
+                    <div className="register-input-group">
+                      <label htmlFor="username" className="register-label">
+                        <i className="fas fa-user"></i>
+                        Username
+                      </label>
                       <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                         className="register-input"
+                        placeholder="Enter your username"
+                        required
+                      />
+                    </div>
+
+                    <div className="register-input-group">
+                      <label htmlFor="email" className="register-label">
+                        <i className="fas fa-envelope"></i>
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="register-input"
+                        placeholder="Enter your email address"
+                        required
+                      />
+                    </div>
+
+                    <div className="register-input-group">
+                      <label htmlFor="phone" className="register-label">
+                        <i className="fas fa-phone"></i>
+                        Phone Number
+                      </label>
+                      <input
                         type="tel"
                         id="phone"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
+                        className="register-input"
+                        placeholder="Enter your phone number"
                         required
-                        placeholder="10-digit number"
                       />
                     </div>
-                    
-                    <div className="register-form-group">
-                      <label className="register-label" htmlFor="dob">Date of Birth</label>
+
+                    <div className="register-input-group">
+                      <label htmlFor="dob" className="register-label">
+                        <i className="fas fa-calendar"></i>
+                        Date of Birth
+                      </label>
                       <input
-                        className="register-input"
                         type="date"
                         id="dob"
                         value={dob}
                         onChange={(e) => setDob(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="register-form-group">
-                    <label className="register-label">What best describes you?</label>
-                    <div className="register-profession-options">
-                      <div 
-                        className={`register-profession-option ${profession === 'student' ? 'register-profession-selected' : ''}`}
-                        onClick={() => setProfession('student')}
-                      >
-                        <GraduationCap className="register-profession-icon" />
-                        <span>Student</span>
-                      </div>
-                      <div 
-                        className={`register-profession-option ${profession === 'professional' ? 'register-profession-selected' : ''}`}
-                        onClick={() => setProfession('professional')}
-                      >
-                        <Briefcase className="register-profession-icon" />
-                        <span>Working Professional</span>
-                      </div>
-                      <div 
-                        className={`register-profession-option ${profession === 'lawyer' ? 'register-profession-selected' : ''}`}
-                        onClick={() => setProfession('lawyer')}
-                      >
-                        <Scale className="register-profession-icon" />
-                        <span>Lawyer</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="register-form-row">
-                    <div className="register-form-group">
-                      <label className="register-label" htmlFor="password">Password</label>
-                      <input
                         className="register-input"
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
                         required
-                        placeholder="Minimum 6 characters"
                       />
                     </div>
-                    
-                    <div className="register-form-group">
-                      <label className="register-label" htmlFor="confirmPassword">Confirm Password</label>
-                      <input
-                        className="register-input"
-                        type="password"
-                        id="confirmPassword"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        placeholder="Re-enter password"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="register-terms">
-                    <input type="checkbox" id="terms" required />
-                    <label htmlFor="terms" className="text-sm text-gray-700">
-                    I agree to the{" "}
-                    <span
-                      onClick={() => navigate('/termsandpolicy')}
-                      className="text-blue-600 hover:underline cursor-pointer"
-                    >
-                      Terms of Service
-                    </span>{" "}
-                    and{" "}
-                    <span
-                      onClick={() => navigate('/termsandpolicy')}
-                      className="text-blue-600 hover:underline cursor-pointer"
-                    >
-                      Privacy Policy
-                    </span>
-                  </label>
 
+                    <div className="register-input-group register-full-width">
+                      <label htmlFor="profession" className="register-label">
+                        <i className="fas fa-briefcase"></i>
+                        Profession
+                      </label>
+                      <select
+                        id="profession"
+                        value={profession}
+                        onChange={(e) => setProfession(e.target.value)}
+                        className="register-input register-select"
+                        required
+                      >
+                        <option value="">Select your profession</option>
+                        <option value="lawyer">Lawyer</option>
+                        <option value="paralegal">Paralegal</option>
+                        <option value="legal_student">Student</option>
+                        <option value="business_owner">Business Owner</option>
+                        <option value="individual">Individual</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+
+                    <div className="register-input-group">
+                      <label htmlFor="password" className="register-label">
+                        <i className="fas fa-lock"></i>
+                        Password
+                      </label>
+                      <div className="register-password-container">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          id="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="register-input"
+                          placeholder="Enter password"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="register-password-toggle"
+                        >
+                          <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="register-input-group">
+                      <label htmlFor="confirmPassword" className="register-label">
+                        <i className="fas fa-lock"></i>
+                        Confirm Password
+                      </label>
+                      <div className="register-password-container">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          id="confirmPassword"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="register-input"
+                          placeholder="Confirm password"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="register-password-toggle"
+                        >
+                          <i className={`fas ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  
+
+                  {message && (
+                    <div className={`register-message ${messageColor === 'red' ? 'register-message-error' : 'register-message-success'}`}>
+                      <i className={`fas ${messageColor === 'red' ? 'fa-exclamation-triangle' : 'fa-check-circle'}`}></i>
+                      <span>{message}</span>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
-                    className="register-submit-btn flex justify-center items-center w-fullflex justify-center items-center w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isLoading}
+                    className="register-submit-btn"
                   >
                     {isLoading ? (
-                      <span className="flex items-center gap-2 animate-pulse text-sm text-white">
-                        <Loader2 className="animate-spin" size={20} />
+                      <>
+                        <i className="fas fa-spinner fa-spin"></i>
                         Creating Account...
-                      </span>
+                      </>
                     ) : (
-                      'Create Account'
+                      <>
+                        <i className="fas fa-user-plus"></i>
+                        Create Account
+                      </>
                     )}
                   </button>
 
-  
-                  {message && <div className="register-message" style={{ color: messageColor }}>{message}</div>}
-                  
-                  <div className="text-center mt-4 text-sm text-gray-600">
-                  Already have an account?{" "}
-                  <Link
-                    to="/login"
-                    className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition-all duration-200"
-                  >
-                    Sign in
-                  </Link>
-                </div>
-
-
-                <div className="text-center mt-6 text-xs text-gray-600 px-4">
-                  <p className="text-indigo-700 dark:text-indigo-400 font-semibold tracking-wide">
-                  ✨ Justice Genie is your 24×7 AI-powered legal assistant.
-                  </p>
-                </div>
-
-
-
+                  <div className="register-footer">
+                    <p>Already have an account? <Link to="/login" className="register-link">Sign In</Link></p>
+                  </div>
                 </form>
-              ) : (
-                <div className="register-verification-container">
-                  <h3 className="register-verification-title">Email Verification</h3>
-                  <p className="register-verification-text">We've sent a verification code to your email. Please enter it below to complete your registration.</p>
-                  
-                  <form className="register-verification-form" onSubmit={handleVerificationSubmit}>
-                    <div className="register-form-group">
-                      <label className="register-label" htmlFor="verificationCode">Verification Code</label>
-                      <input
-                        className="register-input register-verification-input"
-                        type="text"
-                        id="verificationCode"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        required
-                        placeholder="Enter the 6-digit code"
-                      />
-                    </div>
-                    
-                    <button type="submit" className="register-verification-submit-btn" disabled={isLoading}>
-                      {isLoading ? (
-                        <span className="register-loading">
-                          <Loader2 className="register-spinner" size={20} />
-                          Verifying...
-                        </span>
-                      ) : (
-                        'Verify Code'
-                      )}
-                    </button>
-                    
-                    <button 
-                      type="button" 
-                      className="register-resend-btn" 
-                      onClick={handleResendCode} 
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <span className="register-loading">
-                          <Loader2 className="register-spinner" size={20} />
-                          Resending...
-                        </span>
-                      ) : (
-                        'Resend Verification Code'
-                      )}
-                    </button>
-                      
-                    
-                    {message && <div className="register-message" style={{ color: messageColor }}>{message}</div>}
-                  </form>
+              </>
+            ) : (
+              <>
+                <div className="register-header">
+                  <div className="register-verification-icon">
+                    <i className="fas fa-envelope-open-text"></i>
+                  </div>
+                  <h2 className="register-title">Verify Your Email</h2>
+                  <p className="register-subtitle">We've sent a verification code to <strong>{email}</strong></p>
                 </div>
-              )}
-            </div>
+
+                <form onSubmit={handleVerificationSubmit} className="register-form">
+                  <div className="register-input-group">
+                    <label htmlFor="verificationCode" className="register-label">
+                      <i className="fas fa-key"></i>
+                      Verification Code
+                    </label>
+                    <input
+                      type="text"
+                      id="verificationCode"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      className="register-input register-verification-input"
+                      placeholder="Enter verification code"
+                      required
+                    />
+                  </div>
+
+                  {message && (
+                    <div className={`register-message ${messageColor === 'red' ? 'register-message-error' : 'register-message-success'}`}>
+                      <i className={`fas ${messageColor === 'red' ? 'fa-exclamation-triangle' : 'fa-check-circle'}`}></i>
+                      <span>{message}</span>
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="register-submit-btn"
+                  >
+                    {isLoading ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin"></i>
+                        Verifying...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-check"></i>
+                        Verify Email
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    disabled={isLoading}
+                    className="register-resend-btn"
+                  >
+                    <i className="fas fa-redo"></i>
+                    Resend Code
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </div>
-    </>
-    
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        className="register-toast-container"
+      />
+    </div>
   );
 };
 

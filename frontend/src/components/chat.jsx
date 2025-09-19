@@ -752,7 +752,7 @@ const fallbackCopy = (text) => {
         <div className="chat-sidebar-header">
           <div className="chat-logo">
             <Zap className="chat-logo-icon" size={24} />
-            <h1><strong>Justice Genie 2.0</strong></h1>
+            <h1><strong>Justice Genie</strong></h1>
           </div>
           <button 
             className="chat-sidebar-close"

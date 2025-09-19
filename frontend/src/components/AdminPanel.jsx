@@ -15,10 +15,20 @@ const AdminPanel = () => {
     }
   }, [navigate]);
 
-  const handleExit = () => {
+const handleExit = async () => {
+  try {
+    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+      method: 'POST',
+      credentials: 'include',   // 👈 ensures cookie is sent
+    });
+  } catch (err) {
+    console.error("Logout failed:", err);
+  } finally {
     sessionStorage.clear();
     navigate('/login');
-  };
+  }
+};
+
 
   // Admin menu items with icons and paths
   const adminMenuItems = [
