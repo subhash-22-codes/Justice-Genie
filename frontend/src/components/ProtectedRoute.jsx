@@ -1,27 +1,22 @@
-// components/ProtectedRoute.js
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
-  const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { auth } = useContext(AuthContext);
 
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/check-session`, {
-      method: "GET",
-      credentials: "include", // important to send cookies
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setIsLoggedIn(data.loggedIn);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  if (auth.loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent border-b-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-700 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (loading) return <div>Loading...</div>; // optional spinner
-
-  return isLoggedIn ? children : <Navigate to="/login" />;
+  return auth.loggedIn ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

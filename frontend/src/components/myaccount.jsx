@@ -5,8 +5,9 @@ import '../styles/my_account.css';
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import Mailcheck from 'mailcheck';
-// Component for Profile Image Section
 import 'animate.css/animate.min.css'; // Import animate.css for animations
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 const ProfileImage = ({ src, onUploadClick, onRemoveClick }) => (
     <div className="myaccount-profile-image-wrapper relative">
       <div className="myaccount-profile-image-container" onClick={onUploadClick}>
@@ -147,6 +148,7 @@ const MyAccount = () => {
     const [hasSubmitted, setHasSubmitted] = useState(false);
     const [gameName, setGameName] = useState('');
   const [rank, setRank] = useState(null);
+  const { setAuth } = useContext(AuthContext);
 //   const [feedbackStars, setFeedbackStars] = useState([0, 0, 0, 0, 0, 0]); // 5 questions + 1 overall
 
   useEffect(() => {
@@ -608,20 +610,26 @@ const MyAccount = () => {
 
     const handleLogout = async () => {
         try {
-          await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+            await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
             method: "POST",
             credentials: "include", // important for session cookies
-          });
-      
-          // 🔥 Clear sessionStorage for frontend route protection
-          sessionStorage.removeItem("isLoggedIn");
-          navigate("/login");
-        } catch (err) {
-          console.error("Logout failed:", err);
-        }
-      };
-      
+            });
 
+            // Clear frontend session and localStorage
+            sessionStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("role");
+            localStorage.removeItem("darkMode");
+
+            // ✅ Reset auth context
+            setAuth({ loggedIn: false, role: null, username: null, loading: false });
+
+            // Redirect to login page
+            navigate("/login");
+        } catch (err) {
+            console.error("Logout failed:", err);
+        }
+        };
 
     // Loading State
     if (loading) {

@@ -5,6 +5,9 @@ import { AnimatePresence } from 'framer-motion';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// Context
+import { AuthProvider } from './context/AuthContext';
+
 // Component Imports
 import Login from './components/login'; 
 import Chat from './components/chat'; 
@@ -35,6 +38,8 @@ function AnimatedRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/IntroPage" element={<IntroPage />} />
+
+        {/* Protected Routes */}
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/lawpdf" element={<ProtectedRoute><LawPdf /></ProtectedRoute>} />
         <Route path="/quizz" element={<ProtectedRoute><Quizz /></ProtectedRoute>} />
@@ -45,6 +50,8 @@ function AnimatedRoutes() {
         <Route path="/collab" element={<ProtectedRoute><AdminCollab /></ProtectedRoute>} />
         <Route path="/feedbacks" element={<ProtectedRoute><AdminFeedback /></ProtectedRoute>} />
         <Route path="/admin/quiz-management" element={<ProtectedRoute><AdminQuiz /></ProtectedRoute>} />
+
+        {/* Catch-all */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -65,22 +72,22 @@ function App() {
   }, []);
 
   return (
-    <div className='font-poppins'>
-    <Router>
-      <AnimatedRoutes />
-      
-      {/* 🔥 ToastContainer for toast messages */}
-      <ToastContainer 
-        position="top-right"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-      />
-    </Router>
-    </div>
+    <AuthProvider>
+      <div className='font-poppins'>
+        <Router>
+          <AnimatedRoutes />
+          <ToastContainer 
+            position="top-right"
+            autoClose={4000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            pauseOnHover
+            draggable
+          />
+        </Router>
+      </div>
+    </AuthProvider>
   );
 }
 

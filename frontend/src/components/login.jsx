@@ -1,77 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import '../styles/login.css';
 import { motion } from 'framer-motion';
-import { Link} from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isGenieOpen, setIsGenieOpen] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const { setAuth } = useContext(AuthContext); // ✅ use context
   const navigate = useNavigate();
 
   const handleInputFocus = () => {
     if (loginMessage) setLoginMessage('');
   };
 
-  // Genie animation handler
+  // Genie animation toggle
   const toggleGenie = () => {
     setIsGenieOpen(!isGenieOpen);
   };
 
-  // Form submission handler
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!username || !password) {
-    setLoginMessage('Please fill in all fields');
-    return;
-  }
-
-  setLoading(true);
-  setLoginMessage('🌐 Contacting server… it may take a few seconds if it’s waking up');
-
-  try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',   // 👈 must add this!
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Invalid credentials');
+  // Form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setLoginMessage('Please fill in all fields');
+      return;
     }
 
-    const data = await response.json(); // contains isAdmin
+    setLoading(true);
+    setLoginMessage('🌐 Contacting server… it may take a few seconds if it’s waking up');
 
-    setLoginMessage('Login successful!');
-    setTimeout(() => {
-      sessionStorage.setItem('isLoggedIn', 'true');           // ✅ Required for ProtectedRoute
-      sessionStorage.setItem('isAdmin', data.isAdmin);        // Optional
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // 👈 required for session cookies
+        body: JSON.stringify({ username, password }),
+      });
 
-      if (data.isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/chat');
-      }
-    }, 1000);
-  } catch (error) {
-    setLoginMessage(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+      if (!response.ok) throw new Error('Invalid credentials');
 
-  
-  
+      const data = await response.json(); // expects role/username
+
+      // ✅ Update context immediately
+      setAuth({
+        loggedIn: true,
+        role: data.role || (data.isAdmin ? 'admin' : 'user'),
+        username: data.username,
+        loading: false
+      });
+
+      // ✅ Persist in localStorage for reloads
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('role', data.role || (data.isAdmin ? 'admin' : 'user'));
+      localStorage.setItem('username', data.username);
+
+      setLoginMessage('Login successful!');
+
+      // ✅ Navigate after context update
+      navigate(data.role === 'admin' ? '/admin' : '/chat', { replace: true });
+
+    } catch (error) {
+      setLoginMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
     exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
   };
+
 
   return (
     <motion.div

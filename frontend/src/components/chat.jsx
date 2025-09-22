@@ -10,6 +10,8 @@ import Swal from "sweetalert2";
 import Chart from "chart.js/auto";
 import { Link } from 'react-router-dom';
 import { Modal } from "antd";
+import { AuthContext } from "../context/AuthContext";
+import { useContext } from "react";
 const Chat = () => {
   const [messages, setMessages] = useState([]); // Removed localStorage
   const [input, setInput] = useState('');
@@ -34,6 +36,7 @@ const Chat = () => {
   const [loadingTranslation, setLoadingTranslation] = useState(null);
   const [currentMessageId, setCurrentMessageId] = useState(null);
   const [cancelled, setCancelled] = useState(false); 
+  const { setAuth } = useContext(AuthContext);
 
   const [copied, setCopied] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -680,43 +683,45 @@ const fallbackCopy = (text) => {
     });
   }, [username]);
   
-  const handleLogout = useCallback(() => {
-    Modal.confirm({
-      title: "Log out?",
-      content: "Do you want to save your chat before logging out?",
-      okText: "Save & Log Out",
-      cancelText: "Cancel",
-      okType: "danger",
-      className: "chat-modal-popup",
-      onOk: async () => {
-        try {
-          await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
-            method: "POST",
-            credentials: "include", // Important for cookies
-          });
+const handleLogout = useCallback(() => {
+  Modal.confirm({
+    title: "Log out?",
+    content: "Do you want to save your chat before logging out?",
+    okText: "Save & Log Out",
+    cancelText: "Cancel",
+    okType: "danger",
+    className: "chat-modal-popup",
+    onOk: async () => {
+      try {
+        await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+          method: "POST",
+          credentials: "include", // Important for cookies
+        });
 
-          // Clear session and localStorage
-          sessionStorage.removeItem("isLoggedIn");
-          localStorage.removeItem(`chatHistory_${username}`);
-          localStorage.removeItem("darkMode");
+        // Clear context
+        setAuth({ loggedIn: false, role: null, username: null, loading: false });
 
-          // Clear chat history from state
-          setMessages([]);
-          
-          // Navigate to login page
-          navigate("/login");
-        } catch (error) {
-          console.error("Error logging out:", error);
-        }
-      },
-      onCancel: () => {
-        console.log("Logout cancelled");
-      },
-    });
-  }, [username, navigate, setMessages]);
+        // Clear session and localStorage
+        sessionStorage.removeItem("isLoggedIn");
+        localStorage.removeItem(`chatHistory_${username}`);
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("role");
+        localStorage.removeItem("darkMode");
 
-  
-  
+        // Clear chat history from state
+        setMessages([]);
+
+        // Navigate to login page
+        navigate("/login", { replace: true });
+      } catch (error) {
+        console.error("Error logging out:", error);
+      }
+    },
+    onCancel: () => {
+      console.log("Logout cancelled");
+    },
+  });
+}, [username, navigate, setMessages, setAuth]);
 
 
   const toggleSidebar = () => {

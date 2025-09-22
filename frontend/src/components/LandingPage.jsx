@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  FaRobot, 
-  FaQuestionCircle, 
-  FaFilePdf, 
+import { AuthContext } from "../context/AuthContext";
+import "../styles/LandingPage.css";
+import {
+  FaRobot,
+  FaQuestionCircle,
+  FaFilePdf,
   FaBookOpen,
   FaArrowRight,
   FaUsers,
@@ -16,40 +18,21 @@ import {
   FaInstagram,
   FaEnvelope
 } from "react-icons/fa";
-import "../styles/LandingPage.css";
 
 export default function LandingPage() {
-  const [loading, setLoading] = useState(true);
   const [activeFeature, setActiveFeature] = useState(0);
   const [isVisible, setIsVisible] = useState({});
+  const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // ✅ Redirect if already logged in
   useEffect(() => {
-    // Check session from Flask
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/check-session`, {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.loggedIn) {
-          sessionStorage.setItem("isLoggedIn", "true");
-          sessionStorage.setItem("isAdmin", data.role === "admin" ? "true" : "false");
+    if (!auth.loading && auth.loggedIn) {
+      navigate(auth.role === "admin" ? "/admin" : "/chat", { replace: true });
+    }
+  }, [auth, navigate]);
 
-          if (data.role === "admin") {
-            navigate("/admin");
-          } else {
-            navigate("/chat");
-          }
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Session check failed:", err);
-        setLoading(false);
-      });
-  }, [navigate]);
-
+  // IntersectionObserver for animations/visibility
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -63,13 +46,12 @@ export default function LandingPage() {
       { threshold: 0.1 }
     );
 
-    document.querySelectorAll('[id]').forEach((el) => {
-      observer.observe(el);
-    });
+    document.querySelectorAll("[id]").forEach(el => observer.observe(el));
 
     return () => observer.disconnect();
   }, []);
 
+  // Feature carousel
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveFeature(prev => (prev + 1) % 4);
@@ -77,7 +59,8 @@ export default function LandingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
+  // Show loader while auth is loading
+  if (auth.loading) {
     return (
       <div className="loading-container">
         <div className="loading-spinner-advanced">
@@ -92,7 +75,6 @@ export default function LandingPage() {
       </div>
     );
   }
-
   const features = [
     {
       icon: <FaRobot />,
