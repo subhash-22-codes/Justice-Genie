@@ -90,13 +90,8 @@ const Login = () => {
           />
           <div className="login-overlay"></div>
           <div className="login-brand-content">
-          <img 
-            src="./images/JGLogo.png" 
-            alt="Justice Genie Logo" 
-            className="w-16 h-16 sm:w-20 sm:h-20 object-contain mt-4 mb-4" 
-          />
-            <p className="login-brand-subtitle"><strong>Justice Genie</strong></p>
-            <p className="login-welcome-message">
+            <p className="login-brand-subtitle font-poppins"><strong>Justice Genie</strong></p>
+            <p className="login-welcome-message font-urbanist">
               Welcome to <strong>GENIE</strong>! Log in to unlock a world of legal insights and resources tailored to your needs.
             </p>
             <div className="login-law-icons">
@@ -118,8 +113,8 @@ const Login = () => {
 
         <div className="login-right-panel">
           <div className="login-container">
-            <h2 className="login-heading">Welcome Back</h2>
-            <p className="login-subtitle">Sign in to continue</p>
+            <h2 className="login-heading font-montserrat">Welcome Back</h2>
+            <p className="login-subtitle font-sora">Sign in to continue</p>
 
             <form onSubmit={handleSubmit} className="login-form">
               <div className="login-input-group">
@@ -129,7 +124,7 @@ const Login = () => {
                   value={username}
                   onFocus={handleInputFocus}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="login-input"
+                  className="login-input font-manrope"
                   required
                 />
                 <label htmlFor="username" className="login-label">Username or Registered Email</label>
@@ -144,7 +139,7 @@ const Login = () => {
                   value={password}
                   onFocus={handleInputFocus}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="login-input"
+                  className="login-input font-manrope"
                   required
                 />
                 <label htmlFor="password" className="login-label">Password</label>
@@ -159,7 +154,7 @@ const Login = () => {
               </div>
 
               <div className="flex justify-between items-center w-full mt-4 text-sm text-gray-700">
-                <label className="flex items-center gap-2">
+                <label className="font-sora flex items-center gap-2">
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
@@ -169,7 +164,7 @@ const Login = () => {
 
                 <Link
                   to="/forgotpassword"
-                  className="text-indigo-600 hover:text-indigo-700 transition-colors duration-200 whitespace-nowrap"
+                  className="font-sora text-indigo-600 hover:text-indigo-700 transition-colors duration-200 whitespace-nowrap"
                 >
                   Forgot Password?
                 </Link>
@@ -182,7 +177,7 @@ const Login = () => {
                 className={`login-button ${loading ? 'login-loading' : ''}`}
                 disabled={loading}
               >
-                <span className="login-button-text">
+                <span className="login-button-text  font-spacegrotesk">
                   {loading ? 'Waking up server…' : 'Login'}
                 </span>
                 {loading && <div className="login-spinner"></div>}
@@ -190,9 +185,9 @@ const Login = () => {
 
             </form>
 
-            <p className="login-register-link">
+            <p className="login-register-link font-sora">
               Don't have an account?{' '}
-              <Link to="/register" className="login-register-anchor">Create one now</Link>
+              <Link to="/register" className="login-register-anchor font-urbanist">Create one now</Link>
             </p>
 
            {loginMessage && (

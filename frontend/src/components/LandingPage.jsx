@@ -7,11 +7,14 @@ import {
   FaBookOpen,
   FaArrowRight,
   FaUsers,
-  FaShieldAlt,
   FaCheckCircle,
   FaPlay,
   FaChevronDown,
   FaLightbulb,
+  FaLinkedin,
+  FaGithub,
+  FaInstagram,
+  FaEnvelope
 } from "react-icons/fa";
 import "../styles/LandingPage.css";
 
@@ -82,7 +85,7 @@ export default function LandingPage() {
           <div className="spinner-ring"></div>
           <div className="spinner-ring"></div>
         </div>
-        <div className="loading-text">
+        <div className="loading-text font-poppins">
           <h3>Justice Genie</h3>
           <p>Initializing your legal companion...</p>
         </div>
@@ -183,30 +186,66 @@ export default function LandingPage() {
       <nav className="nav-container">
         <div className="nav-content">
           <div className="nav-logo">
-            <div className="logo-container">
-              <FaShieldAlt className="logo-icon" />
-              <span className="logo-text">Justice Genie</span>
+           <div className="logo-container">
+              <img src="/images/jg_original_logo_1.png" alt="Justice Genie Logo" className="logo-img" />
             </div>
+
           </div>
-          <div className="nav-menu">
-            <a href="#features" className="nav-link">Features</a>
-            <a href="#about" className="nav-link">About</a>
-            <a href="#team" className="nav-link">Team</a>
-            <a href="#testimonials" className="nav-link">Reviews</a>
-          </div>
+            <div className="nav-menu font-montserrat">
+              <a
+                href="#features"
+                className="nav-link"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Features
+              </a>
+              <a
+                href="#hero"
+                className="nav-link"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                About       
+              </a>
+              <a
+                href="#cta"
+                className="nav-link"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('cta')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Ready to Start?
+              </a>
+              <a
+                href="#team"
+                className="nav-link"
+                onClick={(e) => { 
+                  e.preventDefault();
+                  document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Team
+              </a>
+            </div>
+
           <div className="nav-buttons">
             <button 
               onClick={() => navigate("/login")}
-              className="nav-btn login-btn"
+              className="nav-btn Landing-login-btn font-urbanist"
             >
               Login
             </button>
             <button 
               onClick={() => navigate("/register")}
-              className="nav-btn register-btn"
+              className="nav-btn Landing-register-btn font-urbanist"
             >
               Get Started
-              <FaArrowRight className="btn-icon" />
             </button>
           </div>
         </div>
@@ -222,18 +261,18 @@ export default function LandingPage() {
           <div className="hero-content">
             
             <h1 className="hero-title">
-              <span className="title-main">Justice Genie</span>
-              <span className="title-subtitle">Making Indian Legal Knowledge Accessible</span>
+              <span className="title-main font-urbanist">Justice Genie</span>
+              <span className="title-subtitle font-manrope">Making Indian Legal Knowledge Accessible</span>
             </h1>
             
-            <p className="hero-description">
+            <p className="hero-description font-spacegrotesk">
               Experience the future of legal education with our AI-powered platform. 
               Get instant answers, master concepts through interactive quizzes, access 
               comprehensive legal documents, and explore curated resources—all designed 
               to democratize legal knowledge in India.
             </p>
             
-            <div className="hero-features-preview">
+            <div className="hero-features-preview font-sora">
               <div className="feature-preview">
                 <FaCheckCircle className="check-icon" />
                 <span>AI-Powered Legal Assistant</span>
@@ -251,14 +290,14 @@ export default function LandingPage() {
             <div className="hero-buttons">
               <button 
                 onClick={() => navigate("/register")}
-                className="primary-btn hero-primary"
+                className="primary-btn hero-primary font-urbanist"
               >
                 <FaPlay className="btn-icon" />
                 Start Your Journey
               </button>
               <button 
                 onClick={() => navigate("/login")}
-                className="secondary-btn hero-secondary"
+                className="secondary-btn hero-secondary font-urbanist"
               >
                 Login to Continue
               </button>
@@ -272,8 +311,8 @@ export default function LandingPage() {
                   <img src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User" />
                 </div>
                 <div className="proof-text">
-                  <span className="proof-number">30+</span>
-                  <span className="proof-label">students already learning</span>
+                  <span className="proof-number font-sora">30+</span>
+                  <span className="proof-label font-sora">students already learning</span>
                 </div>
               </div>
             </div>
@@ -287,46 +326,46 @@ export default function LandingPage() {
                   <div className="nav-dot"></div>
                   <div className="nav-dot"></div>
                 </div>
-                <div className="dashboard-title">Justice Genie Dashboard</div>
+                <div className="dashboard-title font-jura">Justice Genie Dashboard</div>
               </div>
               <div className="dashboard-content">
                 <div className="dashboard-card">
                   <FaRobot className="card-icon" />
-                  <div className="card-content">
+                  <div className="card-content font-urbanist">
                     <h4>AI Assistant</h4>
                     <p>Ask any legal question</p>
                   </div>
-                  <div className="card-status active">Active</div>
+                  <div className="card-status active font-sora">Active</div>
                 </div>
                 <div className="dashboard-card">
                   <FaQuestionCircle className="card-icon" />
-                  <div className="card-content">
+                  <div className="card-content font-urbanist">
                     <h4>Legal Quiz</h4>
                     <p>Test your knowledge</p>
                   </div>
-                  <div className="card-status">Ready</div>
+                  <div className="card-status font-sora">Ready</div>
                 </div>
                 <div className="dashboard-card">
                   <FaFilePdf className="card-icon" />
-                  <div className="card-content">
+                  <div className="card-content font-urbanist">
                     <h4>PDF Generation</h4>
                     <p>Export your chats & notes</p>
                   </div>
-                  <div className="card-status">Available</div>
+                  <div className="card-status font-sora">Available</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
         
-        <div className="scroll-indicator">
+        <div className="scroll-indicator font-montserrat" onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}>
           <FaChevronDown className="scroll-icon" />
           <span>Discover More</span>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="stats-section" id="stats">
+      <section className="stats-section font-manrope" id="stats">
         <div className="container">
           <div className="stats-grid">
             {stats.map((stat, index) => (
@@ -344,12 +383,12 @@ export default function LandingPage() {
       <section className="features-section" id="features">
         <div className="container">
           <div className="section-header">
-            <div className="section-badge">
+            <div className="section-badge font-courgette">
               <FaLightbulb className="badge-icon" />
               <span>Powerful Features</span>
             </div>
-            <h2 className="section-title">Everything You Need for Legal Learning</h2>
-            <p className="section-description">
+            <h2 className="section-title font-montserrat">Everything You Need for Legal Learning</h2>
+            <p className="section-description font-urbanist">
               Our comprehensive platform combines cutting-edge AI technology with carefully 
               curated legal resources to provide an unmatched learning experience.
             </p>
@@ -365,7 +404,7 @@ export default function LandingPage() {
                   style={{'--tab-color': feature.color}}
                 >
                   <div className="tab-icon">{feature.icon}</div>
-                  <div className="tab-content">
+                  <div className="tab-content font-manrope">
                     <h4>{feature.title}</h4>
                     <p>{feature.description}</p>
                   </div>
@@ -380,7 +419,7 @@ export default function LandingPage() {
                     <div className="mockup-icon">{features[activeFeature].icon}</div>
                     <h3>{features[activeFeature].title}</h3>
                   </div>
-                  <div className="mockup-content">
+                  <div className="mockup-content font-urbanist">
                     <div className="benefits-list">
                       {features[activeFeature].benefits.map((benefit, index) => (
                         <div key={index} className="benefit-item">
@@ -506,29 +545,25 @@ export default function LandingPage() {
       <section className="cta-section" id="cta">
         <div className="container">
           <div className="cta-content">
-            <div className="cta-visual">
+           <div className="cta-visual">
               <div className="cta-icon-container">
-                <FaShieldAlt className="cta-main-icon" />
-                <div className="icon-particles">
-                  <div className="particle"></div>
-                  <div className="particle"></div>
-                  <div className="particle"></div>
+                <div className="logo-circle">
+                <img src="/images/jg_original_logo.png" alt="Justice Genie Logo" className="cta-main-logo" />
                 </div>
               </div>
             </div>
-            
             <div className="cta-text">
-              <h2 className="cta-title">Ready to Transform Your Legal Learning?</h2>
-              <p className="cta-description">
+              <h2 className="cta-title font-sora">Ready to Transform Your Legal Learning?</h2>
+              <p className="cta-description font-spacegrotesk">
                 Join Justice Genie today and experience the future of legal education. 
                 Get instant AI assistance, master concepts through interactive learning, 
                 and access comprehensive legal resources—all in one powerful platform.
               </p>
               
-              <div className="cta-features">
+              <div className="cta-features font-sora">
                 <div className="cta-feature">
                   <FaCheckCircle className="cta-check" />
-                  <span>Free to start • No credit card required</span>
+                  <span>Free to start</span>
                 </div>
                 <div className="cta-feature">
                   <FaCheckCircle className="cta-check" />
@@ -543,14 +578,14 @@ export default function LandingPage() {
               <div className="cta-buttons">
                 <button 
                   onClick={() => navigate("/register")}
-                  className="cta-primary-btn"
+                  className="cta-primary-btn font-urbanist"
                 >
                   <FaArrowRight className="btn-icon" />
                   Start Learning Now
                 </button>
                 <button 
                   onClick={() => navigate("/login")}
-                  className="cta-secondary-btn"
+                  className="cta-secondary-btn font-urbanist"
                 >
                   Already have an account?
                 </button>
@@ -566,30 +601,31 @@ export default function LandingPage() {
           <div className="footer-top">
             <div className="footer-brand">
               <div className="footer-logo">
-                <FaShieldAlt className="logo-icon" />
-                <span className="logo-text">Justice Genie</span>
+                <img src="/images/jg_original_logo.png" alt="Justice Genie Logo" className="footer-logo-img" />
+                <span className="logo-text font-manrope">Justice Genie</span>
               </div>
-              <p className="footer-description">
+
+              <p className="footer-description font-manrope">
                 Democratizing legal knowledge through innovative technology. Built with passion by students combining technology & law.
               </p>
-              {/* <div className="footer-social">
-                <a href="https://linkedin.com/in/YOUR_PROFILE" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+              <div className="footer-social">
+                <a href="https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/" target="_blank" rel="noopener noreferrer" className="footer-social-link linkedin">
                   <FaLinkedin />
                 </a>
-                <a href="https://github.com/YOUR_PROFILE" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                <a href="https://github.com/subhash-22-codes" target="_blank" rel="noopener noreferrer" className="footer-social-link github">
                   <FaGithub />
                 </a>
-                <a href="https://instagram.com/YOUR_PROFILE" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                <a href="https://instagram.com/subhash__spiody" target="_blank" rel="noopener noreferrer" className="footer-social-link instagram">
                   <FaInstagram />
                 </a>
-                <a href="mailto:YOUR_EMAIL@gmail.com" className="footer-social-link">
+                <a href="mailto:subashyagantisubbu@gmail.com" className="footer-social-link  mail">
                   <FaEnvelope />
                 </a>
-              </div> */}
+              </div>
             </div>
 
             <div className="footer-links">
-              <div className="footer-section">
+              <div className="footer-section font-montserrat">
                 <h4>Platform</h4>
                 <ul>
                   <li><a href="#features">Features</a></li>
@@ -598,7 +634,7 @@ export default function LandingPage() {
                   <li><a href="#testimonials">Reviews</a></li>
                 </ul>
               </div>
-              <div className="footer-section">
+              <div className="footer-section font-montserrat">
                 <h4>Resources</h4>
                 <ul>
                   <li><a href="/login">AI Chat</a></li>
@@ -607,22 +643,14 @@ export default function LandingPage() {
                   <li><a href="/login">Learning Resources</a></li>
                 </ul>
               </div>
-              <div className="footer-section">
-                <h4>About</h4>
-                <ul>
-                  <li><a href="#team">Our Team</a></li>
-                  <li><a href="#contact">Contact</a></li>
-                  <li><a href="#support">Support</a></li>
-                </ul>
-              </div>
             </div>
           </div>
 
-          <div className="footer-bottom">
-            <p className="footer-copyright">
+          <footer className="text-white py-6">
+            <p className="text-center text-sm font-urbanist">
               © 2025 Justice Genie. College project by Subhash Yaganti & Siri Mahalaxmi Vemula.
             </p>
-          </div>
+          </footer>
         </div>
       </footer>
 

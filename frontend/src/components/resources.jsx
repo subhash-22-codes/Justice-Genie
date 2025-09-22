@@ -29,15 +29,6 @@ export default function ResourcePage() {
       <div className="resource-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         <div className="resource-header text-center mb-16">
-        <div className="resource-icon-wrapper mb-8 animate-bounce">
-        <img 
-          src="./images/construction.png" 
-          alt="Construction Icon" 
-          className="w-16 sm:w-20 md:w-24 lg:w-28 xl:w-32 h-auto mx-auto"
-        />
-      </div>
-
-
           <h1 className="resource-title text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Resources Coming Soon
           </h1>

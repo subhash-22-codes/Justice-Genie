@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^7.0.1",
+    "@fortawesome/react-fontawesome": "^3.0.2",
     "@react-three/drei": "^9.99.7",
     "@react-three/fiber": "^8.15.19",
     "@types/three": "^0.171.0",

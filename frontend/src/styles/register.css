@@ -19,278 +19,137 @@
 }
 
 
-/* Base Container */
+/* ------------------ Base Container ------------------ */
 .register-container {
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: white;
-  overflow-x: hidden;       
+  background: #f3f4f6; /* light gray page background */
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
+/* ------------------ Card ------------------ */
+.register-card {
+  background: #ffffff; /* light card background */
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18); /* subtle shadow */
+  max-width: 1200px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-/* Main Layout */
+/* ------------------ macOS-style Top Bar ------------------ */
+.register-card-header {
+  height: 32px;
+  background: #f3f4f6; /* slightly darker than card */
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 8px;
+}
+
+.register-card-header .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.register-card-header .red { background: #ff5f57; }
+.register-card-header .yellow { background: #ffbd2e; }
+.register-card-header .green { background: #28c840; }
+
+/* ------------------ Layout ------------------ */
 .register-layout {
   display: flex;
-  min-height: 100vh;
+  min-height: 500px; /* desktop minimum height */
+  flex-wrap: wrap; /* allows panels to stack on mobile */
 }
 
-/* Left Side - Illustration Section (Desktop Only) */
+/* ------------------ Left Illustration Panel ------------------ */
 .register-illustration-section {
   flex: 1;
-  background: white;
-  padding: 60px 40px;
-  display: none;
-  flex-direction: column;
+  min-width: 300px;
+  display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  overflow: hidden;
+  padding: 40px;
+  background: #ffffffff; /* light subtle panel */
 }
-/* Desktop (large screens) */
-@media (min-width: 1024px) {
+
+.register-illustration-section img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+/* Hide left panel on smaller screens */
+@media (max-width: 1023px) {
   .register-illustration-section {
-    transform: translateX(50px); /* push section a little right */
+    display: none;
   }
 }
 
-.register-illustration-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
-  z-index: 1;
-}
-
-.register-illustration-content {
-  position: relative;
-  z-index: 2;
-  max-width: 500px;
-  width: 100%;
-  text-align: center;
-}
-
-/* Brand Section */
-.register-brand {
-  margin-bottom: 60px;
-}
-
-.register-brand-icon {
-  width: 80px;
-  height: 80px;
-  background: royalblue;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 24px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.register-brand-icon i {
-  font-size: 36px;
-  color: #ffffff;
-}
-
-.register-brand-title {
-  font-size: 32px;
-  font-weight: 800;
-  color: royalblue;
-  margin: 0 0 12px;
-  letter-spacing: -0.02em;
-}
-
-.register-brand-subtitle {
-  font-size: 18px;
-  color: black;
-  margin: 0;
-  font-weight: 400;
-}
-
-/* Illustration Dashboard */
-.register-legal-dashboard {
-  background: rgba(243, 243, 243, 0.95);
-  border-radius: 20px;
-  padding: 32px;
-  margin-bottom: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.register-dashboard-header {
-  margin-bottom: 24px;
-}
-
-.register-dashboard-header h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a365d;
-  margin: 0 0 16px;
-}
-
-.register-dashboard-stats {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-}
-
-.register-stat {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #4a5568;
-  font-weight: 500;
-}
-
-.register-stat i {
-  color: #1a365d;
-}
-
-/* Chart */
-.register-chart-container {
-  margin-bottom: 24px;
-}
-
-.register-chart {
-  display: flex;
-  align-items: end;
-  justify-content: center;
-  gap: 8px;
-  height: 120px;
-  margin-bottom: 12px;
-}
-
-.register-bar {
-  width: 24px;
-  height: 0;
-  background: linear-gradient(to top, #333030ff, #454141ff); /* deep black gradient */
-  border-radius: 4px 4px 0 0;
-  position: relative;
-  animation: register-bar-grow 1.2s ease-out forwards;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4); /* subtle depth */
-}
-
-@keyframes register-bar-grow {
-  to {
-    height: var(--height, 50%);
-  }
-}
-
-/* Tooltip on hover */
-.register-bar::after {
-  content: var(--value, "");
-  position: absolute;
-  bottom: 100%; /* show above the bar */
-  left: 50%;
-  transform: translateX(-50%) translateY(-6px);
-  background: #726666ff; /* black tooltip */
-  color: #fff;
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s, transform 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5); /* tooltip shadow */
-}
-
-.register-bar:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-10px);
-}
-
-
-
-.register-chart-labels {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-.register-chart-labels span {
-  width: 24px;
-  text-align: center;
-  font-size: 12px;
-  color: #4a5568;
-  font-weight: 500;
-}
-
-
-/* Legal Features */
-.register-legal-features {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.register-feature {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-
-.register-feature i {
-  font-size: 24px;
-  color: #1a365d;
-  margin-bottom: 4px;
-}
-
-.register-feature span {
-  font-size: 12px;
-  color: #4a5568;
-  font-weight: 500;
-  text-align: center;
-}
-
-
-
-/* Right Side - Form Section */
+/* ------------------ Right Form Panel ------------------ */
 .register-form-section {
   flex: 1;
+  min-width: 300px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   padding: 40px;
   background: #ffffff;
   overflow-y: auto;
 }
-/* Desktop (large screens) */
-@media (min-width: 1024px) {
-  .register-form-section {
-    transform: translateX(-50px); /* push section a little right */
-  }
-}
-
-/* Tablets */
-@media (max-width: 1023px) and (min-width: 600px) {
-  .register-form-section {
-    max-width: 90%;
-    margin: 0 auto; /* centered for balance */
-  }
-}
-
-/* Mobile */
-@media (max-width: 599px) {
-  .register-form-section {
-    max-width: 95%; /* smaller width */
-    padding: 20px; /* reduce padding */
-    margin: 0 auto; /* keeps it centered */
-  }
-}
-
 
 .register-form-container {
   width: 100%;
   max-width: 480px;
 }
+
+/* Responsive adjustments */
+@media (max-width: 1023px) {
+  .register-form-section {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 599px) {
+  .register-form-section {
+    max-width: 95%;
+    padding: 20px;
+  }
+}
+
+/* ------------------ Footer ------------------ */
+.register-card-footer {
+  height: 40px;
+  background: #f3f4f6; /* matches page background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #6b7280;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Optional: smooth scroll for form content if overflow */
+.register-form-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.register-form-section::-webkit-scrollbar-thumb {
+  background-color: rgba(107, 114, 128, 0.3);
+  border-radius: 3px;
+}
+
 
 /* Mobile Brand (Hidden on Desktop) */
 .register-mobile-brand {
@@ -302,19 +161,18 @@
 }
 
 .register-mobile-icon {
-  width: 48px;
-  height: 48px;
-  background: royalblue;
-  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-.register-mobile-icon i {
-  font-size: 24px;
-  color: #ffffff;
+.register-mobile-logo {
+  width: 100%;      
+  height: 100%;     
+  object-fit: contain;
 }
+
 
 .register-mobile-brand h1 {
   font-size: 24px;

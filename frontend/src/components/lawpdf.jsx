@@ -116,8 +116,6 @@ const handleView = async (book) => {
   );
 };
 
-
-
   const filteredBooks = books.filter((book) => {
     const matchesSearch =
       book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -137,7 +135,7 @@ const handleView = async (book) => {
     <div className="law-pdf-container">
       <header className="law-pdf-header">
       <button
-  className="law-pdf-back-button flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105"
+  className="font-manrope law-pdf-back-button flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105"
   onClick={() => navigate('/chat')}
   aria-label="Back to Dashboard"
 >
@@ -157,7 +155,7 @@ const handleView = async (book) => {
             placeholder="Search by title, author, or keywords..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="law-pdf-search-input"
+            className="law-pdf-search-input font-manrope"
             aria-label="Search documents"
           />
         </div>
@@ -173,7 +171,7 @@ const handleView = async (book) => {
       aria-controls={`${category.id}-panel`}
     >
       <category.icon size={16} className="shrink-0" />
-      <span>{category.name}</span>
+      <span className='font-urbanist'>{category.name}</span>
     </button>
   ))}
 </div>
@@ -184,7 +182,7 @@ const handleView = async (book) => {
       {error && (
         <div className="law-pdf-error" role="alert">
           <p>{error}</p>
-          <button onClick={fetchBooks} className="law-pdf-retry-btn">
+          <button onClick={fetchBooks} className="law-pdf-retry-btn font-manrope">
             Try Again
           </button>
         </div>
@@ -193,12 +191,12 @@ const handleView = async (book) => {
       {loading ? (
         <div className="law-pdf-loading" role="status">
           <div className="law-pdf-spinner" aria-hidden="true"></div>
-          <p>Loading legal documents...</p>
+          <p className='font-poppins'>Loading legal documents...</p>
         </div>
       ) : (
         <div className="law-pdf-grid" role="main">
           {filteredBooks.length === 0 ? (
-            <div className="law-pdf-no-results">
+            <div className="law-pdf-no-results font-manrope" role="alert">
               <FileText size={48} />
               <p>No documents found matching your criteria</p>
             </div>
@@ -226,9 +224,9 @@ const handleView = async (book) => {
                   <p className="law-pdf-author">
                     <span>Author:</span> {book.author}
                   </p>
-                  <p className="law-pdf-description">{book.description}</p>
+                  <p className="law-pdf-description font-urbanist">{book.description}</p>
                   
-                  <div className="law-pdf-stats">
+                  <div className="law-pdf-stats font-urbanist">
                     <span className="law-pdf-views">
                       <Eye size={16} />
                       {book.views || 0} views
@@ -246,7 +244,7 @@ const handleView = async (book) => {
                       event.preventDefault();  // Prevent page reload
                       handleView(book);  // Call your function
                     }} 
-                    className="law-pdf-btn law-pdf-view-btn"
+                    className="law-pdf-btn law-pdf-view-btn font-manrope"
                   >
                     <BookOpen size={18} />
                     <span>View Document</span>
@@ -255,7 +253,7 @@ const handleView = async (book) => {
                     
                     <button 
                       onClick={() => handleDownload(book)}
-                      className="law-pdf-btn law-pdf-download-btn"
+                      className="law-pdf-btn law-pdf-download-btn font-manrope"
                     >
                       <Download size={18} />
                       <span>Download PDF</span>
@@ -264,12 +262,12 @@ const handleView = async (book) => {
 
                   <div className="law-pdf-card-footer">
                     <div className="law-pdf-file-info">
-                      <span className="law-pdf-file-type">PDF</span>
-                      <span className="law-pdf-file-size">
+                      <span className="law-pdf-file-type font-poppins">PDF</span>
+                      <span className="law-pdf-file-size font-urbanist">
                         {(book.file_size / 1024 / 1024).toFixed(1)} MB
                       </span>
                     </div>
-                    <div className="law-pdf-updated">
+                    <div className="law-pdf-updated font-urbanist">
                       Updated: {new Date(book.updated_at).toLocaleDateString()}
                     </div>
                   </div>

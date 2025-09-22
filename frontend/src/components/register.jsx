@@ -133,40 +133,43 @@ const Register = () => {
   };
 
   const handleVerificationSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setIsLoading(true); // 🔑 start loading
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verify_code`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          verification_code: verificationCode,
-        }),
-      });
+  try {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verify_code`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        verification_code: verificationCode,
+      }),
+    });
 
-      const data = await response.json();
-      if (response.ok) {
-        setMessage('Verification successful. You can now log in.');
-        setMessageColor('green');
-        toast.success('Verification successful! Redirecting to login...');
-      
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      } else {
-        setMessage(data.error || 'Verification failed.');
-        setMessageColor('red');
-        toast.error(data.error || 'Verification failed.');
-      }
-    } catch (error) {
-      setMessage('Something went wrong.');
+    const data = await response.json();
+    if (response.ok) {
+      setMessage('Verification successful. You can now log in.');
+      setMessageColor('green');
+      toast.success('Verification successful! Redirecting to login...');
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } else {
+      setMessage(data.error || 'Verification failed.');
       setMessageColor('red');
-      toast.error('Something went wrong. Please try again later.');
+      toast.error(data.error || 'Verification failed.');
     }
-  };
+  } catch (error) {
+    setMessage('Something went wrong.');
+    setMessageColor('red');
+    toast.error('Something went wrong. Please try again later.');
+  } finally {
+    setIsLoading(false); // 🔑 always stop loading
+  }
+};
 
   const handleResendCode = async () => {
     const confirmResend = await Swal.fire({
@@ -214,84 +217,22 @@ const Register = () => {
 
   return (
     <div className="register-container">
+      <div className="register-card">
+        {/* macOS-style top bar */}
+        <div className="register-card-header">
+          <span className="dot red"></span>
+          <span className="dot yellow"></span>
+          <span className="dot green"></span>
+        </div>
       <div className="register-layout">
         {/* Left Side - Illustration (Desktop Only) */}
         <div className="register-illustration-section">
-          <div className="register-illustration-content">
-            <div className="register-brand">
-              <div className="register-brand-icon">
-                <i className="fas fa-balance-scale"></i>
-              </div>
-              <h1 className="register-brand-title">Justice Genie</h1>
-              <p className="register-brand-subtitle">Your AI-Powered Legal Assistant</p>
-            </div>
-            
-            <div className="register-illustration">
-              <div className="register-legal-dashboard">
-                <div className="register-dashboard-header">
-                  <h3>Legal Case Analytics</h3>
-                  <div className="register-dashboard-stats">
-                    <div className="register-stat">
-                      <i className="fas fa-gavel"></i>
-                      <span>Accuracy: 95%</span>
-                    </div>
-                    <div className="register-stat">
-                      <i className="fas fa-clock"></i>
-                      <span>Avg Response: 2min</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="register-chart-container">
-                  <div className="register-chart">
-                    <div className="register-bar" style={{'--height': '60%', '--value': '"60%"'}}></div>
-                    <div className="register-bar" style={{'--height': '80%', '--value': '"80%"'}}></div>
-                    <div className="register-bar" style={{'--height': '45%', '--value': '"45%"'}}></div>
-                    <div className="register-bar" style={{'--height': '90%', '--value': '"90%"'}}></div>
-                    <div className="register-bar" style={{'--height': '70%', '--value': '"70%"'}}></div>
-                    <div className="register-bar" style={{'--height': '85%', '--value': '"85%"'}}></div>
-                    <div className="register-bar" style={{'--height': '55%', '--value': '"55%"'}}></div>
-                    <div className="register-bar" style={{'--height': '75%', '--value': '"75%"'}}></div>
-                    <div className="register-bar" style={{'--height': '65%', '--value': '"65%"'}}></div>
-                    <div className="register-bar" style={{'--height': '95%', '--value': '"95%"'}}></div>
-                    <div className="register-bar" style={{'--height': '50%', '--value': '"50%"'}}></div>
-                    <div className="register-bar" style={{'--height': '100%', '--value': '"100%"'}}></div>
-                  </div>
-                  <div className="register-chart-labels">
-                    <span>Jan</span>
-                    <span>Feb</span>
-                    <span>Mar</span>
-                    <span>Apr</span>
-                    <span>May</span>
-                    <span>Jun</span>
-                    <span>Jul</span>
-                    <span>Aug</span>
-                    <span>Sep</span>
-                    <span>Oct</span>
-                    <span>Nov</span>
-                    <span>Dec</span>
-                  </div>
-                </div>
-                
-                <div className="register-legal-features">
-                  <div className="register-feature">
-                    <i className="fas fa-robot"></i>
-                    <span>AI Legal Research</span>
-                  </div>
-                  <div className="register-feature">
-                    <i className="fas fa-file-contract"></i>
-                    <span>Document Analysis</span>
-                  </div>
-                  <div className="register-feature">
-                    <i className="fas fa-users"></i>
-                    <span>Client Management</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <img 
+            src="/images/GenieTemplate.png" 
+            alt="Justice Genie Illustration" 
+            className="w-full h-full object-cover"
+          />
         </div>
-
         {/* Right Side - Form */}
         <div className="register-form-section">
           <div className="register-form-container">
@@ -300,12 +241,12 @@ const Register = () => {
                 <div className="register-header">
                   <div className="register-mobile-brand">
                     <div className="register-mobile-icon">
-                      <i className="fas fa-balance-scale"></i>
+                      <img src="/images/jg_original_logo_1.png" alt="Logo" className="register-mobile-logo" />
                     </div>
                     <h1>Justice Genie</h1>
                   </div>
-                  <h2 className="register-title">Create Your Account</h2>
-                  <p className="register-subtitle">Join thousands of legal professionals using AI-powered assistance</p>
+                  <h2 className="register-title font-montserrat">Create Your Account</h2>
+                  <p className="register-subtitle font-spacegrotesk">Join 30+ early users exploring AI-powered legal assistance</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="register-form">
@@ -320,7 +261,7 @@ const Register = () => {
                         id="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="register-input"
+                        className="register-input font-manrope"
                         placeholder="Enter your username"
                         required
                       />
@@ -336,7 +277,7 @@ const Register = () => {
                         id="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="register-input"
+                        className="register-input font-urbanist"
                         placeholder="Enter your email address"
                         required
                       />
@@ -352,7 +293,7 @@ const Register = () => {
                         id="phone"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="register-input"
+                        className="register-input font-manrope"
                         placeholder="Enter your phone number"
                         required
                       />
@@ -368,7 +309,7 @@ const Register = () => {
                         id="dob"
                         value={dob}
                         onChange={(e) => setDob(e.target.value)}
-                        className="register-input"
+                        className="register-input font-manrope"
                         required
                       />
                     </div>
@@ -382,7 +323,7 @@ const Register = () => {
                         id="profession"
                         value={profession}
                         onChange={(e) => setProfession(e.target.value)}
-                        className="register-input register-select"
+                        className="register-input register-select font-manrope"
                         required
                       >
                         <option value="">Select your profession</option>
@@ -406,7 +347,7 @@ const Register = () => {
                           id="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="register-input"
+                          className="register-input font-manrope"
                           placeholder="Enter password"
                           required
                         />
@@ -431,7 +372,7 @@ const Register = () => {
                           id="confirmPassword"
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="register-input"
+                          className="register-input font-manrope"
                           placeholder="Confirm password"
                           required
                         />
@@ -456,7 +397,7 @@ const Register = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="register-submit-btn"
+                    className="register-submit-btn font-spacegrotesk"
                   >
                     {isLoading ? (
                       <>
@@ -483,12 +424,18 @@ const Register = () => {
                     <i className="fas fa-envelope-open-text"></i>
                   </div>
                   <h2 className="register-title">Verify Your Email</h2>
-                  <p className="register-subtitle">We've sent a verification code to <strong>{email}</strong></p>
+                  <p className="register-subtitle font-poppins">
+                  We’ve sent a verification code to <span className="font-semibold font-manrope">{email}</span>. 
+                  <br />
+                  <span className="text-sm text-gray-500 font-manrope">
+                    If you don’t see it in your inbox, please check your Spam/Promotions folder.
+                  </span>
+                </p>
                 </div>
 
                 <form onSubmit={handleVerificationSubmit} className="register-form">
                   <div className="register-input-group">
-                    <label htmlFor="verificationCode" className="register-label">
+                    <label htmlFor="verificationCode" className="register-label font-manrope">
                       <i className="fas fa-key"></i>
                       Verification Code
                     </label>
@@ -497,7 +444,7 @@ const Register = () => {
                       id="verificationCode"
                       value={verificationCode}
                       onChange={(e) => setVerificationCode(e.target.value)}
-                      className="register-input register-verification-input"
+                      className="register-input register-verification-input font-manrope"
                       placeholder="Enter verification code"
                       required
                     />
@@ -512,7 +459,7 @@ const Register = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="register-submit-btn"
+                    className="register-submit-btn font-manrope"
                   >
                     {isLoading ? (
                       <>
@@ -530,7 +477,7 @@ const Register = () => {
                     type="button"
                     onClick={handleResendCode}
                     disabled={isLoading}
-                    className="register-resend-btn"
+                    className="register-resend-btn font-manrope"
                   >
                     <i className="fas fa-redo"></i>
                     Resend Code
@@ -555,6 +502,10 @@ const Register = () => {
         theme="light"
         className="register-toast-container"
       />
+      <div className="register-card-footer">
+      </div>
+    </div>
+    
     </div>
   );
 };

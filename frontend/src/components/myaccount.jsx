@@ -18,7 +18,7 @@ const ProfileImage = ({ src, onUploadClick, onRemoveClick }) => (
         />
         <div className="myaccount-profile-image-overlay">
           <Camera size={24} />
-          <span>Update Photo</span>
+          <span className='font-sora'>Update Photo</span>
         </div>
       </div>
   
@@ -50,7 +50,7 @@ const ProfileImage = ({ src, onUploadClick, onRemoveClick }) => (
 // Component for Progress Bar
 const ProgressBar = ({ percentage, marks, total, level, rank, gameName }) => (
     <div className="myaccount-progress-card">
-      <h3>Quiz Progress</h3>
+      <h3 className='font-poppins'>Quiz Progress</h3>
       <div className="myaccount-progress-stats">
         <div className="myaccount-progress-bar-container">
           <div className="myaccount-progress-bar" style={{ width: `${percentage}%` }}>
@@ -59,8 +59,8 @@ const ProgressBar = ({ percentage, marks, total, level, rank, gameName }) => (
         </div>
   
         <div className="myaccount-progress-details">
-          <p>Score: <span>{marks}/{total}</span></p>
-          <p>Level: <span>{level}</span></p>
+          <p className='font-manrope'>Score: <span>{marks}/{total}</span></p>
+          <p className='font-manrope'>Level: <span>{level}</span></p>
         </div>
   
         {/* 🎯 Rank & Game Name UI */}
@@ -76,7 +76,7 @@ const ProgressBar = ({ percentage, marks, total, level, rank, gameName }) => (
             ) : (
               <span className="quizz-rank-icon text-lg">🏆</span>
             )}
-            <span className="quizz-rank-number">
+            <span className="quizz-rank-number font-urbanist">
               {rank ? `Rank #${rank}` : 'Rank --'}
             </span>
           </div>
@@ -84,7 +84,7 @@ const ProgressBar = ({ percentage, marks, total, level, rank, gameName }) => (
           {/* Game Name Tag */}
           <div className="quizz-game-name flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium italic">
             🎮
-            <span className="quizz-game-name-text">
+            <span className="quizz-game-name-text font-urbanist">
               {gameName || 'Justice warrior'}
             </span>
           </div>
@@ -641,10 +641,10 @@ const MyAccount = () => {
                         size={20}
                         className="transition-transform duration-300 group-hover:-translate-x-1"
                     />
-                    <span className="tracking-wide">Back</span>
+                    <span className="tracking-wide font-manrope">Back</span>
                     </button>
 
-                    <h1>My Account</h1>
+                    <h1 className='font-poppins'>My Account</h1>
                     <button
                     onClick={handleLogout}
                     className="myaccount-btn-logout group relative overflow-hidden transition-transform duration-300 hover:scale-105 active:scale-95"
@@ -653,7 +653,7 @@ const MyAccount = () => {
                         size={20}
                         className="transition-transform duration-300 group-hover:-rotate-90"
                     />
-                    <span className="tracking-wide">Logout</span>
+                    <span className="tracking-wide font-manrope">Logout</span>
                     </button>
 
 
@@ -669,8 +669,8 @@ const MyAccount = () => {
                             onRemoveClick={handleRemovePicture}
                         />
                         <div className="myaccount-profile-info">
-                            <h2>{userDetails.username}</h2>
-                            <p className="myaccount-user-email">{userDetails.email}</p>
+                            <h2 className='font-poppins'>{userDetails.username}</h2>
+                            <p className="myaccount-user-email font-manrope">{userDetails.email}</p>
                         </div>
                     </div>
 
@@ -723,33 +723,33 @@ const MyAccount = () => {
                             </div>
                         ) : (
                             <div className="myaccount-button-group">
-                            <button className="myaccount-btn-edit text-sm sm:text-base font-medium" onClick={() => setIsEditing(true)}>
+                            <button className="myaccount-btn-edit text-sm sm:text-base font-medium font-manrope" onClick={() => setIsEditing(true)}>
                         <Edit2 size={20} />
                         <span>Edit Profile</span>
                         </button>
 
-                        <button className="myaccount-btn-feedback text-sm sm:text-base font-medium" onClick={() => toggleModal('feedback', true)}>
+                        <button className="myaccount-btn-feedback text-sm sm:text-base font-medium font-manrope" onClick={() => toggleModal('feedback', true)}>
                         <MessageSquare size={20} />
                         <span>Give Feedback</span>
                         </button>
 
-                        <button className="myaccount-btn-collab text-sm sm:text-base font-medium" onClick={() => toggleModal('collab', true)}>
+                        <button className="myaccount-btn-collab text-sm sm:text-base font-medium font-manrope" onClick={() => toggleModal('collab', true)}>
                         <UserPlus size={20} />
                         <span>Collab with Us?</span>
                         </button>
 
-                        <button className="myaccount-btn-delete text-sm sm:text-base font-medium" onClick={() => toggleModal('delete', true)}>
+                        <button className="myaccount-btn-delete text-sm sm:text-base font-medium font-manrope" onClick={() => toggleModal('delete', true)}>
                         <Trash2 size={20} />
                         <span>Delete Account</span>
                         </button>
 
-                        <button className="myaccount-btn-delete text-sm sm:text-base font-medium" onClick={handleClearChat}>
+                        <button className="myaccount-btn-delete text-sm sm:text-base font-medium font-manrope" onClick={handleClearChat}>
                         <Trash2Icon size={20} />
                         <span>Clear Chat History</span>
                         </button>
 
                         <button
-                        className="myaccount-helpandsupport-button flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-500 text-white rounded-lg shadow-md hover:bg-indigo-600 transition-all duration-300"
+                        className="font-manrope myaccount-helpandsupport-button flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-500 text-white rounded-lg shadow-md hover:bg-indigo-600 transition-all duration-300"
                         onClick={() => toggleModal('help', true)}
                         >
                         <HelpCircle size={18} className="sm:w-5 sm:h-5" />
@@ -773,7 +773,7 @@ const MyAccount = () => {
                     <div className="myaccount-upload-area">
                         <div className="myaccount-upload-dropzone">
                             <Upload size={32} />
-                            <p>Click to upload or drag and drop</p>
+                            <p className='font-manrope'>Click to upload or drag and drop</p>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -813,18 +813,18 @@ const MyAccount = () => {
                                 value={feedbackText}
                                 onChange={(e) => setFeedbackText(e.target.value)}
                                 placeholder="We value your thoughts and suggestions..."
-                                className="myaccount-feedback-input"
+                                className="myaccount-feedback-input font-manrope"
                             />
                             <div className="myaccount-modal-actions">
                                 <button
-                                    className="myaccount-btn-submit"
+                                    className="myaccount-btn-submit font-manrope"
                                     onClick={handleFeedbackSubmit}
                                     disabled={!feedbackText.trim()}
                                 >
                                     Submit Feedback
                                 </button>
                                 <button
-                                    className="myaccount-feedback-btn-cancel"
+                                    className="myaccount-feedback-btn-cancel font-manrope"
                                     onClick={() => {
                                         toggleModal('feedback', false);
                                         setFeedbackText('');
@@ -849,62 +849,71 @@ const MyAccount = () => {
                 >
                 <div id="emailModal" className="fixed inset-0 flex items-center justify-center z-50 hidden bg-gray-800 bg-opacity-50">
                     <div className="myaccount-swal-type bg-white p-4 sm:p-6 rounded-lg shadow-lg max-w-xs sm:max-w-md md:max-w-lg w-full">
-                        <h2 className="text-base sm:text-lg md:text-lg font-semibold mb-4">
-                            Did you mean <span id="suggestionEmail" className="font-bold text-blue-500"></span> instead of <span id="currentEmail" className="font-bold text-red-500"></span>?
+                        
+                        <h2 className="font-poppins text-base sm:text-lg md:text-lg font-semibold mb-4">
+                        Did you mean 
+                        <span id="suggestionEmail" className="font-bold text-blue-500"></span> 
+                        instead of 
+                        <span id="currentEmail" className="font-bold text-red-500"></span>?
                         </h2>
-                        <p className="text-sm sm:text-base md:text-sm mb-4 text-gray-600">
-                            Click <strong>Yes</strong> to use the suggested email or <strong>No</strong> to keep your email.
+                        
+                        <p className="font-manrope text-sm sm:text-base md:text-sm mb-4 text-gray-600">
+                        Click <strong>Yes</strong> to use the suggested email or <strong>No</strong> to keep your email.
                         </p>
+                        
                         <div className="flex justify-end gap-2 sm:gap-4">
-                            <button id="confirmBtn" className="myaccount-swal-type-button bg-blue-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-md hover:bg-blue-600">Yes</button>
-                            <button id="cancelBtn" className="myaccount-swal-type-button bg-gray-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-md hover:bg-gray-600">No</button>
+                        <button id="confirmBtn" className="font-manrope myaccount-swal-type-button bg-blue-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-md hover:bg-blue-600">Yes</button>
+                        <button id="cancelBtn" className="font-manrope myaccount-swal-type-button bg-gray-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-md hover:bg-gray-600">No</button>
                         </div>
+                        
                     </div>
                 </div>
                     <div className="myaccount-collab-form">
                     {hasSubmitted ? (
-                        <div className="flex flex-col items-center justify-center my-6 px-4 text-center">
-                            <p className="text-base sm:text-lg font-medium text-gray-700 max-w-xl mb-4">
-                            🚀 <strong>You made the right move!</strong> Your collaboration request has been submitted successfully.  
+                       <div className="flex flex-col items-center justify-center my-6 px-4 text-center">
+                        <p className="font-manrope text-base sm:text-lg font-medium text-gray-700 max-w-xl mb-4">
+                            🚀 <strong className="font-semibold">You made the right move!</strong> 
+                            Your collaboration request has been submitted successfully.  
                             Our team is reviewing your details and will reach out via email once we verify your status and needs.  
                             Excited to build something incredible together! 🌟
-                            </p>
-                            <img
+                        </p>
+                        
+                        <img
                             src="./images/collab1.png"
                             alt="Collaboration Success"
                             className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg object-contain"
-                            />
+                        />
                         </div>
                         ) : (
                             <>
-                                <div className="myaccount-collab-invite from-purple-50 to-indigo-50 border border-indigo-200 rounded-2xl p-4 mb-6 shadow-sm">
-                                <h2 className="text-base sm:text-lg md:text-xl lg:text-xl font-semibold text-indigo-700 mb-2 text-center sm:text-left">
-                                🤝 Ready to Collaborate?
+                           <div className="myaccount-collab-invite from-purple-50 to-indigo-50 border border-indigo-200 rounded-2xl p-4 mb-6 shadow-sm">
+  
+                                <h2 className="font-poppins text-base sm:text-lg md:text-xl lg:text-xl font-semibold text-indigo-700 mb-2 text-center sm:text-left">
+                                    🤝 Ready to Collaborate?
                                 </h2>
 
-                            <p className="text-gray-700 text-base leading-relaxed">
-                            Interested in working on real-world, impactful projects? Fill out the form, and we’ll reach out via email—<strong>make sure to provide a correct email address</strong>.
-                                <br /><br />
-                                <strong>✨ Join us</strong> to gain experience, recognition, and help shape the future of <strong>impactful projects</strong>.
-                                <br /><br />
-                                <span className="text-red-600 font-medium">Note:</span> Deleting your account will remove your collaboration request permanently.
-                            </p>
+                                <p className="font-manrope text-gray-700 text-base leading-relaxed">
+                                    Interested in working on real-world, impactful projects? Fill out the form, and we’ll reach out via email—<strong className="font-semibold">make sure to provide a correct email address</strong>.
+                                    <br /><br />
+                                    <strong className="font-semibold">✨ Join us</strong> to gain experience, recognition, and help shape the future of <strong className="font-semibold">impactful projects</strong>.
+                                    <br /><br />
+                                    <span className="text-red-600 font-medium">Note:</span> Deleting your account will remove your collaboration request permanently.
+                                </p>
                             </div>
-
                                 <div className="myaccount-collab-row">
                                     <input type="text" placeholder="Full Name" value={collabData.name} 
-                                        onChange={e => setCollabData({ ...collabData, name: e.target.value })} className="myaccount-collab-input" />
+                                        onChange={e => setCollabData({ ...collabData, name: e.target.value })} className="myaccount-collab-input font-urbanist" />
                                     
                                     <input type="email" placeholder="Working Email" value={collabData.email} 
-                                        onChange={e => setCollabData({ ...collabData, email: e.target.value })} className="myaccount-collab-input" />
+                                        onChange={e => setCollabData({ ...collabData, email: e.target.value })} className="myaccount-collab-input font-urbanist" />
                                 </div>
 
                                 <div className="myaccount-collab-row">
                                     <input type="text" placeholder="Collaboration Type e.g., Developer, Legal Expert, Content Creator" value={collabData.collaborationType} 
-                                        onChange={e => setCollabData({ ...collabData, collaborationType: e.target.value })} className="myaccount-collab-input" />
+                                        onChange={e => setCollabData({ ...collabData, collaborationType: e.target.value })} className="myaccount-collab-input font-urbanist" />
                                     
                                     <select value={collabData.language} onChange={e => setCollabData({ ...collabData, language: e.target.value })} 
-                                        className="myaccount-collab-dropdown">
+                                        className="myaccount-collab-dropdown font-urbanist">
                                         <option value="">Select a Programming Language</option>
                                         {["JavaScript", "Python", "Java", "C++", "C#", "Ruby", "Swift", "Kotlin", "Go", "PHP", "TypeScript", "Rust", "Dart", "Scala", "Perl"].map(lang => (
                                             <option key={lang} value={lang}>{lang}</option>
@@ -914,22 +923,22 @@ const MyAccount = () => {
 
                                 <div className="myaccount-collab-row">
                                     <input type="text" placeholder="Frameworks: ReactJS,Flask..." value={collabData.frameworks} 
-                                        onChange={e => setCollabData({ ...collabData, frameworks: e.target.value })} className="myaccount-collab-input" />
+                                        onChange={e => setCollabData({ ...collabData, frameworks: e.target.value })} className="myaccount-collab-input font-urbanist" />
                                     
                                     <input type="text" placeholder="Database: MongoDB,SQL.. (Optional)" value={collabData.database} 
-                                        onChange={e => setCollabData({ ...collabData, database: e.target.value })} className="myaccount-collab-input" />
+                                        onChange={e => setCollabData({ ...collabData, database: e.target.value })} className="myaccount-collab-input font-urbanist" />
                                 </div>
 
                                 <div className="myaccount-collab-row">
-                                    <input type="text" placeholder="Other Skills Communication,MachineLearning (Optional)" value={collabData.skills} 
-                                        onChange={e => setCollabData({ ...collabData, skills: e.target.value })} className="myaccount-collab-input" />
+                                    <textarea placeholder="Other Skills Communication,MachineLearning (Optional)" value={collabData.skills} 
+                                        onChange={e => setCollabData({ ...collabData, skills: e.target.value })} className="myaccount-collab-textarea font-urbanist"></textarea>
                                     
                                     <textarea placeholder="Message" value={collabData.message} 
-                                        onChange={e => setCollabData({ ...collabData, message: e.target.value })} className="myaccount-collab-textarea"></textarea>
+                                        onChange={e => setCollabData({ ...collabData, message: e.target.value })} className="myaccount-collab-textarea font-urbanist"></textarea>
                                 </div>
 
                                 <div className="myaccount-collab-modal-actions">
-                                <button onClick={handleCollabSubmit} disabled={isSubmittingCollab} className="myaccount-collab-submit-button">
+                                <button onClick={handleCollabSubmit} disabled={isSubmittingCollab} className="myaccount-collab-submit-button font-manrope">
                             {isSubmittingCollab ? (
                                 <span className="flex items-center gap-2 text-white">
                                 <svg
@@ -965,8 +974,8 @@ const MyAccount = () => {
                     </div>
 
                     {/* Creator Credits */}
-                    <div className="myaccount-collab-credits">
-                        <p>Developed by <strong>Subhash Yaganti</strong> & <strong>Vemula Siri Mahalaxmi</strong></p>
+                    <div className="myaccount-collab-credits font-manrope">
+                        <p>Developed by <strong>Subhash Yaganti</strong> & <strong>Siri Mahalaxmi Vemula</strong></p>
                         <p>
                             <a href="https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/" target="_blank" rel="noopener noreferrer">LinkedIn</a> | 
                             <a href="https://github.com/subhash-22-codes" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -982,8 +991,8 @@ const MyAccount = () => {
                 >
                     <div className="myaccount-delete-modal-content">
                         <AlertTriangle size={32} className="myaccount-delete-warning-icon" />
-                        <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-                        <ul className="myaccount-delete-consequences">
+                        <p className='font-poppins'>Are you sure you want to delete your account? This action cannot be undone.</p>
+                        <ul className="myaccount-delete-consequences font-urbanist">
                             <li>Your profile and personal data will be permanently deleted</li>
                             <li>All your quiz progress will be lost</li>
                             <li>You won't be able to recover your account</li>
@@ -999,7 +1008,7 @@ const MyAccount = () => {
 
                     <div className="myaccount-modal-actions">
                         <button 
-                            className="myaccount-delete-btn-confirm" 
+                            className="myaccount-delete-btn-confirm font-manrope" 
                             onClick={handleDeleteAccount} 
                             disabled={isDeleting}
                         >
@@ -1015,7 +1024,7 @@ const MyAccount = () => {
                         </button>
 
                         <button 
-                            className="myaccount-delete-btn-cancel" 
+                            className="myaccount-delete-btn-cancel font-manrope" 
                             onClick={() => toggleModal('delete', false)} 
                             disabled={isDeleting}
                         >
@@ -1037,11 +1046,11 @@ const MyAccount = () => {
                             className="myaccount-helpandsupport-icon w-8 h-8 mb-3"
                             />
 
-                    <p className="myaccount-helpandsupport-text text-gray-700 mb-4 text-sm">
+                    <p className="myaccount-helpandsupport-text text-gray-700 mb-4 text-sm font-poppins">
                     If you're facing any issues or have questions, we're here to help!
                     </p>
 
-                    <ul className="myaccount-helpandsupport-options text-left text-sm text-gray-600 space-y-2">
+                    <ul className="myaccount-helpandsupport-options text-left text-sm text-gray-600 space-y-2 font-urbanist">
                     <li>📧 Email us: <a href="mailto:justicegenie2.0@gmail.com" className="text-blue-600">justicegenie2.0@gmail.com</a></li>
                     <li>📚 Read our FAQ (Coming Soon)</li>
                     <li>🔧 For urgent issues, contact the admin panel</li>
@@ -1050,7 +1059,7 @@ const MyAccount = () => {
 
                 <div className="myaccount-helpandsupport-actions mt-4 flex justify-center">
                 <button
-                    className="myaccount-helpandsupport-btn-close bg-gray-200 text-gray-800 text-sm sm:text-base px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-300 transition-all duration-200"
+                    className="font-manrope myaccount-helpandsupport-btn-close bg-gray-200 text-gray-800 text-sm sm:text-base px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-300 transition-all duration-200"
                     onClick={() => toggleModal('help', false)}
                     >
                     Close

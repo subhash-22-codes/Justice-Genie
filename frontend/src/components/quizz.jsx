@@ -274,7 +274,7 @@ const handleSaveGameName = () => {
     return (
       <div className="quiz-levels-container">
         <h2 className="quiz-levels-title">Challenge Levels</h2>
-        <div className="quiz-levels-grid">
+        <div className="quiz-levels-grid font-urbanist">
           {quizLevels.map((level) => (
             <div 
               key={level.id}
@@ -294,7 +294,7 @@ const handleSaveGameName = () => {
               {showLevelInfo === level.id && (
                 <div className="quiz-level-tooltip">
                   <p>{level.description}</p>
-                  {level.locked && <p className="quiz-level-locked-message">Complete previous levels to unlock</p>}
+                  {level.locked && <p className="quiz-level-locked-message font-poppins">Coming Soon</p>}
                 </div>
               )}
             </div>
@@ -311,15 +311,15 @@ const handleSaveGameName = () => {
           <User size={24} />
         </div>
         <div className="quiz-user-info">
-          <div className="quiz-username">{username}</div>
+          <div className="quiz-username font-urbanist">{username}</div>
           <div className="quiz-game-name-container">
             {editingName ? (
-              <div className="quiz-game-name-edit">
+              <div className="quiz-game-name-edit font-urbanist">
                 <input 
                   type="text" 
                   value={tempGameName} 
                   onChange={(e) => setTempGameName(e.target.value)}
-                  className="quiz-game-name-input"
+                  className="quiz-game-name-input font-urbanist"
                 />
                 <button className="quiz-game-name-save" onClick={handleSaveGameName}>
                   <Save size={16} />
@@ -335,7 +335,7 @@ const handleSaveGameName = () => {
             )}
           </div>
         </div>
-        <div className="quiz-user-rank" onClick={toggleLeaderboard}>
+        <div className="quiz-user-rank font-urbanist" onClick={toggleLeaderboard}>
           <Trophy size={20} />
           <span>Rank #{userRank || 'Loading...'}</span>  {/* ✅ Show updated rank */}
         </div>
@@ -358,7 +358,7 @@ const handleSaveGameName = () => {
             <button className="quiz-leaderboard-close" onClick={toggleLeaderboard}>×</button>
           </div>
           <div className="quiz-leaderboard-content">
-            <table className="quiz-leaderboard-table">
+            <table className="quiz-leaderboard-table font-poppins">
               <thead>
                 <tr>
                   <th>Rank</th>
@@ -395,7 +395,7 @@ const handleSaveGameName = () => {
                   </td>
                   <td>{player.username}</td>
                   <td>{player.gameName}</td>
-                  <td>{player.score}</td>
+                  <td className="font-spacegrotesk">{player.score}</td>
                 </tr>
               ))}
 
@@ -413,7 +413,7 @@ const handleSaveGameName = () => {
   
       <div className="quiz-sidebar">
       <button
-  className="law-pdf-back-button flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105"
+  className="font-manrope law-pdf-back-button flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105"
   onClick={() => navigate('/chat')}
   aria-label="Back to Dashboard"
 >
@@ -433,7 +433,7 @@ const handleSaveGameName = () => {
   
           {!quizStarted ? (
             <button 
-              className="quiz-start-button" 
+              className="quiz-start-button font-manrope" 
               onClick={() => setQuizStarted(true)}
             >
               Start Quiz
@@ -458,7 +458,7 @@ const handleSaveGameName = () => {
               setCurrentQuestion(0);  // Go back to the first question
               setTimeLeft(900);       // Reset timer (15 minutes = 900s)
             }}
-            className="Quizz-restart bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-4"
+            className="font-manrope Quizz-restart bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-4"
           >
              Restart Quiz
           </button>
@@ -468,16 +468,16 @@ const handleSaveGameName = () => {
             <div className="quiz-placeholder">
               <img src="/images/right-image.png" alt="Justice Quiz" className="quiz-banner" />
               <h2 className="quiz-welcome">📜 Justice Genie Quiz</h2>
-              <p className="quiz-instruction">
+              <p className="quiz-instruction font-manrope">
                 Once you start, <strong>there's no turning back!</strong> 
               </p>
-              <p className="quiz-details">
+              <p className="quiz-details font-manrope">
                 ⏳ <strong>Time Limit:</strong> 15 minutes  
               </p>
-              <p className="quiz-warning">
+              <p className="quiz-warning font-manrope">
                 ⚠️ <strong>Important:</strong> If time runs out, your answers will be auto-submitted.  
               </p>
-              <p className="quiz-leaderboard-note">
+              <p className="quiz-leaderboard-note font-manrope">
                 🔄 Refresh after submission to see your position on the leaderboard.
               </p>
             </div>
@@ -520,7 +520,7 @@ const handleSaveGameName = () => {
               )}
               <div className="quiz-navigation">
                 <button 
-                  className="quiz-nav-button" 
+                  className="quiz-nav-button font-manrope" 
                   onClick={handlePrevious}
                   disabled={currentQuestion === 0}
                 >
@@ -528,7 +528,7 @@ const handleSaveGameName = () => {
                 </button>
                 {currentQuestion === questions.length - 1 ? (
                   <button 
-                    className="quiz-submit" 
+                    className="quiz-submit font-manrope" 
                     onClick={handleSubmit} 
                     disabled={isSubmitting} // ✅ disable while loading
                   >
@@ -544,7 +544,7 @@ const handleSaveGameName = () => {
                   </button>
                 ) : (
                   <button 
-                    className="quiz-nav-button quiz-next" 
+                    className="quiz-nav-button quiz-next font-manrope" 
                     onClick={handleNext}
                   >
                     Next
@@ -556,7 +556,7 @@ const handleSaveGameName = () => {
           </div>
         ) : null}
           {timeLeft === 0 && submitted && (
-             <div className="quiz-timeout-message">
+             <div className="quiz-timeout-message font-manrope">
                  Time’s up! Your quiz has been auto-submitted.
               </div>
           )}
@@ -565,18 +565,25 @@ const handleSaveGameName = () => {
         {submitted && (
           <div className="quiz-results animate-fade-in">
             <div className="quiz-score-container">
-              <div className="quiz-score-circle" style={{ 
-                '--percentage': `${percentage}%`,
-                '--color': percentage >= 70 ? '#4CAF50' : percentage >= 40 ? '#FFA726' : '#F44336'
-              }}>
-                <div className="quiz-score-inner">
+              <div
+                className="quiz-score-circle"
+                style={{
+                  '--percentage': `${percentage.toFixed(2)}%`,
+                  '--color':
+                    percentage >= 70
+                      ? '#4CAF50'
+                      : percentage >= 40
+                      ? '#FFA726'
+                      : '#F44336',
+                }}
+              >
+                <div className="quiz-score-inner font-courgette">
                   <span className="quiz-score-number">{score}</span>
                   <span className="quiz-score-total">/ {questions.length}</span>
-                  <div className="quiz-percentage">{percentage}%</div>
+                  <div className="quiz-percentage">{percentage.toFixed(2)}%</div>
                 </div>
               </div>
             </div>
-  
             <div className="quiz-results-list">
               {results.map((result, index) => (
                 <div 
@@ -592,20 +599,20 @@ const handleSaveGameName = () => {
                     <h3 className="quiz-question-text">{result.question}</h3>
                     <div className="quiz-answer-box">
                       <p>
-                        <span className="quiz-answer-label">Your Answer:</span> 
+                        <span className="quiz-answer-label font-manrope">Your Answer:</span> 
                         <span className={result.answer_status === 'correct' ? 'quiz-correct-text' : 'quiz-incorrect-text'}>
                           {answers[result.question]}
                         </span>
                       </p>
                       {result.answer_status !== 'correct' && (
                         <p>
-                          <span className="quiz-answer-label">Correct Answer:</span> 
+                          <span className="quiz-answer-label font-manrope">Correct Answer:</span> 
                           <span className="quiz-correct-text">{result.correct_answer}</span>
                         </p>
                       )}
                     </div>
                     {result.explanation && (
-                      <div className="quiz-explanation">
+                      <div className="quiz-explanation font-manrope">
                         <Info size={16} className="quiz-info-icon" />
                         <p>{result.explanation}</p>
                       </div>
@@ -623,7 +630,7 @@ const handleSaveGameName = () => {
               setCurrentQuestion(0);  // Go back to the first question
               setTimeLeft(900);       // Reset timer (15 minutes = 900s)
             }}
-            className="Quizz-restart bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-4"
+            className="font-manrope Quizz-restart bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-4"
           >
              Restart Quiz
           </button>

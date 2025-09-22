@@ -119,15 +119,23 @@
     object-fit: contain;
   }
   
-  .login-right-panel {
-    flex: 1;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: clamp(1rem, 4vw, 2rem);
-  }
-  
+.login-right-panel {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 2rem);
+
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(0,0,0,0.02) 0,
+    rgba(0,0,0,0.02) 1px,
+    transparent 1px,
+    transparent 50px
+  );
+}
+
   .login-container {
     width: 100%;
     max-width: min(400px, 90%);

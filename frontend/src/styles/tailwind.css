@@ -9,10 +9,22 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif; /* Use a consistent font for the body */
+  font-family: 'Poppins', sans-serif; 
   line-height: 1.5;
   background-color: #fff; /* Set the base background */
 }
+/* Hide scrollbar for entire page */
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+
 
 ul, ol {
 }
@@ -38,9 +50,10 @@ a {
 /* Heading styles */
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-weight: 700;
   }
+
 }
 /* Prevent zoom on input focus (Safari & mobile Chrome) */
 input,

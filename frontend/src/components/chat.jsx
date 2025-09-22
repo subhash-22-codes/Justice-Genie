@@ -254,41 +254,43 @@ const handleCancelTranslation = () => {
 
   
   // ✅ Fetch chat history from MongoDB on component mount
-  useEffect(() => {
-    if (!username) return;
-  
-    const fetchMessages = async () => {
-  try {
-    setMessages([]); // Clear messages before fetching
-    const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/get_chat?username=${username}`,
-      {
-        method: "GET",
-        credentials: "include", // 🔑 send cookies/session
-      }
-    );
+ useEffect(() => {
+  if (!username) return;
 
-    const data = await response.json();
-    setMessages(data.messages || []); // Setting messages after fetching
-  } catch (error) {
-    console.error("Error fetching chat history:", error);
-  }
-};
+  const fetchMessages = async () => {
+    try {
+      setMessages([]); // Clear messages before fetching
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/get_chat?username=${username}`,
+        {
+          method: "GET",
+          credentials: "include", // send cookies/session
+        }
+      );
 
-  
-    fetchMessages();
-  
-    const handleChatClear = () => {
-      setMessages([]); // Clear chat messages from UI
-    };
-  
-    window.addEventListener("chatHistoryCleared", handleChatClear);
-  
-    return () => {
-      window.removeEventListener("chatHistoryCleared", handleChatClear);
-    };
-  }, [username]);
-  
+      const data = await response.json();
+      setMessages(data.messages || []); // Set fetched messages
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+    }
+  };
+
+  fetchMessages();
+
+  const handleChatClear = () => {
+    console.log("[Chat] chatHistoryClear event received! Clearing messages...");
+    setMessages([]); 
+    localStorage.removeItem(`chatHistory_${username}`);
+  };
+
+  // ✅ Listen to the correct event name
+  window.addEventListener("chatHistoryClear", handleChatClear);
+
+  return () => {
+    window.removeEventListener("chatHistoryClear", handleChatClear);
+  };
+}, [username]);
+
   
    // ✅ Store messages in MongoDB instead of local storage
    const handleAnalyze = async (botMessage) => {
@@ -750,10 +752,16 @@ const fallbackCopy = (text) => {
       {/* Sidebar */}
       <aside className={`chat-sidebar ${sidebarOpen ? 'chat-sidebar-open' : ''}`}>
         <div className="chat-sidebar-header">
-          <div className="chat-logo">
-            <Zap className="chat-logo-icon" size={24} />
-            <h1><strong>Justice Genie</strong></h1>
-          </div>
+          <div className="chat-logo flex items-center space-x-2">
+          {/* Logo Image */}
+          <img
+            src="/images/jg_original_logo_1.png" 
+            alt="Justice Genie Logo"
+            className="w-6 h-6 object-contain" 
+          />
+          <h1 className="text-[1.1rem] font-bold font-manrope"><strong>Justice Genie</strong></h1>
+        </div>
+
           <button 
             className="chat-sidebar-close"
             onClick={toggleSidebar}
@@ -780,15 +788,15 @@ const fallbackCopy = (text) => {
             )}
           </div>
           <div className="chat-user-details">
-            <h3 className="chat-username-large">{username || 'Guest User'}</h3>
-            <span className="chat-user-status">
+            <h3 className="chat-username-large font-poppins">{username || 'Guest User'}</h3>
+            <span className="chat-user-status font-urbanist">
               {isOnline ? 'Online' : 'Offline'}
             </span>
           </div>
         </div>
 
         <nav className="chat-nav">
-        <div className="chat-nav-section">
+        <div className="chat-nav-section font-manrope">
               <h4 className="chat-nav-title">Tools</h4>
               {navItems.map((item, index) => (
                 <Link 
@@ -808,7 +816,7 @@ const fallbackCopy = (text) => {
               ))}
             </div>
 
-          <div className="chat-nav-section">
+          <div className="chat-nav-section font-manrope">
             <h4 className="chat-nav-title">Preferences</h4>
             {/* Dark Mode button */}
             <button 
@@ -840,7 +848,7 @@ const fallbackCopy = (text) => {
           </div>
         </nav>
 
-        <div className="chat-sidebar-footer">
+        <div className="chat-sidebar-footer font-urbanist">
           <p>© 2025 Justice Genie</p>
           <p>All rights reserved</p>
         </div>
@@ -858,9 +866,9 @@ const fallbackCopy = (text) => {
           >
             <Menu size={24} />
           </button>
-            <h2>Understand Your Legal Rights</h2>
+            <h2 className='font-manrope'>Understand Your Legal Rights</h2>
             {!isOnline && (
-              <span className="chat-offline-badge">
+              <span className="chat-offline-badge font-urbanist">
                 <AlertCircle size={16} />
                 Offline
               </span>
@@ -880,26 +888,26 @@ const fallbackCopy = (text) => {
           {messages.length === 0 && (
             <div className="chat-empty-state">
               <div className="chat-empty-illustration">
-                <MessageSquare size={48} />
+                <MessageSquare size={24} />
               </div>
-              <h3>Start Your Legal Conversation</h3>
-              <p>Ask any legal question and get expert guidance from Justice Genie</p>
+              <h3 className='font-poppins'>Start Your Legal Conversation</h3>
+              <p className='font-urbanist'>Ask any legal question and get expert guidance from Justice Genie</p>
               <div className="chat-sample-questions">
                 <button 
                   onClick={() => handleSampleQuestion("What are my rights as a tenant?")}
-                  className="chat-sample-question"
+                  className="chat-sample-question  font-manrope"
                 >
                   What are my rights as a tenant?
                 </button>
                 <button 
                   onClick={() => handleSampleQuestion("How do I file a small claims case?")}
-                  className="chat-sample-question"
+                  className="chat-sample-question  font-manrope"
                 >
                   How do I file a small claims case?
                 </button>
                 <button 
                   onClick={() => handleSampleQuestion("Explain employment discrimination laws")}
-                  className="chat-sample-question"
+                  className="chat-sample-question  font-manrope"
                 >
                   Explain employment discrimination laws
                 </button>
@@ -928,7 +936,7 @@ const fallbackCopy = (text) => {
 
             <div className="chat-message-text-container">
               <div
-                className="chat-message-text"
+                className="chat-message-text font-manrope"
                 dangerouslySetInnerHTML={{ __html: message.content }}
               />
 
@@ -1011,12 +1019,12 @@ const fallbackCopy = (text) => {
             )}
 
             {activeTranslateMessageId === message.id && (
-              <div className="language-menu">
+              <div className="language-menu font-urbanist">
                 {loadingTranslation && currentMessageId === message.id ? (
                   <div className="chat-transLoad">
                     <div className="loader"></div>
-                    <p>Translating into {languages.find(lang => lang.code === loadingTranslation)?.name || loadingTranslation}...</p>
-                    <button className="chat-trans-cancel-btn" onClick={handleCancelTranslation}>
+                    <p className='font-poppins'>Translating into {languages.find(lang => lang.code === loadingTranslation)?.name || loadingTranslation}...</p>
+                    <button className="chat-trans-cancel-btn font-spacegrotesk" onClick={handleCancelTranslation}>
                       Cancel
                     </button>
                   </div>
@@ -1062,8 +1070,8 @@ const fallbackCopy = (text) => {
           {/* Popup Box */}
           {popupMessageId === message.id && message.type === "bot" && (
            <div className="graph-popup w-[220px] sm:w-[85%] max-w-sm md:w-[220px] text-center p-3 sm:p-4 rounded-lg shadow-xl border bg-white absolute left-1/2 bottom-[70px] translate-x-[-50%] z-[9999] transition-opacity duration-200">
-           <p className="text-base sm:text-lg font-semibold text-gray-800">Do you want to analyze the query?</p>
-           <p className="popup-subtext text-xs sm:text-sm text-gray-600 mb-2">You have 2 free trials left.</p>
+           <p className="font-poppins text-base sm:text-lg font-semibold text-gray-800">Do you want to analyze the query?</p>
+           <p className="font-urbanist popup-subtext text-xs sm:text-sm text-gray-600 mb-2">You have 2 free trials left.</p>
            <button
              type="button"
              className="analyze-button font-bold w-full py-2 sm:py-2.5 px-3 bg-[#007bff] hover:bg-[#0056b3] text-[yellowgreen] text-sm rounded-md transition-all duration-300"
@@ -1118,7 +1126,7 @@ const fallbackCopy = (text) => {
               ? "Ask about your legal rights..."
               : "You're offline. Messages will be sent when you're back online."
           }
-          className="chat-input"
+          className="chat-input font-manrope"
           rows={1}
           disabled={!isOnline || isLoading}
         />

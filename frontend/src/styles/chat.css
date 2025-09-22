@@ -265,16 +265,6 @@ canvas {
   z-index: 5;
 }
 
-.chat-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.chat-logo-icon {
-  color: var(--chat-primary);
-  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
-}
 
 .chat-logo h1 {
   font-size: 1.25rem;
@@ -349,7 +339,7 @@ canvas {
 }
 
 .chat-username-large {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1.125rem;
   margin: 0 0 0.25rem;
   color: var(--chat-text);
@@ -753,13 +743,13 @@ canvas {
 .chat-empty-illustration {
   background-color: var(--chat-primary-light);
   border-radius: 50%;
-  width: 6rem;
-  height: 6rem;
+  width: 4rem;
+  height: 4rem;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 2rem;
-  box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1);
+
   position: relative;
   overflow: hidden;
 }
@@ -1950,12 +1940,6 @@ html::-webkit-scrollbar {
   min-width: 60px;
 }
 
-/* Improved button hover states */
-/* .chat-send-btn:hover:not(:disabled):not(.chat-send-btn-active),
-.chat-export-btn:hover:not(:disabled) {
-  background-color: var(--chat-bg-secondary);
-  transform: translateY(-1px);
-} */
 /* Smooth & Polished Styling for SweetAlert2 */
 .chat-swal-popup {
   border-radius: 12px;
