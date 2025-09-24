@@ -2091,3 +2091,80 @@ html::-webkit-scrollbar {
     max-width: 450px; /* Slightly larger for big screens */
   }
 }
+/* Add this to your global CSS for the top progress bar animation */
+@keyframes indeterminate-animation {
+  0% {
+    transform: translateX(0) scaleX(0);
+  }
+  40% {
+    transform: translateX(0) scaleX(0.4);
+  }
+  100% {
+    transform: translateX(100%) scaleX(0.5);
+  }
+}
+
+/* Container for the button */
+.chat-boot-error-action-container {
+  margin-top: 1rem; /* mt-4 */
+}
+
+/* Base styles for the button */
+.chat-boot-error-retry-button {
+  /* Sizing and Spacing */
+  padding: 0.375rem 1rem; /* py-1.5 px-4 */
+  border-radius: 9999px; /* rounded-full */
+  border-width: 1px;
+  border-style: solid;
+
+  /* Font */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  line-height: 1.25rem;
+
+  /* Behavior */
+  cursor: pointer;
+  transition: background-color 150ms ease-in-out, border-color 150ms ease-in-out; /* transition-colors */
+}
+
+/* --- Light Mode Styles (Default) --- */
+.chat-boot-error-retry-button {
+  background-color: #dbeafe; /* bg-blue-100 */
+  color: #1d4ed8; /* text-blue-700 */
+  border-color: #93c5fd; /* border-blue-300 */
+}
+
+.chat-boot-error-retry-button:hover {
+  background-color: #bfdbfe; /* hover:bg-blue-200 */
+}
+
+
+/* --- Dark Mode Styles --- */
+@media (prefers-color-scheme: dark) {
+  .chat-boot-error-retry-button {
+    background-color: rgba(59, 130, 246, 0.2); /* dark:bg-blue-500/20 */
+    color: #60a5fa; /* dark:text-blue-400 */
+    border-color: rgba(59, 130, 246, 0.3); /* dark:border-blue-500/30 */
+  }
+
+  .chat-boot-error-retry-button:hover {
+    background-color: rgba(59, 130, 246, 0.3); /* dark:hover:bg-blue-500/30 */
+  }
+}
+
+/* Blue circular booting loader */
+.chat-booting-loader {
+  width: 45px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: 
+    radial-gradient(farthest-side, #3b82f6 94%, #0000) top/8px 8px no-repeat, /* inner dot */
+    conic-gradient(#0000 30%, #3b82f6); /* conic rotating arc */
+  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 0);
+  animation: l13 1s infinite linear;
+}
+
+@keyframes l13 { 
+  100% { transform: rotate(1turn); }
+}
+

@@ -23,23 +23,11 @@
   display: flex;
   align-items: center;
   padding: 16px;
-  background-color: #f0f4f8;
+  background-color: #fafafaff;
   border-radius: 12px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: rgba(0, 0, 0, 0.09) 0px 3px 12px;
   
-}
-
-.quiz-user-avatar {
-  width: 48px;
-  height: 48px;
-  background-color: #6366f1;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  margin-right: 12px;
 }
 
 .quiz-user-info {
@@ -106,6 +94,7 @@
 
 .quiz-game-name-save:hover {
   background-color: #4f46e5;
+  transform: scale(1.1);
 }
 
 .quiz-user-rank {
@@ -125,6 +114,21 @@
 .quiz-user-rank:hover {
   background-color: #fde68a;
 }
+
+.quiz-game-name-cancel {
+  background: red;
+  border: none;
+  color: #ffffffff; /* Red for cancel */
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.quiz-game-name-cancel:hover {
+  transform: scale(1.1);
+}
+
 
 /* Quiz Levels Section */
 .quiz-levels-container {

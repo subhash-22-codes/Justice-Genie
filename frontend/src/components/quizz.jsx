@@ -12,13 +12,14 @@ import {
   BookOpen,
   Lock,
   Unlock,
-  User,
-  Edit,
   Crown,
   Save,
+  Edit,
+  X,
   Info
 } from 'lucide-react';
 import '../styles/quizz.css';
+// Using react-feather for icons
 
 const Quiz = () => {
   const [questions, setQuestions] = useState([]);
@@ -210,6 +211,11 @@ const handleSubmit = useCallback(() => {
     setTempGameName(gameName);
     setEditingName(true);
   };
+  const handleCancelGameName = () => {
+  setTempGameName(gameName); // Reset temp input to current gameName
+  setEditingName(false);      // Exit edit mode
+};
+
 
 const handleSaveGameName = () => {
   axios.post(
@@ -304,44 +310,45 @@ const handleSaveGameName = () => {
     );
   };
 
-  const renderUserProfile = () => {
-    return (
-      <div className="quiz-user-profile">
-        <div className="quiz-user-avatar">
-          <User size={24} />
-        </div>
-        <div className="quiz-user-info">
-          <div className="quiz-username font-urbanist">{username}</div>
-          <div className="quiz-game-name-container">
-            {editingName ? (
-              <div className="quiz-game-name-edit font-urbanist">
-                <input 
-                  type="text" 
-                  value={tempGameName} 
-                  onChange={(e) => setTempGameName(e.target.value)}
-                  className="quiz-game-name-input font-urbanist"
-                />
-                <button className="quiz-game-name-save" onClick={handleSaveGameName}>
-                  <Save size={16} />
-                </button>
-              </div>
-            ) : (
-              <>
-                <span className="quiz-game-name">{gameName}</span>
-                <button className="quiz-game-name-edit-btn" onClick={handleEditGameName}>
-                  <Edit size={16} />
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-        <div className="quiz-user-rank font-urbanist" onClick={toggleLeaderboard}>
-          <Trophy size={20} />
-          <span>Rank #{userRank || 'Loading...'}</span>  {/* ✅ Show updated rank */}
+const renderUserProfile = () => {
+  return (
+    <div className="quiz-user-profile">
+      <div className="quiz-user-info">
+        <div className="quiz-username font-urbanist">{username}</div>
+        <div className="quiz-game-name-container">
+          {editingName ? (
+            <div className="quiz-game-name-edit font-urbanist">
+              <input 
+                type="text" 
+                value={tempGameName} 
+                onChange={(e) => setTempGameName(e.target.value)}
+                className="quiz-game-name-input font-urbanist"
+              />
+              <button className="quiz-game-name-save" onClick={handleSaveGameName}>
+                <Save size={16} />
+              </button>
+              <button className="quiz-game-name-cancel" onClick={handleCancelGameName}>
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <span className="quiz-game-name">{gameName}</span>
+              <button className="quiz-game-name-edit-btn" onClick={handleEditGameName}>
+                <Edit size={16} />
+              </button>
+            </>
+          )}
         </div>
       </div>
-    );
-  };
+      <div className="quiz-user-rank font-urbanist" onClick={toggleLeaderboard}>
+        <Trophy size={20} />
+        <span>Rank #{userRank || 'Loading...'}</span>
+      </div>
+    </div>
+  );
+};
+
 
    
   const renderLeaderboard = () => {
@@ -411,15 +418,15 @@ const handleSaveGameName = () => {
     <div className="quiz-app-container">
       {renderLeaderboard()}
   
-      <div className="quiz-sidebar">
+    <div className="quiz-sidebar">
       <button
-  className="font-manrope law-pdf-back-button flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105"
-  onClick={() => navigate('/chat')}
-  aria-label="Back to Dashboard"
->
-  <ArrowLeft className="w-5 h-5" />
-  <span>Back to Chat</span>
-</button>
+        className="font-manrope law-pdf-back-button flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105"
+        onClick={() => navigate('/chat')}
+        aria-label="Back to Dashboard"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span>Back to Chat</span>
+      </button>
         {renderUserProfile()}
         {renderLevelSelector()}
       </div>

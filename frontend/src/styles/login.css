@@ -18,7 +18,7 @@
     width: 100%;
     max-width: min(1400px, 95vw);
     height: min(800px, 90vh);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     border-radius: clamp(8px, 2vw, 16px);
     overflow: hidden;
     position: relative;

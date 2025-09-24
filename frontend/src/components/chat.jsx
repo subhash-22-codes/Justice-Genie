@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
-  Send, Moon, Sun, Trash2, LogOut, MessageSquare, 
+  Send, Moon, Sun, Trash2, LogOut, MessageSquare,
   User, FileText, Zap, Loader, Scale, 
   BookOpen, Download, AlertCircle, Menu,Clipboard,ThumbsDown,ThumbsUp,Globe,Mic,BarChart,XCircle,RotateCcw,MicOff,Volume2,SquareDotIcon,Check
 } from 'lucide-react';
@@ -43,6 +43,7 @@ const Chat = () => {
   // let controller = new AbortController(); // To cancel fetch if stopped
 
   const recognitionRef = useRef(null); // Store recognition instance
+  const [bootLoading, setBootLoading] = useState(false);
 
  
   const handleMicClick = () => {
@@ -454,36 +455,52 @@ useEffect(() => {
   }, [isDarkMode]);
 
   // Fetch User Data (Ensure unique chat storage per user)
-  const fetchUserData = async () => {
-  try {
-    setError(null);
-    const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
-      {
-        credentials: 'include', // 👈 sends cookies/session
+  const fetchUserData = useCallback(
+    async (retries = 6, delay = 10000) => {
+      try {
+        setError(null);       // Clear previous errors
+        setBootLoading(true); // Show loader
+
+        // Fetch user data from backend
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
+          { credentials: "include" }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch user data");
+
+        const data = await response.json();
+        setUsername(data.username);
+        setProfilePicture(data.profile_picture || "");
+
+        // Load user-specific chat history from localStorage
+        const savedMessages = localStorage.getItem(`chatHistory_${data.username}`);
+        if (savedMessages) setMessages(JSON.parse(savedMessages));
+
+        setBootLoading(false); // ✅ Hide loader after success
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+
+        if (retries > 0) {
+          // 🔄 Retry fetch after specified delay
+          setTimeout(() => fetchUserData(retries - 1, delay), delay);
+        } else {
+          // ❌ All retries failed → show error
+          setBootLoading(false);
+          setError("Server is taking too long to respond. Please refresh later.");
+        }
       }
-    );
-    console.log("myaccount response:", response.status, response.statusText);
-    if (!response.ok) throw new Error('Failed to fetch user data');
-    const data = await response.json();
-    setUsername(data.username);
-    setProfilePicture(data.profile_picture || '');
+    },
+    [] // Only created once
+  );
 
-    // Load user-specific chat history
-    const savedMessages = localStorage.getItem(`chatHistory_${data.username}`);
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
-    }
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    setError('Failed to load user data. Please refresh the page.');
-  }
-};
-
-  
+  // -----------------------------
+  // Trigger fetch on component mount
+  // -----------------------------
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [fetchUserData]);
+
 
   // Save Chat History for Specific User
   useEffect(() => {
@@ -749,8 +766,94 @@ const handleLogout = useCallback(() => {
       inputRef.current.focus();
     }
   };
-  
-  
+
+if (bootLoading && !error) {
+  return (
+    // Full-page loader container
+    <div className="relative w-full h-full min-h-[calc(100vh-100px)] flex flex-col items-center justify-center">
+
+      {/* Top progress bar */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-blue-200 dark:bg-blue-900/50 overflow-hidden">
+        <div 
+          className="absolute top-0 left-0 h-full bg-blue-500 dark:bg-blue-400"
+          style={{ 
+            width: '100%',
+            transformOrigin: '0% 50%',
+            animation: 'indeterminate-animation 1.5s infinite linear'
+          }}
+        ></div>
+      </div>
+
+      {/* Centered spinner and text */}
+      <div className="flex flex-col items-center animate-fadeIn">
+        {/* Font Awesome spinner */}
+        <div className="mb-4">
+        <div className="chat-booting-loader"></div>
+        </div>
+        <p className="text-lg font-medium text-gray-700 dark:text-gray-300 text-center">
+          Connecting to Justice Genie...
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 text-center">
+          Please wait a moment.
+        </p>
+         <p className="text-xs text-gray-400 dark:text-gray-500 mt-6 text-center">
+        Loading may take a few seconds depending on server response.
+      </p>
+      </div>
+    </div>
+  );
+}
+
+if (error) {
+  return (
+    // Main container to center the chat content
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-8 py-10">
+      <div className="flex justify-start items-start space-x-4">
+        {/* Bot Avatar */}
+        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex-shrink-0 flex items-center justify-center">
+          <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+
+        <div className="flex-1">
+          {/* The error message bubble */}
+          <div className="bg-red-50 dark:bg-gray-800 border border-red-200 dark:border-red-500/30 rounded-lg rounded-bl-none p-4 max-w-lg">
+            <div className="flex items-start space-x-3">
+              <svg className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="font-semibold text-gray-800 dark:text-gray-200">
+                  Connection Error
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  Apologies, I'm having trouble connecting to my services at the moment.
+                </p>
+                {/* Optional: Display the actual error subtly */}
+                {error && (
+                  <p className="text-xs text-red-500/80 dark:text-red-500/50 mt-2 font-mono">
+                    Details: {error}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Action button */}
+          <div className="chat-boot-error-action-container">
+            <button
+              onClick={() => fetchUserData()}
+              className="chat-boot-error-retry-button font-manrope"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <div className={`chat-container ${isDarkMode ? 'chat-dark-mode' : ''}`}>
 

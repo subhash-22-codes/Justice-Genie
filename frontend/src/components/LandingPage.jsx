@@ -88,21 +88,21 @@ export default function LandingPage() {
       title: "Interactive Legal Quizzes",
       description: "Master Indian law through engaging, adaptive quizzes that adjust to your knowledge level and track your progress over time.",
       benefits: ["Global Leaderboard", "Progress Tracking", "Case-Based Questions", "Self-Evaluation"],
-      color: "#be37aeff"
+      color: "#f59e0b"
     },
     {
       icon: <FaFilePdf />,
       title: "Legal Document Library",
       description: "Access a comprehensive collection of legal documents, templates, and reference materials curated by legal experts.",
       benefits: ["Expert Curated", "Always Updated", "Instant Download", "Searchable Database"],
-      color: "#f59e0b"
+      color: "#f12e24ff"
     },
     {
       icon: <FaBookOpen />,
       title: "Curated Legal Resources",
       description: "Discover handpicked legal books, articles, case studies, and educational materials from trusted legal authorities.",
       benefits: ["Trusted Sources", "Regular Updates", "Categorized Content", "Expert Recommendations"],
-      color: "#10b981"
+      color: "#be37aeff"
     }
   ];
 
@@ -131,10 +131,10 @@ export default function LandingPage() {
   // ];
 
   const stats = [
-    { number: "100+", label: "Legal Questions Answered", icon: <FaQuestionCircle /> },
-    { number: "soon", label: "Legal Documents", icon: <FaFilePdf /> },
-    { number: "30+", label: "Active Users", icon: <FaUsers /> },
-    { number: "90%", label: "Accuracy Rate", icon: <FaCheckCircle /> }
+    { number: "100+", label: "Legal Questions Answered", icon: <FaQuestionCircle color="#2563eb" /> },
+    { number: "soon", label: "Legal Documents", icon: <FaFilePdf color="#dc2626" /> },
+    { number: "30+", label: "Active Users", icon: <FaUsers color="#f97316" /> },
+    { number: "90%", label: "Accuracy Rate", icon: <FaCheckCircle color="#16a34a" /> }
   ];
 
   // const teamMembers = [
@@ -312,7 +312,7 @@ export default function LandingPage() {
               </div>
               <div className="dashboard-content">
                 <div className="dashboard-card">
-                  <FaRobot className="card-icon" />
+                  <FaRobot className="card-icon text-blue-600" />
                   <div className="card-content font-urbanist">
                     <h4>AI Assistant</h4>
                     <p>Ask any legal question</p>
@@ -320,7 +320,7 @@ export default function LandingPage() {
                   <div className="card-status active font-sora">Active</div>
                 </div>
                 <div className="dashboard-card">
-                  <FaQuestionCircle className="card-icon" />
+                  <FaQuestionCircle className="card-icon text-yellow-600" />
                   <div className="card-content font-urbanist">
                     <h4>Legal Quiz</h4>
                     <p>Test your knowledge</p>
@@ -328,7 +328,7 @@ export default function LandingPage() {
                   <div className="card-status font-sora">Ready</div>
                 </div>
                 <div className="dashboard-card">
-                  <FaFilePdf className="card-icon" />
+                  <FaFilePdf className="card-icon text-red-600" />
                   <div className="card-content font-urbanist">
                     <h4>PDF Generation</h4>
                     <p>Export your chats & notes</p>
