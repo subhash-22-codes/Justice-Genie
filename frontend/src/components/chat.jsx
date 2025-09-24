@@ -455,51 +455,65 @@ useEffect(() => {
   }, [isDarkMode]);
 
   // Fetch User Data (Ensure unique chat storage per user)
-  const fetchUserData = useCallback(
-    async (retries = 6, delay = 10000) => {
-      try {
-        setError(null);       // Clear previous errors
-        setBootLoading(true); // Show loader
+ const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
+  try {
+    setError(null);
 
-        // Fetch user data from backend
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
-          { credentials: "include" }
-        );
+    // Only show loader if no cached data
+    const cachedUser = sessionStorage.getItem("userData");
+    if (!cachedUser) setBootLoading(true);
 
-        if (!response.ok) throw new Error("Failed to fetch user data");
+    // Fetch from backend
+    const response = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
+      { credentials: "include" }
+    );
 
-        const data = await response.json();
-        setUsername(data.username);
-        setProfilePicture(data.profile_picture || "");
+    if (!response.ok) throw new Error("Failed to fetch user data");
 
-        // Load user-specific chat history from localStorage
-        const savedMessages = localStorage.getItem(`chatHistory_${data.username}`);
-        if (savedMessages) setMessages(JSON.parse(savedMessages));
+    const data = await response.json();
+    setUsername(data.username);
+    setProfilePicture(data.profile_picture || "");
 
-        setBootLoading(false); // ✅ Hide loader after success
-      } catch (err) {
-        console.error("Error fetching user data:", err);
+    // Save to sessionStorage for next visits
+    sessionStorage.setItem("userData", JSON.stringify({
+      username: data.username,
+      profile_picture: data.profile_picture || ""
+    }));
 
-        if (retries > 0) {
-          // 🔄 Retry fetch after specified delay
-          setTimeout(() => fetchUserData(retries - 1, delay), delay);
-        } else {
-          // ❌ All retries failed → show error
-          setBootLoading(false);
-          setError("Server is taking too long to respond. Please refresh later.");
-        }
-      }
-    },
-    [] // Only created once
-  );
+    // Load chat history from localStorage
+    const savedMessages = localStorage.getItem(`chatHistory_${data.username}`);
+    if (savedMessages) setMessages(JSON.parse(savedMessages));
 
-  // -----------------------------
-  // Trigger fetch on component mount
-  // -----------------------------
-  useEffect(() => {
+    setBootLoading(false); // hide loader
+  } catch (err) {
+    console.error("Error fetching user data:", err);
+
+    if (retries > 0) {
+      setTimeout(() => fetchUserData(retries - 1, delay), delay);
+    } else {
+      setBootLoading(false);
+      setError("Server is taking too long to respond. Please refresh later.");
+    }
+  }
+}, []);
+
+// -----------------------------
+// Run fetch once on mount or if no cached data
+// -----------------------------
+useEffect(() => {
+  const cachedUser = sessionStorage.getItem("userData");
+  if (cachedUser) {
+    const data = JSON.parse(cachedUser);
+    setUsername(data.username);
+    setProfilePicture(data.profile_picture || "");
+
+    const savedMessages = localStorage.getItem(`chatHistory_${data.username}`);
+    if (savedMessages) setMessages(JSON.parse(savedMessages));
+  } else {
     fetchUserData();
-  }, [fetchUserData]);
+  }
+}, [fetchUserData]);
 
 
   // Save Chat History for Specific User
