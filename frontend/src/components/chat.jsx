@@ -840,7 +840,7 @@ if (bootLoading && !error) {
       <div className="flex flex-col items-center animate-fadeIn">
         {/* Font Awesome spinner */}
         <div className="mb-4">
-        <div className="chat-booting-loader"></div>
+        <i className="fas fa-spinner fa-pulse text-4xl text-blue-500 dark:text-blue-400"></i>
         </div>
         <p className="text-lg font-medium text-gray-700 dark:text-gray-300 text-center">
           Connecting to Justice Genie...
@@ -848,9 +848,10 @@ if (bootLoading && !error) {
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 text-center">
           Please wait a moment.
         </p>
-         <p className="text-xs text-gray-400 dark:text-gray-500 mt-6 text-center">
-        Loading may take a few seconds depending on server response.
-      </p>
+        <p className="text-xs sm:text-sm md:text-base text-gray-400 dark:text-gray-500 mt-6 text-center">
+          Loading may take a few seconds depending on server response.
+        </p>
+
       </div>
     </div>
   );
