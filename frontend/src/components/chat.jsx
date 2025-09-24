@@ -516,25 +516,69 @@ useEffect(() => {
 }, [fetchUserData]);
 
 
-  // Save Chat History for Specific User
-  useEffect(() => {
-    if (messages.length > 0 && username) {
-      localStorage.setItem(`chatHistory_${username}`, JSON.stringify(messages));
+ // -----------------------------
+// Hybrid Chat History Loader
+// -----------------------------
+useEffect(() => {
+  if (!username) return;
+
+  // 1️⃣ Load instantly from localStorage
+  const savedMessages = localStorage.getItem(`chatHistory_${username}`);
+  if (savedMessages) setMessages(JSON.parse(savedMessages));
+
+  // 2️⃣ Fetch latest chat from backend
+  const fetchChatHistory = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/get_messages?username=${username}`,
+        { credentials: "include" }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch messages");
+      const data = await res.json(); // expects array of messages
+
+      if (data && data.length > 0) {
+        setMessages(data); // backend takes priority
+        localStorage.setItem(`chatHistory_${username}`, JSON.stringify(data));
+      }
+    } catch (err) {
+      console.error("Error fetching chat history:", err);
     }
-  }, [messages, username]);
+  };
 
-  useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTo({
-        top: chatBoxRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
-  }, [messages]);
+  fetchChatHistory();
+}, [username]);
 
-  const abortControllerRef = useRef(null); // Holds the abort controller reference
+// -----------------------------
+// Save Chat History locally
+// -----------------------------
+useEffect(() => {
+  if (messages.length > 0 && username) {
+    localStorage.setItem(`chatHistory_${username}`, JSON.stringify(messages));
+  }
+}, [messages, username]);
 
-  const handleSendMessage = async () => {
+// -----------------------------
+// Auto-scroll
+// -----------------------------
+useEffect(() => {
+  if (chatBoxRef.current) {
+    chatBoxRef.current.scrollTo({
+      top: chatBoxRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+}, [messages]);
+
+// -----------------------------
+// Abort Controller
+// -----------------------------
+const abortControllerRef = useRef(null);
+
+// -----------------------------
+// Handle sending message
+// -----------------------------
+const handleSendMessage = async () => {
   if (!input.trim() || isLoading || !isOnline) return;
 
   const messageId = Date.now().toString();
@@ -553,17 +597,13 @@ useEffect(() => {
   abortControllerRef.current = new AbortController();
 
   try {
-    // Send user query to backend
-    const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/chat`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // 👈 include session cookie
-        body: JSON.stringify({ query: input }),
-        signal: abortControllerRef.current.signal,
-      }
-    );
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ query: input }),
+      signal: abortControllerRef.current.signal,
+    });
 
     if (!response.ok) throw new Error("Network response was not ok");
 
@@ -579,14 +619,13 @@ useEffect(() => {
       setMessages((prev) => [...prev, botMessage]);
       setIsLoading(false);
 
-      // Store both user & bot messages in MongoDB
       await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/store_message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // 👈 include session cookie here too
+        credentials: "include",
         body: JSON.stringify({
           username,
-          messages: [userMessage, botMessage], // Storing both messages
+          messages: [userMessage, botMessage],
         }),
       });
     }, 800);
@@ -601,14 +640,13 @@ useEffect(() => {
   }
 };
 
-  
-
 const handleStopRequest = () => {
   if (abortControllerRef.current) {
-    abortControllerRef.current.abort(); // Stop the fetch request
+    abortControllerRef.current.abort();
     setIsLoading(false);
   }
 };
+
 
 
   const handleExportPDF = async () => {
