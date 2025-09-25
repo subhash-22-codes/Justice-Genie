@@ -37,6 +37,7 @@ const Chat = () => {
   const [currentMessageId, setCurrentMessageId] = useState(null);
   const [cancelled, setCancelled] = useState(false); 
   const { setAuth } = useContext(AuthContext);
+  const chatCacheRef = useRef({}); // Add this at the top, with your other refs
 
   const [copied, setCopied] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -507,32 +508,23 @@ useEffect(() => {
 }, [fetchUserData]);
 
 
- // -----------------------------
-// Hybrid Chat History Loader
-// -----------------------------
 useEffect(() => {
   if (!username) return;
 
-  const fetchChatHistory = async () => {
-    try {
-      setMessages([]); // clear immediately before fetching
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/get_messages?username=${username}`,
-        { credentials: "include" }
-      );
-
-      if (!res.ok) throw new Error("Failed to fetch messages");
-      const data = await res.json(); // expects array of messages
-
-      setMessages(Array.isArray(data) ? data : []); // always use backend
-    } catch (err) {
-      console.error("Error fetching chat history:", err);
-      setMessages([]); // fallback to empty
-    }
-  };
-
-  fetchChatHistory();
+  if (chatCacheRef.current[username]) {
+    setMessages(chatCacheRef.current[username]);
+  } else {
+    setMessages([]);
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/get_chat?username=${username}`, { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        setMessages(data.messages || []);
+        chatCacheRef.current[username] = data.messages || [];
+      })
+      .catch(() => setMessages([]));
+  }
 }, [username]);
+
 
 // -----------------------------
 // Auto-scroll (unchanged)
