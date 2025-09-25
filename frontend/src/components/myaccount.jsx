@@ -563,7 +563,7 @@ const MyAccount = () => {
           });
       
           sessionStorage.removeItem("session_id");
-          localStorage.removeItem("chat_messages");
+          localStorage.removeItem(`chatHistory_${userDetails.username}`);
           window.dispatchEvent(new Event("chatHistoryClear"));
       
         } catch (error) {

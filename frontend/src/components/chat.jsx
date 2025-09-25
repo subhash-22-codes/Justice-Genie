@@ -258,7 +258,7 @@ const handleCancelTranslation = () => {
 
   
   // ✅ Fetch chat history from MongoDB on component mount
- useEffect(() => {
+useEffect(() => {
   if (!username) return;
 
   const fetchMessages = async () => {
@@ -273,9 +273,10 @@ const handleCancelTranslation = () => {
       );
 
       const data = await response.json();
-      setMessages(data.messages || []); // Set fetched messages
+      setMessages(data.messages || []); // Always use backend data
     } catch (error) {
       console.error("Error fetching chat history:", error);
+      setMessages([]); // fallback to empty
     }
   };
 
@@ -283,11 +284,10 @@ const handleCancelTranslation = () => {
 
   const handleChatClear = () => {
     console.log("[Chat] chatHistoryClear event received! Clearing messages...");
-    setMessages([]); 
-    localStorage.removeItem(`chatHistory_${username}`);
+    setMessages([]); // Clear immediately after delete
   };
 
-  // ✅ Listen to the correct event name
+  // ✅ Listen for clear event
   window.addEventListener("chatHistoryClear", handleChatClear);
 
   return () => {
@@ -454,14 +454,11 @@ useEffect(() => {
     }
   }, [isDarkMode]);
 
-  // Fetch User Data (Ensure unique chat storage per user)
- const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
+ // Fetch User Data (Ensure unique chat storage per user)
+const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
   try {
     setError(null);
-
-    // Only show loader if no cached data
-    const cachedUser = sessionStorage.getItem("userData");
-    if (!cachedUser) setBootLoading(true);
+    setBootLoading(true); // show loader
 
     // Fetch from backend
     const response = await fetch(
@@ -475,15 +472,11 @@ useEffect(() => {
     setUsername(data.username);
     setProfilePicture(data.profile_picture || "");
 
-    // Save to sessionStorage for next visits
+    // Save to sessionStorage for next visits (optional, only user info)
     sessionStorage.setItem("userData", JSON.stringify({
       username: data.username,
       profile_picture: data.profile_picture || ""
     }));
-
-    // Load chat history from localStorage
-    const savedMessages = localStorage.getItem(`chatHistory_${data.username}`);
-    if (savedMessages) setMessages(JSON.parse(savedMessages));
 
     setBootLoading(false); // hide loader
   } catch (err) {
@@ -507,9 +500,7 @@ useEffect(() => {
     const data = JSON.parse(cachedUser);
     setUsername(data.username);
     setProfilePicture(data.profile_picture || "");
-
-    const savedMessages = localStorage.getItem(`chatHistory_${data.username}`);
-    if (savedMessages) setMessages(JSON.parse(savedMessages));
+    // ❌ Removed localStorage chat preload
   } else {
     fetchUserData();
   }
@@ -522,13 +513,9 @@ useEffect(() => {
 useEffect(() => {
   if (!username) return;
 
-  // 1️⃣ Load instantly from localStorage
-  const savedMessages = localStorage.getItem(`chatHistory_${username}`);
-  if (savedMessages) setMessages(JSON.parse(savedMessages));
-
-  // 2️⃣ Fetch latest chat from backend
   const fetchChatHistory = async () => {
     try {
+      setMessages([]); // clear immediately before fetching
       const res = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/get_messages?username=${username}`,
         { credentials: "include" }
@@ -537,12 +524,10 @@ useEffect(() => {
       if (!res.ok) throw new Error("Failed to fetch messages");
       const data = await res.json(); // expects array of messages
 
-      if (data && data.length > 0) {
-        setMessages(data); // backend takes priority
-        localStorage.setItem(`chatHistory_${username}`, JSON.stringify(data));
-      }
+      setMessages(Array.isArray(data) ? data : []); // always use backend
     } catch (err) {
       console.error("Error fetching chat history:", err);
+      setMessages([]); // fallback to empty
     }
   };
 
@@ -550,17 +535,7 @@ useEffect(() => {
 }, [username]);
 
 // -----------------------------
-// Save Chat History locally
-// -----------------------------
-useEffect(() => {
-  if (messages.length > 0 && username) {
-    localStorage.setItem(`chatHistory_${username}`, JSON.stringify(messages));
-  }
-}, [messages, username]);
-
-// -----------------------------
-// Auto-scroll
-// -----------------------------
+// Auto-scroll (unchanged)
 useEffect(() => {
   if (chatBoxRef.current) {
     chatBoxRef.current.scrollTo({
@@ -571,13 +546,11 @@ useEffect(() => {
 }, [messages]);
 
 // -----------------------------
-// Abort Controller
-// -----------------------------
+// Abort Controller (unchanged)
 const abortControllerRef = useRef(null);
 
 // -----------------------------
-// Handle sending message
-// -----------------------------
+// Handle sending message (unchanged)
 const handleSendMessage = async () => {
   if (!input.trim() || isLoading || !isOnline) return;
 
@@ -646,8 +619,6 @@ const handleStopRequest = () => {
     setIsLoading(false);
   }
 };
-
-
 
   const handleExportPDF = async () => {
     if (!messages.length) return alert('No messages to export.');
