@@ -815,6 +815,13 @@ if (bootLoading && !error) {
           Loading may take a few seconds depending on server response.
         </p>
 
+         <button
+          onClick={handleLogout}
+          className="chat-booting-logout-button"
+        >
+          Cancel and Logout
+        </button>
+
       </div>
     </div>
   );

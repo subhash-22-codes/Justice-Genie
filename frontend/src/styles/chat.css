@@ -2152,5 +2152,52 @@ html::-webkit-scrollbar {
   }
 }
 
+.chat-booting-logout-button {
+  /* mt-8 */
+  margin-top: 2rem; /* Assuming default Tailwind spacing scale where 8 = 2rem (32px) */
 
+  /* px-4 py-2 */
+  padding-left: 1rem; /* 16px */
+  padding-right: 1rem; /* 16px */
+  padding-top: 0.5rem; /* 8px */
+  padding-bottom: 0.5rem; /* 8px */
+
+  /* bg-red-600 */
+  background-color: #dc2626; /* A common red-600 color */
+
+  /* text-white */
+  color: #ffffff;
+
+  /* font-semibold */
+  font-weight: 600;
+
+  /* rounded-lg */
+  border-radius: 0.5rem; /* 8px */
+
+  /* shadow-md */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* Medium shadow */
+
+  /* transition-colors */
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms; /* Default Tailwind transition */
+
+  /* Standard button properties to consider */
+  border: none;
+  cursor: pointer;
+  display: inline-block; /* Often better than block for a button */
+  text-align: center;
+}
+
+/* hover:bg-red-700 */
+.chat-booting-logout-button:hover {
+  background-color: #b91c1c; /* A common red-700 color */
+}
+
+/* focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 */
+.chat-booting-logout-button:focus {
+  outline: 2px solid transparent; /* Replaces focus:outline-none while still allowing ring */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #f87171, 0 0 0 4px rgba(248, 113, 113, 0.75); /* Simulates focus:ring-2 and focus:ring-red-500/75 */
+}
 
