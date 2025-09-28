@@ -112,7 +112,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 
 # Configure Google Gemini API
 genai.configure(api_key=api_key)  
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 GUIDANCE = (
     "Provide a detailed response about the specified legal topic under Indian law. "
     "Include any relevant IPC sections, acts, and legal precedents."
@@ -1835,7 +1835,7 @@ def analyze_probability():
         2. Do **not** add explanations or additional text.
         """
 
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(prompt)
 
         print("Gemini API Response:", response.text)
