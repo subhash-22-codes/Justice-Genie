@@ -237,11 +237,18 @@ const MyAccount = () => {
                     },
                 }
                 );
+            const newPictureUrl = response.data.file_path;
 
             setUserDetails(prev => ({
-                ...prev,
-                profile_picture: response.data.file_path
-            }));
+            ...prev,
+            profile_picture: newPictureUrl
+             }));
+             const cachedUser = JSON.parse(sessionStorage.getItem("userData")) || {};
+                sessionStorage.setItem("userData", JSON.stringify({
+                    ...cachedUser,
+                    profile_picture: newPictureUrl
+             }));
+            
             toggleModal('upload', false);
             setUploadProgress(0);
             showNotification('Profile picture updated successfully');
@@ -276,6 +283,12 @@ const MyAccount = () => {
             setUserDetails(prev => ({
               ...prev,
               profile_picture: "", // fallback to default
+            }));
+
+             const cachedUser = JSON.parse(sessionStorage.getItem("userData")) || {};
+            sessionStorage.setItem("userData", JSON.stringify({
+                ...cachedUser,
+                profile_picture: ""
             }));
       
             Swal.fire({

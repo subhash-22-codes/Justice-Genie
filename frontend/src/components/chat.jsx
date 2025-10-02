@@ -7,11 +7,12 @@ import {
 import '../styles/chat.css';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Chart from "chart.js/auto";
 import { Link } from 'react-router-dom';
 import { Modal } from "antd";
 import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
+import ReactMarkdown from 'react-markdown';
+import  AnalysisReport  from './AnalysisReport';
 const Chat = () => {
   const [messages, setMessages] = useState([]); // Removed localStorage
   const [input, setInput] = useState('');
@@ -298,93 +299,61 @@ useEffect(() => {
 
   
    // ✅ Store messages in MongoDB instead of local storage
-   const handleAnalyze = async (botMessage) => {
-    setLoading(true);
-  
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/analyze_probability`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // 👈 include session cookie
-        body: JSON.stringify({ bot_response: botMessage }),
-      });
-  
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-  
-      const graphId = Date.now();
-      const graphMessage = {
-        id: graphId,
-        type: "bot",
-        content: `<p><strong>Case Analysis:</strong></p><canvas id="chart-${graphId}"></canvas>`,
-        probabilities: data,
-        timestamp: new Date().toISOString(), // Added timestamp
-      };
-  
-      // Store analyzed message in MongoDB
-      await storeMessageInMongoDB(graphMessage);
-      
-      setMessages((prev) => [...prev, graphMessage]);
-      setTimeout(() => renderGraph(graphMessage.id, data), 500);
-    } catch (error) {
-      console.error("Error analyzing:", error);
-      setMessages((prev) => [...prev, { id: Date.now(), type: "bot", content: "Analysis failed. Try again!" }]);
-    }
-  
+   // This code in your chat.jsx is correct and does not need any more changes.
+
+const handleAnalyze = async (botMessageId) => {
+  setLoading(true);
+
+  const botMessageIndex = messages.findIndex(m => m.id === botMessageId);
+  if (botMessageIndex < 1) {
+    console.error("Could not find the preceding user query to analyze.");
     setLoading(false);
-  };
+    return;
+  }
   
-  // Extracted MongoDB store function
-  const storeMessageInMongoDB = async (graphMessage) => {
-    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/store_message`, {
+  const botMessage = messages[botMessageIndex];
+  const userQuery = messages[botMessageIndex - 1];
+
+  try {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/analyze_probability`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
-        username,
-        messages: [graphMessage], // Store graph message
+        user_query: userQuery.content,
+        bot_response: botMessage.content
       }),
     });
-  };
-  
 
-  const renderGraph = (chartId, probabilities) => {
-  const canvas = document.getElementById(`chart-${chartId}`);
-  if (!canvas) return;
+    const analysisData = await response.json();
+    if (analysisData.error) throw new Error(analysisData.error);
 
-  // Get existing chart instance and destroy it if necessary
-  const existingChart = Chart.getChart(canvas); // This fetches the chart instance
-  if (existingChart) existingChart.destroy(); // Prevent duplicate charts
+    setMessages(prevMessages =>
+      prevMessages.map(msg =>
+        msg.id === botMessageId
+          ? { ...msg, analysis: analysisData }
+          : msg
+      )
+    );
 
-  new Chart(canvas, {
-    type: "bar",
-    data: {
-      labels: ["Win", "Loss", "Need More Info"],
-      datasets: [
-        {
-          label: "Probability (%)",
-          data: [probabilities.win, probabilities.loss, probabilities.need_more_info],
-          backgroundColor: ["#4CAF50", "#F44336", "#FFC107"],
-          borderWidth: 1,
-          
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      scales: { y: { beginAtZero: true, max: 100 } },
-    },
-  });
-};
-useEffect(() => {
-  if (messages.length > 0) {
-    messages.forEach((message) => {
-      if (message.probabilities) {
-        setTimeout(() => renderGraph(message.id, message.probabilities), 500);
-      }
+    // This part correctly sends the data to your new backend endpoint
+    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/save_analysis`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        message_id: botMessageId,
+        analysis_data: analysisData,
+      }),
     });
-  }
-}, [messages]);
 
+  } catch (error) {
+    console.error("Error analyzing:", error);
+  }
+
+  setLoading(false);
+};
+  // Extracted MongoDB store function
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -677,18 +646,6 @@ useEffect(() => {
   }
 }, [isLoading]); // Only runs when `isLoading` changes
 
-const fallbackCopy = (text) => {
-  const textArea = document.createElement("textarea");
-  textArea.value = text;
-  document.body.appendChild(textArea);
-  textArea.select();
-  try {
-    document.execCommand("copy");
-  } catch (err) {
-    alert("Failed to copy, please copy manually.");
-  }
-  document.body.removeChild(textArea);
-};
 
 
   const handleClearChat = useCallback(() => {
@@ -1066,51 +1023,25 @@ if (error) {
             </div>
 
             <div className="chat-message-text-container">
-              <div
-                className="chat-message-text font-manrope"
-                dangerouslySetInnerHTML={{ __html: message.content }}
-              />
+              <div className="chat-message-text font-manrope">
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                  {message.analysis && <AnalysisReport data={message.analysis} />}
+              </div>
 
               {/* Show actions ONLY for bot messages */}
               {message.type === "bot" && (
                 <div className="chat-message-actions">
-                  <button
-                onClick={() => {
-                  const tempElement = document.createElement("div");
-                  tempElement.innerHTML = message.content;
-
-                  const convertToFormattedText = (element) => {
-                    return Array.from(element.childNodes)
-                      .map((node) => {
-                        if (node.nodeName === "UL") {
-                          return "\n" + Array.from(node.children)
-                            .map((li) => `• ${li.innerText.trim()}`)
-                            .join("\n");
-                        } else if (node.nodeName === "B" || node.nodeName === "STRONG") {
-                          return `**${node.innerText.trim()}**`;
-                        } else if (node.nodeName === "P") {
-                          return `\n${node.innerText.trim()}`;
-                        }
-                        return node.innerText.trim();
-                      })
-                      .join(" ");
-                  };
-
-                  const formattedText = convertToFormattedText(tempElement);
-
-                  if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(formattedText).catch(() => fallbackCopy(formattedText));
-                  } else {
-                    fallbackCopy(formattedText);
-                  }
-                  
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 4000);
-                }}
-                title="Copy"
-              >
-          {copied ? <Check size={18} className="text-green-500" /> : <Clipboard size={18} />}
-        </button>
+                   <button
+            onClick={() => {
+              // The logic is now super simple! No more manual parsing.
+              navigator.clipboard.writeText(message.content);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 4000);
+            }}
+            title="Copy"
+          >
+            {copied ? <Check size={18} className="text-green-500" /> : <Clipboard size={18} />}
+          </button>
 
 
           <button
@@ -1188,8 +1119,8 @@ if (error) {
             </>
           )}
 
-        
-          {/* Graph Icon Button */}
+        {!message.analysis && (
+          <>
           <button
             className="graph-button"
             onClick={() => setPopupMessageId(popupMessageId === message.id ? null : message.id)}
@@ -1203,15 +1134,21 @@ if (error) {
            <div className="graph-popup w-[220px] sm:w-[85%] max-w-sm md:w-[220px] text-center p-3 sm:p-4 rounded-lg shadow-xl border bg-white absolute left-1/2 bottom-[70px] translate-x-[-50%] z-[9999] transition-opacity duration-200">
            <p className="font-poppins text-base sm:text-lg font-semibold text-gray-800">Do you want to analyze the query?</p>
            <p className="font-urbanist popup-subtext text-xs sm:text-sm text-gray-600 mb-2">You have 2 free trials left.</p>
-           <button
-             type="button"
-             className="analyze-button font-bold w-full py-2 sm:py-2.5 px-3 bg-[#007bff] hover:bg-[#0056b3] text-[yellowgreen] text-sm rounded-md transition-all duration-300"
-             onClick={() => handleAnalyze(message.content)}
-           >
+            <button
+              type="button"
+              className="analyze-button font-bold w-full py-2 sm:py-2.5 px-3 bg-[#007bff] hover:bg-[#0056b3] text-[yellowgreen] text-sm rounded-md transition-all duration-300"
+              onClick={() => {
+                // --- THIS IS THE UPDATED PART ---
+                handleAnalyze(message.id); // 1. Pass the message ID
+                setPopupMessageId(null);   // 2. Close the popup
+              }}
+            >
              {loading ? "Analyzing..." : "Analyze"}
            </button>
          </div>
-         
+            )}
+          </>
+            
           )}
         </div>
       )}
