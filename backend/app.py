@@ -17,7 +17,6 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from datetime import datetime, timedelta
 import threading
 from reportlab.lib.enums import TA_CENTER
-from markdown2 import markdown
 from pytz import timezone,utc
 from dotenv import load_dotenv
 import logging
@@ -28,6 +27,7 @@ import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from pprint import pprint
 from sib_api_v3_sdk.models import SendSmtpEmail
+import json
 
 #--Unused imports, In future may use--#
 '''
@@ -113,10 +113,40 @@ api_key = os.getenv("GEMINI_API_KEY")
 # Configure Google Gemini API
 genai.configure(api_key=api_key)  
 model = genai.GenerativeModel('gemini-2.5-flash')
-GUIDANCE = (
-    "Provide a detailed response about the specified legal topic under Indian law. "
-    "Include any relevant IPC sections, acts, and legal precedents."
-)
+# The final, most powerful prompt with a built-in example
+GUIDANCE = """
+You are 'Justice Genie', an expert AI legal assistant specializing in the Indian Penal Code (IPC). Your goal is to provide clear, structured, and insightful legal information. Analyze the user's query and provide a detailed response that follows the structure and quality of the example provided below.
+
+---
+### EXAMPLE START ###
+User Query: "What is criminal intimidation?"
+
+### 📜 Primary IPC Section(s) Applicable
+The primary section is **IPC Section 503 (Criminal Intimidation)**. It states: "Whoever threatens another with any injury to his person, reputation or property... with intent to cause alarm to that person, or to cause that person to do any act which he is not legally bound to do... as the means of avoiding the execution of such threat, commits criminal intimidation."
+
+### 🔑 Key Elements of the Offense
+For an act to be considered criminal intimidation, the following elements must be proven:
+1.  **Threat of Injury:** There must be a clear threat to injure a person's body, reputation, or property.
+2.  **Intent (Mens Rea):** The accused must have the intention to cause alarm, or to force the person to do something illegal or omit something they are legally entitled to do. The mere use of threatening words is not enough without the required intent.
+
+### ⚖️ Punishment
+The punishment is defined under **IPC Section 506**. For simple criminal intimidation, the punishment is imprisonment for up to two years, a fine, or both. If the threat is to cause death, grievous hurt, or to destroy property by fire, the punishment can extend to seven years.
+
+### 💡 Important Nuances & Considerations
+- A key distinction is whether the threat is credible and causes genuine alarm. A casual threat made in anger may not meet the legal standard if it doesn't create a reasonable sense of fear.
+- This is often linked with other offenses like extortion (IPC 383), where the threat is used to dishonestly obtain property.
+
+### 📚 Landmark Case Example
+**Amulya Kumar Behera v. Nabaghana Behera (1995):** In this case, the court held that mere words are not enough. It must be proven that the accused intended to cause alarm and that the threat was sufficient to do so. The accused was acquitted because the prosecution could not prove that his words actually caused a state of alarm in the victim. This case highlights the importance of the "intent" element.
+
+### ⚠️ Disclaimer
+Conclude with the following disclaimer: "This information is for educational purposes only and does not constitute legal advice. Please consult with a qualified legal professional for advice on your specific situation."
+---
+### EXAMPLE END ###
+---
+
+Now, answer the following user query based on the same high standards:
+"""
 
 username = os.getenv("MONGO_USER")
 password = quote_plus(os.getenv("MONGO_PASS"))
@@ -611,44 +641,99 @@ def get_collab_status():
     return jsonify({'submitted': bool(collab_submission)}), 200
 
 
-# Legal query classification
-def is_legal_query(query):
-    prompt = (
-    f"Classify the following query strictly as 'legal' or 'non-legal' under the context of Indian law only. "
-    f"Only classify queries as 'legal' if they directly relate to legal statutes, IPC sections, Indian penal codes, acts, or law topics in India.\n\n"
-    f"If the query is classified as 'legal,' provide:\n"
-    f"1. Relevant IPC sections or laws applicable to the scenario.\n"
-    f"2. Possible punishments (e.g., years of imprisonment, fines, or capital punishment like Uri Shiksha).\n"
-    f"3. Additional comments explaining any exceptions, variations, or conditions influencing the punishment.\n"
-    f"4. A summary of one or two past Indian legal cases directly relevant to the query.\n"
-    f"5. For each case, include:\n"
-    f"   a. Who won the case (e.g., the plaintiff, the accused, or the state).\n"
-    f"   b. The reasoning behind the judgment (e.g., evidence presented, interpretation of the law).\n"
-    f"   c. The IPC sections or laws referenced in the judgment.\n"
-    f"   d. The punishment given to the accused, and the reasoning behind the specific punishment awarded.\n\n"
-    f"Query: '{query}'"
-)
+# UPDATED Function 1: The Smart Classifier
+def classify_query(query):
+    """
+    Classifies the user's query into one of four categories.
+    """
+    prompt = f"""
+    Analyze the user's query and classify it into one of four categories based on its intent.
+    The categories are: LEGAL, LEGAL_GENERAL, CONVERSATIONAL, or OFF_TOPIC.
+    - LEGAL: The query is about a specific Indian law, IPC section, or a concrete legal situation.
+    - LEGAL_GENERAL: The query is a broad, philosophical, or definitional question about the legal system itself.
+    - CONVERSATIONAL: The query is a greeting, a question about you (the AI), a thank you, or other small talk.
+    - OFF_TOPIC: The query is about something completely unrelated to law.
 
+    Respond with ONLY the category name.
 
+    Examples:
+    Query: "What is the punishment for theft?" -> LEGAL
+    Query: "What is Law?" -> LEGAL_GENERAL
+    Query: "Hello there" -> CONVERSATIONAL
+    Query: "Why do we have courts?" -> LEGAL_GENERAL
+    Query: "How do I cook biryani?" -> OFF_TOPIC
+
+    Now, classify this query:
+    Query: "{query}" ->
+    """
+    
     response = model.generate_content(prompt)
-    classification = response.text.strip().lower()
-    return 'legal' in classification
+    classification = response.text.strip().upper()
+    
+    if classification in ['LEGAL', 'LEGAL_GENERAL', 'CONVERSATIONAL', 'OFF_TOPIC']:
+        return classification
+    else:
+        return 'OFF_TOPIC' # Default fallback
 
-def format_response(response_text):
-    response_text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', response_text)
-    lines = response_text.splitlines()
-    formatted_lines = []
+# Your final, simplified chat() function
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
 
-    for line in lines:
-        if re.match(r'^\d+\.', line):
-            formatted_lines.append(f"<p><strong>{line}</strong></p>")
-        elif line.strip().startswith('*'):
-            subpoint = line.strip().lstrip('*').strip()
-            formatted_lines.append(f"<ul><li>{subpoint}</li></ul>")
-        else:
-            formatted_lines.append(f"<p>{line}</p>")
+    data = request.get_json() or {}
+    query = (data.get('query') or "").strip()
 
-    return ''.join(formatted_lines)
+    if not query:
+        return jsonify({'error': 'Query cannot be empty.'}), 400
+
+    intent = classify_query(query)
+
+    try:
+        if intent == 'LEGAL':
+            app.logger.info(f"Handling LEGAL query: {query}")
+            prompt = f"{GUIDANCE}\nUser Query: {query}"
+            response_text = model.generate_content(prompt).text
+            
+            # SIMPLIFIED: Just send the raw text
+            return jsonify({'response': response_text})
+
+        elif intent == 'LEGAL_GENERAL':
+            app.logger.info(f"Handling LEGAL_GENERAL query: {query}")
+            prompt = f"""
+            You are 'Justice Genie', an expert legal AI assistant.
+            Answer the user's broad, philosophical, or definitional question about law in a clear and concise way.
+            While you specialize in the IPC, provide a helpful general answer.
+            User's question: "{query}"
+            """
+            response_text = model.generate_content(prompt).text
+            
+            # SIMPLIFIED: Just send the raw text
+            return jsonify({'response': response_text})
+
+        elif intent == 'CONVERSATIONAL':
+            app.logger.info(f"Handling CONVERSATIONAL query: {query}")
+            # This prompt can be the simpler one now, or the detailed one. 
+            # The react-markdown component will handle either perfectly.
+            prompt = f"""
+            You are 'Justice Genie', a friendly and professional legal AI assistant for Indian law.
+            Respond to the user's conversational query in character. Be polite and helpful.
+            User's message: "{query}"
+            """
+            response_text = model.generate_content(prompt).text
+            
+            # SIMPLIFIED: Just send the raw text
+            return jsonify({'response': response_text})
+
+        else:  # This handles OFF_TOPIC
+            app.logger.info(f"Handling OFF_TOPIC query: {query}")
+            response_text = "I am Justice Genie, your assistant for questions related to Indian law. I cannot help with topics outside of that scope."
+            return jsonify({'response': response_text})
+
+    except Exception as e:
+        app.logger.exception(f'Error processing query: {e}')
+        return jsonify({'error': 'There was an error processing your request.'}), 500
+
 
 # Serve React static files
 @app.route('/', defaults={'path': ''})
@@ -1217,39 +1302,6 @@ def check_session():
     return jsonify({"loggedIn": False})
 
 
-
-# Chat Endpoint
-@app.route('/api/chat', methods=['POST'])
-def chat():
-    if 'username' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    data = request.get_json() or {}
-    query = (data.get('query') or "").strip()
-
-    if not query:
-        return jsonify({'error': 'Query cannot be empty.'}), 400
-    if len(query) > 2000:
-        return jsonify({'error': 'Query too long.'}), 400
-
-    if TEST_MODE:
-        return jsonify({'response': "This is a test response from the AI model."})
-
-    if not is_legal_query(query):
-        return jsonify({'response': "I'm here to assist with questions related to Indian law."})
-
-    try:
-        response = model.generate_content(f"{GUIDANCE}\n{query}")
-        formatted_response = format_response(response.text)
-        return jsonify({'response': formatted_response})
-    except TimeoutError:
-        app.logger.error("AI model timeout")
-        return jsonify({'error': 'AI service timeout, please try again.'}), 504
-    except Exception as e:
-        app.logger.exception(f'Error generating content: {e}')
-        return jsonify({'error': 'There was an error processing your request.'}), 500
-
-
 def allowed_file(filename):
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
@@ -1791,76 +1843,115 @@ def delete_account():
 def logout():
     session.clear()
     return jsonify({'message': 'Logged out successfully'}), 200
-
-
-
 @app.route('/api/analyze_probability', methods=['POST'])
 def analyze_probability():
+    print("\n--- NEW ANALYSIS REQUEST ---")
     try:
         data = request.json
+        user_query = data.get("user_query")
         bot_response = data.get("bot_response")
-        print("Received Bot Response:", bot_response)
         
-        if not bot_response:
-            return jsonify({"error": "No bot response provided"}), 400
+        print("--- STEP 1: RECEIVED DATA ---")
+        print(f"User Query: {user_query[:100]}...") # Print first 100 chars
+        print(f"Bot Response: {bot_response[:100]}...") # Print first 100 chars
+        
+        if not user_query or not bot_response:
+            return jsonify({"error": "User query and bot response are required"}), 400
 
-        # Get API key from environment instead of hardcoding
         api_key = os.getenv("GEMINI_ANALYZE_API_KEY")
         if not api_key:
             return jsonify({"error": "Gemini API key not configured"}), 500
         
-        # Configure Gemini API
         genai.configure(api_key=api_key)
 
-        # Prompt
         prompt = f"""
         ### Task:
-        Analyze the probability of winning a legal case based on the given scenario.
+        Analyze the legal strength of a case based on the user's original query and a structured summary.
 
-        ### Scenario:
+        ### User's Original Query:
+        "{user_query}"
+
+        ### Structured Legal Summary:
         "{bot_response}"
 
-        ### Understanding the Query:
-        The user is trying to understand their legal standing based on the given situation.
-        Determine whether the question is about **their own case or someone else's**.
+        ### Analysis Instructions:
+        Based on both the user's tone/intent from their query and the facts from the summary, provide a qualitative analysis.
 
         ### Expected Output:
-        Provide a probability breakdown in the exact format below:
-        - Win: XX%
-        - Loss: XX%
-        - Need More Information: XX%
+        Respond with ONLY a valid JSON object in the following format. Do not add any other text or explanations.
+        {{
+          "case_strength": "...",
+          "strength_score": 0,
+          "key_strengths": ["...", "..."],
+          "key_weaknesses": ["...", "..."],
+          "critical_missing_info": "..."
+        }}
 
-        ### Rules:
-        1. Keep responses strictly in the given format.
-        2. Do **not** add explanations or additional text.
+        ### Rules for "strength_score":
+        - If "case_strength" is "Weak", the score should be between 10 and 35.
+        - If "case_strength" is "Moderate", the score should be between 40 and 65.
+        - If "case_strength" is "Strong", the score should be between 70 and 95.
+        - If "Needs More Information", the score should be 0.
         """
-
+        
+        print("\n--- STEP 2: SENDING PROMPT TO AI ---")
         model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(prompt)
-
-        print("Gemini API Response:", response.text)
-
-        probabilities = extract_probabilities(response.text)
-        return jsonify(probabilities)
+        
+        print("\n--- STEP 3: RAW AI RESPONSE ---")
+        print(response.text)
+        
+        json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
+        
+        if json_match:
+            json_string = json_match.group(0)
+            print("\n--- STEP 4: EXTRACTED JSON STRING ---")
+            print(json_string)
+            analysis_result = json.loads(json_string)
+            return jsonify(analysis_result)
+        else:
+            print("\n--- ERROR: NO JSON FOUND IN AI RESPONSE ---")
+            return jsonify({"error": "Failed to extract a valid analysis from the AI response"}), 500
 
     except Exception as e:
+        print(f"\n--- STEP 5: AN EXCEPTION OCCURRED ---")
+        print(f"ERROR: {e}")
         return jsonify({"error": str(e)}), 500
-def extract_probabilities(text):
-    """
-    Extracts numerical probabilities from the Gemini API response.
-    """
+    
+# This is the final version for your app.py file
+
+@app.route('/api/save_analysis', methods=['POST'])
+def save_analysis():
+    if 'username' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
     try:
-        # Use regex to extract numbers
-        match = re.findall(r"Win:\s*(\d+)%|Loss:\s*(\d+)%|Need More Information:\s*(\d+)%", text)
+        data = request.json
+        message_id = data.get('message_id')
+        analysis_data = data.get('analysis_data')
+        username = session['username']
 
-        # Ensure match contains enough elements to avoid index errors
-        win = int(match[0][0]) if len(match) > 0 and match[0][0] else 0
-        loss = int(match[1][1]) if len(match) > 1 and match[1][1] else 0
-        need_more_info = int(match[2][2]) if len(match) > 2 and match[2][2] else 0
+        if not message_id or not analysis_data:
+            return jsonify({'error': 'Missing message ID or analysis data'}), 400
 
-        return {"win": win, "loss": loss, "need_more_info": need_more_info}
+        # This query now targets your `chats_collection`
+        # and finds the specific message within the 'messages' array to update.
+        result = chats_collection.update_one(
+            # Find the chat document for the correct user
+            {'username': username},
+            # Set the 'analysis' field on the specific message element
+            {'$set': {'messages.$[elem].analysis': analysis_data}},
+            # Use array_filters to specify which element to update
+            array_filters=[{'elem.id': message_id}]
+        )
+
+        if result.modified_count > 0:
+            return jsonify({'message': 'Analysis saved successfully'})
+        else:
+            return jsonify({'error': 'Message not found in chat history'}), 404
+
     except Exception as e:
-        return {"error": f"Failed to extract probabilities: {str(e)}"}
+        return jsonify({'error': str(e)}), 500
     
 DEFAULT_PROFILE_PIC = "https://res.cloudinary.com/<your_cloud_name>/image/upload/v1757482000/profile_pics/default.jpg"
 
