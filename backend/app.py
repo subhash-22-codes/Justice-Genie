@@ -3,6 +3,7 @@ from flask_cors import CORS
 import google.generativeai as genai
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+import traceback
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
@@ -1385,161 +1386,178 @@ def remove_profile_picture():
         return jsonify({'message': 'Error removing profile picture', 'error': str(e)}), 500
 
 
-# Quiz related functions
+
+
+# This function is now dynamic and secure, fetching questions for the user's current level
 @app.route('/api/get_quiz', methods=['GET'])
 def get_quiz():
-    questions = list(quizzquestions_collection.aggregate([
-        {"$match": {"level": 1}},
-        {"$sample": {"size": 15}}
-    ]))
-    
-    quiz_data = []
-
-    for question in questions:
-        quiz_data.append({
-            'question': question['question'],
-            'options': question['options'],
-            'explanation': question.get('explanation', 'No explanation provided.')
-        })
-
-    return jsonify({'quiz': quiz_data})
-
-
-
-# ✅ Submit Quiz + Leaderboard Update
-@app.route('/api/submit_quiz', methods=['POST'])
-def submit_quiz():
-    data = request.get_json()
-    username = session.get('username')
-
-    if not username:
+    if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
-    user_answers = data.get('answers')
-    user = users_collection.find_one({'username': username})  # ✅ added ()
-
+    username = session['username']
+    user = users_collection.find_one({'username': username})
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    # Initialize quiz details
-    score = 0
-    total_questions = 15  # Fixed to 15
-    results = []
-    correct_answers = []
-    explanations = []
+    # Defaults to 1 for new users, ensuring a 1-indexed system
+    unlocked_level = user.get('quiz_level', 1)
+    if isinstance(unlocked_level, str):
+        try: unlocked_level = int(unlocked_level.split()[-1])
+        except (ValueError, IndexError): unlocked_level = 1
+            
+    requested_level = int(request.args.get('level', unlocked_level))
+    if requested_level > unlocked_level:
+        return jsonify({'error': 'Level is locked'}), 403
 
-    # Loop through user's answers & calculate score
-    for question, user_answer in user_answers.items():
-        quiz_question = quizzquestions_collection.find_one({"question": question})  # ✅ added ()
-        correct_option = quiz_question['correct_answer']
-        explanation = quiz_question.get('explanation', 'No explanation provided.')
+    questions = list(quizzquestions_collection.aggregate([
+        {"$match": {"level": requested_level}},
+        {"$sample": {"size": 15}}
+    ]))
+    
+    if not questions:
+        return jsonify({'message': f'Congratulations! You have completed all quiz levels.'})
 
-        # Check answer correctness
-        if user_answer == correct_option:
-            score += 1
-            answer_status = "correct"
-        else:
-            answer_status = "incorrect"
-
-        correct_answers.append(correct_option)
-        explanations.append(explanation)
-
-        # Store each question's result
-        results.append({
-            'question': question,
-            'user_answer': user_answer,
-            'correct_answer': correct_option,
-            'answer_status': answer_status,
-            'explanation': explanation
+    quiz_data = []
+    for q in questions:
+        quiz_data.append({
+            '_id': str(q['_id']),
+            'question': q['question'],
+            'options': q['options'],
         })
+    return jsonify({'quiz': quiz_data, 'level': requested_level})
 
-    # Calculate quiz percentage
-    percentage = (score / total_questions) * 100
+# This function now uses the new "sum of high scores" logic
+@app.route('/api/submit_quiz', methods=['POST'])
+def submit_quiz():
+    try:
+        data = request.get_json()
+        username = session.get('username')
+        if not username: return jsonify({'error': 'Unauthorized'}), 401
 
-    # Fetch the user's current highest score
-    current_high_score = user.get('quiz_marks', 0)
+        user_answers = data.get('answers', {})
+        level_played = data.get('level')
+        if level_played is None: return jsonify({'error': 'Level not provided'}), 400
 
-    # Only update if the new score is higher
-    if score > current_high_score:
-        users_collection.update_one(   # ✅ added ()
+        user = users_collection.find_one({'username': username})
+        if not user: return jsonify({'error': 'User not found'}), 404
+
+        PASSING_PERCENTAGE = 80
+
+        question_ids = [ObjectId(id_str) for id_str in user_answers.keys()]
+        correct_answers_cursor = quizzquestions_collection.find(
+            {"_id": {"$in": question_ids}},
+            {"question": 1, "correct_answer": 1, "explanation": 1}
+        )
+        answer_map = {str(q['_id']): q for q in correct_answers_cursor}
+
+        score = 0
+        total_questions = len(question_ids)
+        results = []
+        for q_id, u_ans in user_answers.items():
+            if q_id in answer_map:
+                details = answer_map[q_id]
+                is_correct = u_ans == details['correct_answer']
+                if is_correct: score += 1
+                results.append({
+                    'question': details['question'], 'user_answer': u_ans,
+                    'correct_answer': details['correct_answer'], 'answer_status': "correct" if is_correct else "incorrect",
+                    'explanation': details.get('explanation', '')
+                })
+
+        percentage = (score / total_questions) * 100 if total_questions > 0 else 0
+        
+        # --- NEW CUMULATIVE HIGH SCORE LOGIC ---
+        level_scores = user.get('level_scores', {})
+        previous_high_score_for_level = level_scores.get(str(level_played), 0)
+        if score > previous_high_score_for_level:
+            level_scores[str(level_played)] = score
+        new_total_score = sum(level_scores.values())
+        # ---
+
+        # --- LEVEL-UP LOGIC ---
+        current_unlocked = user.get('quiz_level', 1)
+        new_unlocked = current_unlocked
+        if percentage >= PASSING_PERCENTAGE and level_played == current_unlocked:
+            new_unlocked = current_unlocked + 1
+        level_up = new_unlocked > current_unlocked
+        # ---
+
+        # Update the user's document
+        users_collection.update_one(
             {'username': username},
             {'$set': {
-                'quiz_marks': score,
-                'quiz_total': total_questions,
-                'quiz_percentage': percentage,
-                'quiz_level': 'Level 1'
+                'level_scores': level_scores,
+                'last_quiz_marks': score,
+                'last_quiz_percentage': percentage,
+                'quiz_level': new_unlocked
             }}
         )
-
-        # ✅ Update Leaderboard Collection
-        leaderboard_collection.update_one(   
+        
+        # Update the leaderboard with the new TOTAL score
+        leaderboard_collection.update_one(
             {'username': username},
-            {'$set': {'score': score}},  # Update only if it's a new high score
-            upsert=True  # If user doesn't exist, insert them
+            {'$set': {'score': new_total_score, 'game_name': user.get('game_name', 'Justice Warrior')}},
+            upsert=True
         )
+        
+        return jsonify({'message': 'Quiz submitted!', 'score': score, 'percentage': percentage, 'results': results, 'level_up': level_up})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
-    return jsonify({
-        'message': 'Quiz submitted successfully!',
-        'score': score,
-        'percentage': percentage,
-        'correctAnswers': correct_answers,
-        'explanations': explanations,
-        'results': results
-    })
-
-
+# This function is correct and does not need changes, but is included for completeness
 @app.route('/api/leaderboard', methods=['GET'])
 def get_leaderboard():
     try:
-        # Fetch leaderboard data from leaderboard_collection
-        users = list(leaderboard_collection.find({}, {'username': 1, 'score': 1, 'game_name': 1, '_id': 0}))
-
-
-        # Sort users by score in descending order
-        users_sorted = sorted(users, key=lambda x: x.get('score', 0), reverse=True)
-
-        # Assign ranks
+        users_sorted = list(leaderboard_collection.find(
+            {}, {'username': 1, 'score': 1, 'game_name': 1, '_id': 0}
+        ).sort('score', -1).limit(100))
+        
         leaderboard = []
-        previous_score = None
         rank = 0
+        previous_score = -1
         for index, user in enumerate(users_sorted):
-            if user['score'] != previous_score:
-                rank = index + 1  # Rank increments only when score changes
+            current_score = user.get('score', 0)
+            if current_score != previous_score: rank = index + 1
             leaderboard.append({
-                'rank': rank,
-                'username': user.get('username', 'Unknown'),
-                'score': user.get('score', 0),
-                'gameName': user.get('game_name', 'Justice Warrior') 
+                'rank': rank, 'username': user.get('username', 'Unknown'),
+                'score': current_score, 'gameName': user.get('game_name', 'Justice Warrior') 
             })
-            previous_score = user['score']
-
-        return jsonify({'leaderboard': leaderboard}), 200
+            previous_score = current_score
+        return jsonify({'leaderboard': leaderboard})
     except Exception as e:
-        print("Error in /api/leaderboard:", str(e))  # Debugging
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
-
+# This function now returns the detailed scoring data for the My Account page
 @app.route('/api/myaccount', methods=['GET'])
 def myaccount():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
     user = users_collection.find_one({'username': session['username']})
-    if user:
-        quiz_progress = {
-            'marks': user.get('quiz_marks', 0),
-            'total': user.get('quiz_total', 0),
-            'percentage': user.get('quiz_percentage', 0),
-            'level': user.get('quiz_level', 'Beginner')
-        }
-        return jsonify({
-            'username': user['username'],
-            'email': user.get('email', ''),
-            'profile_picture': user.get('profile_picture', ''),
-            'quiz_progress': quiz_progress,
-            'game_name': user.get('game_name', '')  # ✅ Add this line
-        })
-    return jsonify({'error': 'User not found'}), 404
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    unlocked_level = user.get('quiz_level', 1)
+    if isinstance(unlocked_level, str):
+        try: unlocked_level = int(unlocked_level.split()[-1])
+        except (ValueError, IndexError): unlocked_level = 1
+
+    level_scores = user.get('level_scores', {})
+    total_score = sum(level_scores.values())
+
+    return jsonify({
+        'username': user.get('username', ''),
+        'email': user.get('email',''),
+        'game_name': user.get('game_name', ''),
+        'profile_picture': user.get('profile_picture', ''),
+        'quiz_level': unlocked_level,
+        'totalScore': total_score,
+        'levelScores': level_scores,
+        'last_quiz_marks': user.get('last_quiz_marks', 0),
+        'last_quiz_percentage': user.get('last_quiz_percentage', 0)
+    })
 
 @app.route('/api/update_game_name', methods=['POST'])
 def update_game_name():
@@ -1574,15 +1592,16 @@ def export_pdf():
         data = request.get_json()
         messages = data.get('messages', [])
 
-        # Create a PDF in memory
+        # REMOVED: The font registration logic is gone
+
         pdf_buffer = BytesIO()
         doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
 
-        # Define styles
         styles = getSampleStyleSheet()
+        # CHANGED: The fontName is now back to the standard 'Helvetica'
         heading_style = ParagraphStyle(
             'HeadingStyle', parent=styles['Normal'], fontName='Helvetica-Bold',
-            fontSize=16, textColor='darkred', spaceAfter=15, alignment=1
+            fontSize=16, spaceAfter=15, alignment=1
         )
         user_style = ParagraphStyle(
             'UserStyle', parent=styles['Normal'], fontName='Helvetica-Bold',
@@ -1593,40 +1612,41 @@ def export_pdf():
             fontSize=11, textColor='black', spaceAfter=8
         )
 
-        # Elements list for the PDF content
         elements = [
-            Paragraph("<b>Chat History</b>", heading_style),
+            Paragraph("<b>Chat History with Justice Genie</b>", heading_style),
             Spacer(1, 20)
         ]
 
-        # Helper function to prettify text
-        def prettify_text(text):
-            """Formats text: Removes extra spaces, converts markdown to readable format."""
-            text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)  # **bold**
-            text = re.sub(r'__(.*?)__', r'<b>\1</b>', text)  # __bold__
-            text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)  # *italic*
-            text = re.sub(r'## (.*?)', r'<h2>\1</h2>', text)  # ## Headings
-            text = re.sub(r'# (.*?)', r'<h1>\1</h1>', text)  # # Main heading
-            text = text.replace("\n", "<br/>")  # Preserve newlines
+        # This function converts markdown to ReportLab-compatible HTML
+        def prettify_text_for_pdf(text):
+            text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text) # Bold
+            text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)     # Italic
+            text = text.replace("\n", "<br/>")                 # Newlines
             return text.strip()
 
-        # Format and add messages
+        # This logic remains the same
         for message in messages:
             user = message.get('user', 'Unknown')
             text = message.get('text', '').strip()
-            formatted_text = prettify_text(text)  # Apply formatting
+            
+            if user.lower() == 'you':
+                name_part = f"<b>{user}:</b>"
+                style = user_style
+            else:
+                name_part = f"<b>{user}:</b>"
+                style = bot_style
+                
+            formatted_text = prettify_text_for_pdf(text)
+            
+            elements.append(Paragraph(f"{name_part} {formatted_text}", style))
+            elements.append(Spacer(1, 10))
 
-            style = user_style if user.lower() == 'you' else bot_style
-            elements.append(Paragraph(f"<b>{user}:</b> {formatted_text}", style))
-            elements.append(Spacer(1, 10))  # Add spacing between messages
-
-        # Build and return the PDF
         doc.build(elements)
         pdf_buffer.seek(0)
         return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name='chat_history.pdf')
 
     except Exception as e:
-        return jsonify({'error': f'Failed to generate PDF: {str(e)}'}), 400
+        return jsonify({'error': f'Failed to generate PDF: {str(e)}'}), 500
     
 def send_goodbye_email(email, username, score=None, rank=None):
    
