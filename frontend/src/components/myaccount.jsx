@@ -49,51 +49,70 @@ const ProfileImage = ({ src, onUploadClick, onRemoveClick }) => (
   
 
 // Component for Progress Bar
-const ProgressBar = ({ percentage, marks, total, level, rank, gameName }) => (
+// This is the full code for the ProgressBar component
+const ProgressBar = ({ level, rank, gameName, totalScore }) => {
+  // Define the maximum possible score in your game
+  const MAX_POSSIBLE_SCORE = 75;
+
+  // Calculate the overall progress percentage
+  const overallPercentage = (totalScore / MAX_POSSIBLE_SCORE) * 100;
+
+  return (
     <div className="myaccount-progress-card">
-      <h3 className='font-poppins'>Quiz Progress</h3>
+      <h3 className='font-poppins'>Overall Quiz Progress</h3>
       <div className="myaccount-progress-stats">
+        {/* The progress bar now shows overall progress */}
         <div className="myaccount-progress-bar-container">
-          <div className="myaccount-progress-bar" style={{ width: `${percentage}%` }}>
+          <div className="myaccount-progress-bar" style={{ width: `${overallPercentage || 0}%` }}>
             <div className="myaccount-progress-glow"></div>
           </div>
         </div>
-  
+
         <div className="myaccount-progress-details">
-          <p className='font-manrope'>Score: <span>{marks}/{total}</span></p>
-          <p className='font-manrope'>Level: <span>{level}</span></p>
+          {/* This text now shows the total score out of the max possible */}
+          <p className='font-manrope'>Total Progress: <span>{totalScore || 0} / {MAX_POSSIBLE_SCORE}</span></p>
+          <p className='font-manrope'>Current Level: <span>{level || 1}</span></p>
         </div>
-  
-        {/* 🎯 Rank & Game Name UI */}
-        <div className="quizz-game-rank flex items-center gap-4 mt-4 bg-white p-4 rounded-xl shadow-sm border w-fit">
-          {/* Rank with badge */}
+
+        {/* The badges for Rank, Total Score, and Game Name remain the same */}
+        <div className="quizz-game-rank flex items-center flex-wrap gap-4 mt-4 bg-white p-4 rounded-xl shadow-sm border w-full">
+          
+          {/* Rank Badge */}
           <div className="quizz-rank flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold">
             {rank === 1 ? (
-              <img src="./images/1stplace.png" alt="1st Place" className="w-5 h-5 sm:w-6 sm:h-6" />
+              <img src="./images/1stplace.png" alt="1st Place" className="w-5 h-5" />
             ) : rank === 2 ? (
-              <img src="./images/2ndplace.png" alt="2nd Place" className="w-5 h-5 sm:w-6 sm:h-6" />
+              <img src="./images/2ndplace.png" alt="2nd Place" className="w-5 h-5" />
             ) : rank === 3 ? (
-              <img src="./images/3rdplace.png" alt="3rd Place" className="w-5 h-5 sm:w-6 sm:h-6" />
+              <img src="./images/3rdplace.png" alt="3rd Place" className="w-5 h-5" />
             ) : (
-              <span className="quizz-rank-icon text-lg">🏆</span>
+              <span className="quizz-rank-icon">🏆</span>
             )}
             <span className="quizz-rank-number font-urbanist">
-              {rank ? `Rank #${rank}` : 'Rank --'}
+              {rank ? `Rank #${rank}` : 'No Rank'}
             </span>
           </div>
-  
-          {/* Game Name Tag */}
+
+          {/* Total Score Badge */}
+          <div className="quizz-total-score flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+            🌟
+            <span className="quizz-total-score-text font-urbanist">
+              Total Score: {totalScore || 0}
+            </span>
+          </div>
+          
+          {/* Game Name Badge */}
           <div className="quizz-game-name flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium italic">
             🎮
             <span className="quizz-game-name-text font-urbanist">
-              {gameName || 'Justice warrior'}
+              {gameName || 'Justice Warrior'}
             </span>
           </div>
         </div>
       </div>
     </div>
   );
-  
+};
 
 // Component for Modal
 const Modal = ({ isOpen, onClose, title, children, className }) => {
@@ -114,12 +133,6 @@ const Modal = ({ isOpen, onClose, title, children, className }) => {
 const MyAccount = () => {
     // State Management
     const [userDetails, setUserDetails] = useState({});
-    const [quizProgress, setQuizProgress] = useState({
-        marks: 0,
-        total: 100,
-        percentage: 0,
-        level: 'Beginner'
-    });
     const [isEditing, setIsEditing] = useState(false);
     const [editField, setEditField] = useState({ username: '', password: '' });
     const [modals, setModals] = useState({
@@ -189,7 +202,6 @@ const MyAccount = () => {
             { withCredentials: true } // 👈 important for cookies
         );
         setUserDetails(response.data);
-        setQuizProgress(response.data.quiz_progress || {});
         setLoading(false);
     } catch (error) {
         console.error('Error fetching user details:', error);
@@ -697,9 +709,13 @@ const MyAccount = () => {
 
                     {/* Progress Section */}
                     <ProgressBar
-                        {...quizProgress}
+                        percentage={userDetails.last_quiz_percentage}
+                        marks={userDetails.last_quiz_marks}
+                        total={userDetails.last_quiz_total}
+                        level={userDetails.quiz_level}
                         rank={rank}
                         gameName={gameName}
+                        totalScore={userDetails.totalScore} // 👈 Add this new prop
                         />
 
 

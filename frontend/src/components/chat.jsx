@@ -46,8 +46,10 @@ const Chat = () => {
 
   const recognitionRef = useRef(null); // Store recognition instance
   const [bootLoading, setBootLoading] = useState(false);
-
- 
+  // In chat.jsx, at the top of your component
+  const [isExportPopupOpen, setIsExportPopupOpen] = useState(false);
+  const [pdfFilename, setPdfFilename] = useState(`chat_history_${new Date().toISOString().split('T')[0]}`);
+  
   const handleMicClick = () => {
     if (isListening) {
       recognitionRef.current?.stop(); // Stop when clicking again
@@ -581,49 +583,46 @@ const handleStopRequest = () => {
   }
 };
 
-  const handleExportPDF = async () => {
-    if (!messages.length) return alert('No messages to export.');
+ const handleExportPDF = async () => {
+  if (!messages.length) return alert('No messages to export.');
+  setIsExportPopupOpen(false);
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/export-pdf`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          messages: messages.map(({ type, content, timestamp }) => ({
-            user: type === 'user' ? 'You' : 'Justice Genie',
-            text: content
-              .replace(/<\/?[^>]+(>|$)/g, '') // Remove HTML tags
-              .replace(/\*\*(.*?)\*\*/g, '**$1**') // Keep bold Markdown
-              .replace(/__(.*?)__/g, '**$1**') // Convert underline to bold
-              .replace(/\*(.*?)\*/g, '*$1*') // Keep italic Markdown
-              .replace(/## (.*?)/g, '## $1') // Keep Markdown headings
-              .replace(/# (.*?)/g, '# $1') // Keep H1 headings
-              .replace(/\n/g, '\\n'), // Preserve newlines for backend formatting
-            timestamp
-          }))
-        }),
-      });
+  try {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/export-pdf`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      // SIMPLIFIED: Just send the raw message content.
+      // The backend will handle all formatting.
+      body: JSON.stringify({
+        messages: messages.map(({ type, content }) => ({
+          user: type === 'user' ? 'You' : 'Justice Genie',
+          text: content 
+        }))
+      }),
+    });
 
-      if (!response.ok) throw new Error('Failed to generate PDF');
-
-      const url = URL.createObjectURL(await response.blob());
-      const a = document.createElement('a');
-      
-      Object.assign(a, {
-        href: url,
-        download: `chat_history_${new Date().toISOString().split('T')[0]}.pdf`,
-        rel: 'noopener noreferrer' 
-      });
-
-      document.body.appendChild(a);  
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error exporting PDF:', error);
-      setError('Failed to export chat history. Please try again.');
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate PDF');
     }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    
+    a.href = url;
+    a.download = `${pdfFilename || 'chat_history'}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
+    // You can use your setError state function here if you have one
+    alert('Failed to export chat history. Please try again.');
+  }
 };
 
   
@@ -681,31 +680,35 @@ const handleLogout = useCallback(() => {
     okType: "danger",
     className: "chat-modal-popup",
     onOk: async () => {
-      try {
-        await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
-          method: "POST",
-          credentials: "include", // Important for cookies
-        });
+  try {
+    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
 
-        // Clear context
-        setAuth({ loggedIn: false, role: null, username: null, loading: false });
+    // Clear context
+    setAuth({ loggedIn: false, role: null, username: null, loading: false });
 
-        // Clear session and localStorage
-        sessionStorage.removeItem("isLoggedIn");
-        localStorage.removeItem(`chatHistory_${username}`);
-        localStorage.removeItem("isLoggedIn");
-        localStorage.removeItem("role");
-        localStorage.removeItem("darkMode");
+    // --- THIS IS THE FIX ---
+    // This one line removes ALL data for the session, including the stale 'userData'.
+    sessionStorage.clear(); 
+    
+    // You should also clear localStorage if you are storing user-specific data there
+    localStorage.removeItem(`chatHistory_${username}`);
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("role");
+    localStorage.removeItem("darkMode");
+    // ----------------------
 
-        // Clear chat history from state
-        setMessages([]);
+    // Clear chat history from state
+    setMessages([]);
 
-        // Navigate to login page
-        navigate("/login", { replace: true });
-      } catch (error) {
-        console.error("Error logging out:", error);
-      }
-    },
+    // Navigate to login page
+    navigate("/login", { replace: true });
+  } catch (error) {
+    console.error("Error logging out:", error);
+  }
+},
     onCancel: () => {
       console.log("Logout cancelled");
     },
@@ -1023,7 +1026,7 @@ if (error) {
             </div>
 
             <div className="chat-message-text-container">
-              <div className="chat-message-text font-manrope">
+              <div className="chat-message-text font-manrope text-sm md:text-base">
                   <ReactMarkdown>{message.content}</ReactMarkdown>
                   {message.analysis && <AnalysisReport data={message.analysis} />}
               </div>
@@ -1216,7 +1219,7 @@ if (error) {
             {isLoading ? <XCircle size={20} /> : <Send size={20} />}
           </button>
           <button
-            onClick={handleExportPDF}
+            onClick={() => setIsExportPopupOpen(true)}
             onMouseDown={(e) => e.currentTarget.blur()}
             className="chat-export-btn"
             disabled={messages.length === 0 || !isOnline}
@@ -1235,8 +1238,48 @@ if (error) {
       {sidebarOpen && window.innerWidth < 1024 && (
         <div className="chat-overlay" onClick={toggleSidebar}></div>
       )}
+      {/* --- Add this entire block for the Export PDF Popup --- */}
+      {isExportPopupOpen && (
+        <div style={styles.overlay}>
+          <div style={styles.popup}>
+            <h3 style={styles.title}>Export Chat as PDF</h3>
+            <p style={styles.label}>Enter a filename for your PDF:</p>
+            <input
+              type="text"
+              value={pdfFilename}
+              onChange={(e) => setPdfFilename(e.target.value)}
+              style={styles.input}
+            />
+            <div style={styles.buttonContainer}>
+              <button 
+                onClick={() => setIsExportPopupOpen(false)} 
+                style={{...styles.button, ...styles.cancelButton}}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleExportPDF} 
+                style={{...styles.button, ...styles.downloadButton}}
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+};
+const styles = {
+  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  popup: { background: 'white', padding: '25px', borderRadius: '10px', width: '90%', maxWidth: '400px', boxShadow: '0 5px 15px rgba(0,0,0,0.3)' },
+  title: { marginTop: 0, marginBottom: '15px', fontSize: '1.2em' },
+  label: { marginBottom: '5px', fontSize: '0.9em', color: '#555' },
+  input: { width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', boxSizing: 'border-box', marginBottom: '20px' },
+  buttonContainer: { display: 'flex', justifyContent: 'flex-end', gap: '10px' },
+  button: { padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' },
+  cancelButton: { background: '#eee', color: '#333' },
+  downloadButton: { background: '#007bff', color: 'white' }
 };
 
 export default Chat;
