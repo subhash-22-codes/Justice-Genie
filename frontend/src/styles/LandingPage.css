@@ -153,12 +153,17 @@
     flex-direction: column;
     bottom: 40px;
     gap: 12px;
+    align-items: center; /* center the cards themselves */
   }
   .dev-card {
     width: 90%;
-    justify-content: center;
+    justify-content: flex-start; /* keep avatar left, text next to it */
+  }
+  .dev-info {
+    align-items: flex-start; /* desktop style */
   }
 }
+
 
 /* -----------------------------
    Spinner Rings
