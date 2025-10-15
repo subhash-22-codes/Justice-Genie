@@ -125,30 +125,6 @@ export default function LandingPage() {
     }
   ];
 
-  // const testimonials = [
-  //   {
-  //     name: "Priya Sharma",
-  //     role: "Law Student",
-  //     content: "Justice Genie transformed how I study law. The AI assistant is incredibly accurate and the quizzes help me retain information better.",
-  //     rating: 5,
-  //     avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop"
-  //   },
-  //   {
-  //     name: "Rajesh Kumar",
-  //     role: "Legal Professional",
-  //     content: "As a practicing lawyer, I find the document library invaluable. It saves me hours of research time every week.",
-  //     rating: 5,
-  //     avatar: "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop"
-  //   },
-  //   {
-  //     name: "Anita Patel",
-  //     role: "Legal Researcher",
-  //     content: "The curated resources are exceptional. It's like having a legal library at my fingertips with expert recommendations.",
-  //     rating: 5,
-  //     avatar: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop"
-  //   }
-  // ];
-
   const stats = [
     { number: "100+", label: "Legal Questions Answered", icon: <FaQuestionCircle color="#2563eb" /> },
     { number: "soon", label: "Legal Documents", icon: <FaFilePdf color="#dc2626" /> },
@@ -156,30 +132,26 @@ export default function LandingPage() {
     { number: "90%", label: "Accuracy Rate", icon: <FaCheckCircle color="#16a34a" /> }
   ];
 
-  // const teamMembers = [
-  //   {
-  //     name: "Subhash Yaganti",
-  //     role: "Full-Stack Developer & UI/UX",
-  //     description: "Passionate about creating technology solutions that make legal knowledge accessible to everyone.",
-  //     email: "subashyagantisubbu@gmail.com",
-  //     linkedin: "https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/",
-  //     github: "https://github.com/subhash-22-codes",
-  //     instagram: "https://instagram.com/subhash.yaganti",
-  //     avatar: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-  //     skills: ["React", "Node.js", "AI Integration", "UI/UX Design"]
-  //   },
-  //   {
-  //     name: "Siri Mahalaxmi Vemula",
-  //     role: "Backend Engineer & Database Architect",
-  //     description: "Specializes in building robust, scalable systems that power seamless user experiences.",
-  //     email: "sirimahalaxmivemula@gmail.com",
-  //     linkedin: "https://www.linkedin.com/in/vemula-siri-mahalaxmi-b4b624319/",
-  //     github: "https://github.com/siri-vemula",
-  //     instagram: "https://instagram.com/siri.vemula",
-  //     avatar: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop",
-  //     skills: ["Python", "Database Design", "API Development", "System Architecture"]
-  //   }
-  // ];
+  const teamMembers = [
+    {
+      name: "Subhash Yaganti",
+      role: "Full-Stack Developer + UI/UX Designer",
+      email: "subashyagantisubbu@gmail.com",
+      linkedin: "https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/",
+      github: "https://github.com/subhash-22-codes",
+      instagram: "https://instagram.com/subhash__spiody",
+      avatar: "/images/Subhash.jpg",
+    },
+    {
+      name: "Siri Mahalaxmi Vemula",
+      role: "Backend Engineer + API Integration + System Architect",
+      email: "sirimahalaxmivemula@gmail.com",
+      linkedin: "https://www.linkedin.com/in/vemula-siri-mahalaxmi-b4b624319/",
+      github: "https://github.com/armycodes",
+      instagram: "https://instagram.com/heysiri_0_0",
+      avatar: "/images/Siri.jpg",
+    }
+  ];
 
   return (
     <div className="landing-page">
@@ -437,49 +409,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      {/* <section className="testimonials-section" id="testimonials">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-badge">
-              <FaStar className="badge-icon" />
-              <span>User Reviews</span>
-            </div>
-            <h2 className="section-title">What Our Users Say</h2>
-            <p className="section-description">
-              Join thousands of students and professionals who trust Justice Genie 
-              for their legal learning journey.
-            </p>
-          </div>
-          
-          <div className="testimonials-grid">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className={`testimonial-card ${isVisible.testimonials ? 'animate' : ''}`} style={{animationDelay: `${index * 0.2}s`}}>
-                <div className="testimonial-header">
-                  <div className="testimonial-avatar">
-                    <img src={testimonial.avatar} alt={testimonial.name} />
-                  </div>
-                  <div className="testimonial-info">
-                    <h4>{testimonial.name}</h4>
-                    <p>{testimonial.role}</p>
-                  </div>
-                  <div className="testimonial-rating">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <FaStar key={i} className="star-icon" />
-                    ))}
-                  </div>
-                </div>
-                <div className="testimonial-content">
-                  <p>"{testimonial.content}"</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
-      {/* Team Section */}
-      {/* <section className="team-section" id="team">
+  
+       <section className="team-section" id="team">
         <div className="container">
           <div className="section-header">
             <div className="section-badge">
@@ -508,7 +439,7 @@ export default function LandingPage() {
 
                   
                   <div className="team-social-links">
-                    <a href={`mailto:${member.email}`} className="social-link email">
+                    <a href={`mailto:${member.email}`} className="social-link mail">
                       <FaEnvelope />
                     </a>
                     <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="social-link linkedin">
@@ -526,20 +457,14 @@ export default function LandingPage() {
                   <div className="team-info">
                     <h3 className="team-name">{member.name}</h3>
                     <p className="team-role">{member.role}</p>
-                    <p className="team-description">{member.description}</p>
 
-                    <div className="team-skills">
-                      {member.skills.map((skill, skillIndex) => (
-                        <span key={skillIndex} className="skill-tag">{skill}</span>
-                      ))}
-                    </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </section> */}
+      </section>
 
 
       {/* CTA Section */}
@@ -609,7 +534,7 @@ export default function LandingPage() {
               <p className="footer-description font-manrope">
                 Democratizing legal knowledge through innovative technology. Built with passion by students combining technology & law.
               </p>
-              <div className="footer-social">
+              {/* <div className="footer-social">
                 <a href="https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/" target="_blank" rel="noopener noreferrer" className="footer-social-link linkedin">
                   <FaLinkedin />
                 </a>
@@ -622,7 +547,7 @@ export default function LandingPage() {
                 <a href="mailto:subashyagantisubbu@gmail.com" className="footer-social-link  mail">
                   <FaEnvelope />
                 </a>
-              </div>
+              </div> */}
             </div>
 
             <div className="footer-links">
