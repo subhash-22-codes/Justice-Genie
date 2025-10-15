@@ -24,6 +24,7 @@
 /* -----------------------------
    Loader Container
 ----------------------------- */
+/* Your main loading container styles */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -35,19 +36,17 @@
   color: white;
   position: relative;
   overflow: hidden;
-  padding: 0 1rem;
+  padding: 1rem;
   text-align: center;
 }
 
-/* -----------------------------
-   Subtle animated background
------------------------------ */
+/* Your subtle animated background */
 .loading-container::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%),
-              radial-gradient(circle at 70% 30%, rgba(255,255,255,0.1) 0%, transparent 50%);
+  background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.08) 0%, transparent 40%),
+              radial-gradient(circle at 70% 30%, rgba(255,255,255,0.08) 0%, transparent 40%);
   animation: backgroundShift 8s ease-in-out infinite;
   z-index: 0;
 }
@@ -55,6 +54,110 @@
 @keyframes backgroundShift {
   0%, 100% { transform: scale(1) rotate(0deg); }
   50% { transform: scale(1.1) rotate(5deg); }
+}
+
+/* Your loading text styles, adapted for the dark theme */
+.loading-text h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.loading-text p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Developer Card Section */
+.loading-credits {
+  position: absolute;
+  bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  z-index: 1;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+/* Developer Card */
+.dev-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.6rem 1rem;
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  min-width: 180px;
+  justify-content: flex-start;
+}
+
+.dev-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Avatar */
+.dev-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+/* Info */
+.dev-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.dev-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.dev-role {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dev-card {
+    min-width: 150px;
+    padding: 0.5rem 0.8rem;
+  }
+  .dev-avatar {
+    width: 38px;
+    height: 38px;
+  }
+  .dev-name {
+    font-size: 0.85rem;
+  }
+  .dev-role {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-credits {
+    flex-direction: column;
+    bottom: 40px;
+    gap: 12px;
+  }
+  .dev-card {
+    width: 90%;
+    justify-content: center;
+  }
 }
 
 /* -----------------------------

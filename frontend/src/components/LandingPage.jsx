@@ -60,21 +60,40 @@ export default function LandingPage() {
   }, []);
 
   // Show loader while auth is loading
-  if (auth.loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner-advanced">
-          <div className="spinner-ring"></div>
-          <div className="spinner-ring"></div>
-          <div className="spinner-ring"></div>
-        </div>
-        <div className="loading-text font-poppins">
-          <h3>Justice Genie</h3>
-          <p>Initializing your legal companion...</p>
-        </div>
+ if (auth.loading) {
+  return (
+    <div className="loading-container">
+      {/* Spinner and Main Text */}
+      <div className="loading-spinner-advanced">
+        <div className="spinner-ring"></div>
+        <div className="spinner-ring"></div>
+        <div className="spinner-ring"></div>
       </div>
-    );
-  }
+
+      <div className="loading-text font-poppins">
+        <h3>Justice Genie</h3>
+        <p>Initializing your legal companion...</p>
+      </div>
+
+      {/* Developer Cards */}
+     <div className="loading-credits">
+        {[
+          { img: "/images/Subhash.jpg", name: "Subhash Yaganti", role: "Full Stack Dev & UI/UX Designer" },
+          { img: "/images/Siri.jpg", name: "Siri Mahalaxmi Vemula", role: "Backend + API Integration + System Architect" }
+        ].map((dev, index) => (
+          <div key={index} className="dev-card">
+            <img src={dev.img} alt={dev.name} className="dev-avatar" />
+            <div className="dev-info">
+              <p className="dev-name">{dev.name}</p>
+              <span className="dev-role">{dev.role}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
   const features = [
     {
       icon: <FaRobot />,
