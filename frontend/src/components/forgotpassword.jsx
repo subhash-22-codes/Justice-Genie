@@ -12,20 +12,15 @@ const ForgotPassword = () => {
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [step, setStep] = useState(1);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
-  
+
     Mailcheck.run({
       email,
       suggested: function(suggestion) {
-        setErrorMessage(`Did you mean ${suggestion.full}?`);
         toast.info(`Did you mean ${suggestion.full}?`, { autoClose: 5000 });
       },
       empty: async function() {
@@ -36,20 +31,17 @@ const ForgotPassword = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
           });
-  
+
           const data = await response.json();
-  
+
           if (!response.ok) {
-            setErrorMessage(data.error || 'Something went wrong.');
             toast.error(data.error || 'Something went wrong.');
             return;
           }
-  
-          setSuccessMessage(data.message || 'Reset link sent!');
+
           toast.success(data.message || 'Reset link sent!');
           setStep(2);
         } catch (error) {
-          setErrorMessage('Failed to send reset email. Try again.');
           toast.error('Failed to send reset email. Try again.');
         } finally {
           setIsLoading(false);
@@ -62,8 +54,6 @@ const ForgotPassword = () => {
     e.preventDefault();
     const trimmedResetCode = resetCode.trim();
     setIsLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
 
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verify-forgot-password-code`, {
@@ -75,17 +65,14 @@ const ForgotPassword = () => {
       const data = await response.json();
 
       if (data.status === 'fail') {
-        setErrorMessage(data.message || 'Code not correct, type correct code');
         toast.error(data.message || 'Code not correct, type correct code');
         setResetCode('');
       } else {
-        setSuccessMessage(data.message || 'Code verified successfully');
         toast.success(data.message || 'Code verified successfully');
         setStep(3);
       }
 
     } catch (error) {
-      setErrorMessage('Something went wrong. Try again.');
       toast.error('Something went wrong. Try again.');
     } finally {
       setIsLoading(false);
@@ -96,8 +83,6 @@ const ForgotPassword = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      setErrorMessage('');
-      setSuccessMessage('');
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -105,12 +90,10 @@ const ForgotPassword = () => {
       });
       const data = await response.json();
       console.log(data);
-  
-      setSuccessMessage(data.message || 'Password reset successful');
+
       toast.success(data.message || 'Password reset successful');
       setTimeout(() => window.location.href = '/login', 2000);
     } catch (error) {
-      setErrorMessage('Failed to reset password');
       toast.error('Failed to reset password');
     } finally {
       setIsLoading(false);
@@ -119,8 +102,6 @@ const ForgotPassword = () => {
 
   const goBack = () => {
     setStep(step - 1);
-    setErrorMessage('');
-    setSuccessMessage('');
   };
 
   const getStepConfig = () => {
@@ -130,21 +111,21 @@ const ForgotPassword = () => {
           icon: faEnvelope,
           title: 'Reset Your Password',
           subtitle: 'Enter your email address and we\'ll send you a verification code',
-          color: '#4F46E5'
+          color: '#2563eb'
         };
       case 2:
         return {
           icon: faKey,
           title: 'Verify Your Identity',
           subtitle: 'Enter the 6-digit code we sent to your email',
-          color: '#059669'
+          color: '#2563eb'
         };
       case 3:
         return {
           icon: faShieldAlt,
           title: 'Create New Password',
           subtitle: 'Choose a strong password to secure your account',
-          color: '#DC2626'
+          color: '#2563eb'
         };
       default:
         return {};
@@ -154,34 +135,31 @@ const ForgotPassword = () => {
   const stepConfig = getStepConfig();
 
   return (
-    <div className="forgetpassword-container">
-
-      {/* Main Content */}
-      <div className="forgetpassword-content">
-        {/* Left Side - Branding (Desktop Only) */}
-        <div className="forgetpassword-branding">
-          <div className="forgetpassword-brand-content">
-            <div className="forgetpassword-brand-icon">
-              <img 
-                src="/images/jg_original_logo_1.png" 
-                alt="Brand Logo" 
-                className="forgetpassword-logo" 
+    <div className="forgot-container">
+      <div className="forgot-content">
+        <div className="forgot-branding">
+          <div className="forgot-brand-content">
+            <div className="forgot-brand-icon">
+              <img
+                src="/images/jg_original_logo_1.png"
+                alt="Brand Logo"
+                className="forgot-logo"
               />
             </div>
-            <h1 className="forgetpassword-brand-title">Secure Account Recovery</h1>
-            <p className="forgetpassword-brand-description font-urbanist">
+            <h1 className="forgot-brand-title font-poppins">Secure Account Recovery</h1>
+            <p className="forgot-brand-description font-urbanist">
               Your security is our priority. Follow our secure 3-step process to regain access to your account safely.
             </p>
-            <div className="forgetpassword-features font-manrope">
-              <div className="forgetpassword-feature">
+            <div className="forgot-features font-manrope">
+              <div className="forgot-feature">
                 <FontAwesomeIcon icon={faCheckCircle} />
                 <span>Email Verification</span>
               </div>
-              <div className="forgetpassword-feature">
+              <div className="forgot-feature">
                 <FontAwesomeIcon icon={faCheckCircle} />
                 <span>Secure Code Validation</span>
               </div>
-              <div className="forgetpassword-feature">
+              <div className="forgot-feature">
                 <FontAwesomeIcon icon={faCheckCircle} />
                 <span>Password Encryption</span>
               </div>
@@ -189,28 +167,26 @@ const ForgotPassword = () => {
           </div>
         </div>
 
-        {/* Right Side - Form */}
-        <div className="forgetpassword-form-section">
-          <div className="forgetpassword-card">
-            {/* Header */}
-            <div className="forgetpassword-header">
+        <div className="forgot-form-section">
+          <div className="forgot-card">
+            <div className="forgot-header">
               {step > 1 && (
-                <button 
-                  type="button" 
-                  className="forgetpassword-back-btn"
+                <button
+                  type="button"
+                  className="forgot-back-btn"
                   onClick={goBack}
                   disabled={isLoading}
                 >
                   <FontAwesomeIcon icon={faArrowLeft} />
                 </button>
               )}
-              
-              <div className="forgetpassword-step-indicator">
-                <div className="forgetpassword-steps font-poppins">
+
+              <div className="forgot-step-indicator">
+                <div className="forgot-steps font-poppins">
                   {[1, 2, 3].map((stepNum) => (
-                    <div 
+                    <div
                       key={stepNum}
-                      className={`forgetpassword-step ${step >= stepNum ? 'active' : ''} ${step === stepNum ? 'current' : ''}`}
+                      className={`forgot-step ${step >= stepNum ? 'active' : ''} ${step === stepNum ? 'current' : ''}`}
                     >
                       <span>{stepNum}</span>
                     </div>
@@ -218,58 +194,41 @@ const ForgotPassword = () => {
                 </div>
               </div>
 
-              <div className="forgetpassword-icon" style={{ backgroundColor: stepConfig.color }}>
+              <div className="forgot-icon" style={{ backgroundColor: stepConfig.color }}>
                 <FontAwesomeIcon icon={stepConfig.icon} />
               </div>
-              
-              <h2 className="forgetpassword-title">{stepConfig.title}</h2>
-              <p className="forgetpassword-subtitle font-urbanist">{stepConfig.subtitle}</p>
+
+              <h2 className="forgot-title font-poppins">{stepConfig.title}</h2>
+              <p className="forgot-subtitle font-urbanist">{stepConfig.subtitle}</p>
             </div>
 
-            {/* Messages */}
-            {successMessage && (
-              <div className="forgetpassword-message forgetpassword-success font-urbanist">
-                <FontAwesomeIcon icon={faCheckCircle} />
-                <span>{successMessage}</span>
-              </div>
-            )}
-
-            {errorMessage && (
-              <div className="forgetpassword-message forgetpassword-error font-urbanist">
-                <FontAwesomeIcon icon={faKey} />
-                <span>{errorMessage}</span>
-              </div>
-            )}
-
-            {/* Forms */}
-            <div className="forgetpassword-form-container">
-              {/* Step 1: Email */}
+            <div className="forgot-form-container">
               {step === 1 && (
-                <form onSubmit={handleEmailSubmit} className="forgetpassword-form">
-                  <div className="forgetpassword-input-group">
-                    <label className="forgetpassword-label font-poppins">Email Address</label>
-                    <div className="forgetpassword-input-wrapper">
-                      <FontAwesomeIcon icon={faEnvelope} className="forgetpassword-input-icon" />
+                <form onSubmit={handleEmailSubmit} className="forgot-form">
+                  <div className="forgot-input-group">
+                    <label className="forgot-label font-poppins">Email Address</label>
+                    <div className="forgot-input-wrapper">
+                      <FontAwesomeIcon icon={faEnvelope} className="forgot-input-icon" />
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email address"
-                        className="forgetpassword-input font-manrope"
+                        className="forgot-input font-manrope"
                         required
                         disabled={isLoading}
                       />
                     </div>
                   </div>
-                  
-                  <button 
-                    type="submit" 
-                    className="forgetpassword-button forgetpassword-primary font-manrope"
+
+                  <button
+                    type="submit"
+                    className="forgot-button forgot-primary font-manrope"
                     disabled={isLoading || !email.trim()}
                   >
                     {isLoading ? (
                       <>
-                        <FontAwesomeIcon icon={faSpinner} className="forgetpassword-spinner" />
+                        <FontAwesomeIcon icon={faSpinner} className="forgot-spinner" />
                         Sending Code...
                       </>
                     ) : (
@@ -282,37 +241,36 @@ const ForgotPassword = () => {
                 </form>
               )}
 
-              {/* Step 2: Reset Code */}
               {step === 2 && (
-                <form onSubmit={handleResetCodeSubmit} className="forgetpassword-form">
-                  <div className="forgetpassword-input-group">
-                    <label className="forgetpassword-label font-poppins">Verification Code</label>
-                    <div className="forgetpassword-input-wrapper">
-                      <FontAwesomeIcon icon={faKey} className="forgetpassword-input-icon" />
+                <form onSubmit={handleResetCodeSubmit} className="forgot-form">
+                  <div className="forgot-input-group">
+                    <label className="forgot-label font-poppins">Verification Code</label>
+                    <div className="forgot-input-wrapper">
+                      <FontAwesomeIcon icon={faKey} className="forgot-input-icon" />
                       <input
                         type="text"
                         value={resetCode}
                         onChange={(e) => setResetCode(e.target.value)}
                         placeholder="000000"
-                        className="forgetpassword-input forgetpassword-code-input font-manrope"
+                        className="forgot-input forgot-code-input font-manrope"
                         maxLength="6"
                         required
                         disabled={isLoading}
                       />
                     </div>
-                    <p className="forgetpassword-help-text font-urbanist">
+                    <p className="forgot-help-text font-urbanist">
                       Code sent to: <strong>{email}</strong>
                     </p>
                   </div>
-                  
-                  <button 
-                    type="submit" 
-                    className="forgetpassword-button forgetpassword-primary font-manrope"
+
+                  <button
+                    type="submit"
+                    className="forgot-button forgot-primary font-manrope"
                     disabled={isLoading || resetCode.length !== 6}
                   >
                     {isLoading ? (
                       <>
-                        <FontAwesomeIcon icon={faSpinner} className="forgetpassword-spinner" />
+                        <FontAwesomeIcon icon={faSpinner} className="forgot-spinner" />
                         Verifying...
                       </>
                     ) : (
@@ -325,45 +283,44 @@ const ForgotPassword = () => {
                 </form>
               )}
 
-              {/* Step 3: New Password */}
               {step === 3 && (
-                <form onSubmit={handlePasswordSubmit} className="forgetpassword-form">
-                  <div className="forgetpassword-input-group">
-                    <label className="forgetpassword-label font-poppins">New Password</label>
-                    <div className="forgetpassword-input-wrapper">
-                      <FontAwesomeIcon icon={faLock} className="forgetpassword-input-icon" />
+                <form onSubmit={handlePasswordSubmit} className="forgot-form">
+                  <div className="forgot-input-group">
+                    <label className="forgot-label font-poppins">New Password</label>
+                    <div className="forgot-input-wrapper">
+                      <FontAwesomeIcon icon={faLock} className="forgot-input-icon" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Enter your new password"
-                        className="forgetpassword-input font-manrope"
+                        className="forgot-input font-manrope"
                         minLength="6"
                         required
                         disabled={isLoading}
                       />
                       <button
                         type="button"
-                        className="forgetpassword-toggle-password"
+                        className="forgot-toggle-password"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={isLoading}
                       >
                         <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                       </button>
                     </div>
-                    <div className="forgetpassword-password-requirements font-urbanist">
+                    <div className="forgot-password-requirements font-urbanist">
                       <p>Password must be at least 6 characters long</p>
                     </div>
                   </div>
-                  
-                  <button 
-                    type="submit" 
-                    className="forgetpassword-button forgetpassword-primary font-manrope"
+
+                  <button
+                    type="submit"
+                    className="forgot-button forgot-primary font-manrope"
                     disabled={isLoading || newPassword.length < 6}
                   >
                     {isLoading ? (
                       <>
-                        <FontAwesomeIcon icon={faSpinner} className="forgetpassword-spinner" />
+                        <FontAwesomeIcon icon={faSpinner} className="forgot-spinner" />
                         Updating Password...
                       </>
                     ) : (
@@ -377,11 +334,10 @@ const ForgotPassword = () => {
               )}
             </div>
 
-            {/* Footer */}
-            <div className="forgetpassword-footer font-urbanist">
+            <div className="forgot-footer font-urbanist">
               <p>
-                Remember your password? 
-                <Link to="/login" className="forgetpassword-link">
+                Remember your password?
+                <Link to="/login" className="forgot-link">
                   Sign In
                 </Link>
               </p>

@@ -78,12 +78,13 @@ function App() {
           <AnimatedRoutes />
           <ToastContainer 
             position="top-right"
-            autoClose={4000}
+            autoClose={5000}
             hideProgressBar={false}
             newestOnTop
             closeOnClick
             pauseOnHover
             draggable
+            toastStyle={{ zIndex: 9999 }}
           />
         </Router>
       </div>
