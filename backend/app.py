@@ -65,7 +65,9 @@ CORS(
     origins=["http://localhost:3000", "https://justice-genie-mu.vercel.app"]
 )
 
-app.secret_key = 'supersecretkey'
+app.secret_key = os.getenv("SECRET_KEY")
+if not app.secret_key:
+    raise ValueError("No SECRET_KEY set for Flask application")
 
 #---- Cloudinary configuration ----#
 cloudinary.config(
@@ -155,7 +157,7 @@ cluster  = os.getenv("MONGO_CLUSTER")
 
 MONGO_URI = f"mongodb+srv://{username}:{password}@{cluster}/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGO_URI)   # single global client
-# client = MongoClient('mongodb://localhost:27017/') # local testing
+#client = MongoClient('mongodb://localhost:27017/') # local testing
 
 db = client["law_chatbot"]
 users_collection = db["users"]
@@ -760,7 +762,7 @@ def send_verification_email(email, verification_code):
     subject = f"🔹 Justice Genie - Verify Your Email ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
     
     # Justice Genie Logo
-    logo_url = "https://images.nightcafe.studio/jobs/DLZmuOJUEdalL84u3voe/DLZmuOJUEdalL84u3voe--1--t6av2.jpg?tr=w-1600,c-at_max"
+    logo_url = "https://res.cloudinary.com/dggciuh9l/image/upload/v1760548194/profile_pics/sswolspeqyywjimwegbh.png"
 
     # HTML Email Body
     body = f"""
@@ -931,7 +933,7 @@ def send_welcome_email(email, username):
                         <!-- Header -->
                         <tr>
                             <td style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 40px 20px; text-align: center;">
-                                <img src="https://images.nightcafe.studio/jobs/DLZmuOJUEdalL84u3voe/DLZmuOJUEdalL84u3voe--1--t6av2.jpg" 
+                                <img src="https://res.cloudinary.com/dggciuh9l/image/upload/v1760548194/profile_pics/sswolspeqyywjimwegbh.png" 
                                     alt="Justice Genie Logo" 
                                     style="width: 200px; height: auto; margin-bottom: 30px; border: 3px solid white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
                                 
