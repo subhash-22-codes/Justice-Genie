@@ -116,7 +116,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 # Configure Google Gemini API
 genai.configure(api_key=api_key)  
 model = genai.GenerativeModel('gemini-2.5-flash')
-# The final, most powerful prompt with a built-in example
+
 GUIDANCE = """
 You are 'Justice Genie', an expert AI legal assistant specializing in the Indian Penal Code (IPC). Your goal is to provide clear, structured, and insightful legal information. Analyze the user's query and provide a detailed response that follows the structure and quality of the example provided below.
 
@@ -654,6 +654,7 @@ def classify_query(query):
     The categories are: LEGAL, LEGAL_GENERAL, CONVERSATIONAL, or OFF_TOPIC.
     - LEGAL: The query is about a specific Indian law, IPC section, or a concrete legal situation.
     - LEGAL_GENERAL: The query is a broad, philosophical, or definitional question about the legal system itself.
+    - CREATOR: Questions about who made, created, developed, built, or are the innovators of the Justice Genie.
     - CONVERSATIONAL: The query is a greeting, a question about you (the AI), a thank you, or other small talk.
     - OFF_TOPIC: The query is about something completely unrelated to law.
 
@@ -662,9 +663,12 @@ def classify_query(query):
     Examples:
     Query: "What is the punishment for theft?" -> LEGAL
     Query: "What is Law?" -> LEGAL_GENERAL
+    Query: "who made you?" -> CREATOR
     Query: "Hello there" -> CONVERSATIONAL
     Query: "Why do we have courts?" -> LEGAL_GENERAL
+    Query: "who developed this application?" -> CREATOR
     Query: "How do I cook biryani?" -> OFF_TOPIC
+    Query: "who are the innovators of jg?" -> CREATOR
 
     Now, classify this query:
     Query: "{query}" ->
@@ -673,7 +677,7 @@ def classify_query(query):
     response = model.generate_content(prompt)
     classification = response.text.strip().upper()
     
-    if classification in ['LEGAL', 'LEGAL_GENERAL', 'CONVERSATIONAL', 'OFF_TOPIC']:
+    if classification in ['LEGAL', 'LEGAL_GENERAL', 'CONVERSATIONAL', 'CREATOR', 'OFF_TOPIC']:
         return classification
     else:
         return 'OFF_TOPIC' # Default fallback
@@ -693,7 +697,19 @@ def chat():
     intent = classify_query(query)
 
     try:
-        if intent == 'LEGAL':
+        
+        if intent == 'CREATOR':
+            creator_response = (
+                "I was created by two passionate developers:\n\n"
+                "**Subhash Yaganti** (Full-Stack & UI/UX)\n"
+                "[LinkedIn](https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/) | [GitHub](https://github.com/subhash-22-codes)\n\n"
+                "**Siri Mahalaxmi Vemula** (Backend & System Architecture)\n"
+                "[LinkedIn](https://www.linkedin.com/in/vemula-siri-mahalaxmi-b4b624319/) | [GitHub](https://github.com/armycodes)\n\n"
+                "They combined their skills in technology and an interest in law to build me."
+            )
+            return jsonify({'response': creator_response})
+        
+        elif intent == 'LEGAL':
             app.logger.info(f"Handling LEGAL query: {query}")
             prompt = f"{GUIDANCE}\nUser Query: {query}"
             response_text = model.generate_content(prompt).text
@@ -1011,7 +1027,7 @@ def send_welcome_email(email, username):
                                                     </td>
                                                     <td style="width: 33.33%; text-align: center; padding: 0 10px;">
                                                         <div style="background: #f8fafc; padding: 20px; border-radius: 12px;">
-                                                            <h4 style="color: #1e3a8a; margin: 0 0 5px; font-size: 24px;">10K+</h4>
+                                                            <h4 style="color: #1e3a8a; margin: 0 0 5px; font-size: 24px;">30+</h4>
                                                             <p style="color: #475569; margin: 0;">Users Helped</p>
                                                         </div>
                                                     </td>
@@ -1154,7 +1170,7 @@ def send_forgot_password_email(email, reset_code):
     subject = f"🔑 JUSTICE GENIE - Reset Your Password & Unlock Your Legal Power ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
 
     # Justice Genie Logo (replace with actual URL)
-    logo_url = "https://static.vecteezy.com/system/resources/previews/016/006/572/original/law-firm-services-with-justice-legal-advice-judgement-and-lawyer-consultant-in-flat-cartoon-poster-hand-drawn-templates-illustration-vector.jpg"
+    logo_url = "https://res.cloudinary.com/dggciuh9l/image/upload/v1760548194/profile_pics/sswolspeqyywjimwegbh.png"
 
     # HTML Email Body
     body = f"""
@@ -1708,7 +1724,7 @@ def send_goodbye_email(email, username, score=None, rank=None):
                         <tr>
                             <td style="text-align: center; padding-bottom: 40px; position: relative;">
                                 <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 4px;  border-radius: 2px;"></div>
-                                <img src="https://images.nightcafe.studio/jobs/DLZmuOJUEdalL84u3voe/DLZmuOJUEdalL84u3voe--1--t6av2.jpg" 
+                                <img src="https://res.cloudinary.com/dggciuh9l/image/upload/v1760548194/profile_pics/sswolspeqyywjimwegbh.png" 
                                      alt="Justice Genie Logo" 
                                      style="width: 120px; height: auto; margin-bottom: 24px; border-radius: 60px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
                                 <h1 style="color: #1a365d; font-size: 28px; margin: 0; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.05);">Thank You for Your Journey</h1>
@@ -1975,7 +1991,7 @@ def save_analysis():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-DEFAULT_PROFILE_PIC = "https://res.cloudinary.com/<your_cloud_name>/image/upload/v1757482000/profile_pics/default.jpg"
+DEFAULT_PROFILE_PIC = "https://res.cloudinary.com/dggciuh9l/image/upload/v1760548194/profile_pics/sswolspeqyywjimwegbh.png"
 
 @app.route('/api/admin/users', methods=['GET'])
 def get_users():
