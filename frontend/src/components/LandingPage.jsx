@@ -417,7 +417,7 @@ export default function LandingPage() {
               <FaUsers className="badge-icon" />
               <span>Our Team</span>
             </div>
-            <h2 className="section-title">Meet the Innovators</h2>
+            <h2 className="section-title">Meet the Developers</h2>
             <p className="section-description">
               Passionate students combining technology and law to create something meaningful 
               that makes legal knowledge accessible to everyone.
