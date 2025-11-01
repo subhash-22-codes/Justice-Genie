@@ -81,7 +81,7 @@ function App() {
         {/* ToastContainer moved outside Router and given high z-index */}
         <ToastContainer
           position="top-right"
-          autoClose={5000}
+          autoClose={4000}
           hideProgressBar={false}
           newestOnTop
           closeOnClick
