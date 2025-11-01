@@ -73,20 +73,23 @@ function App() {
 
   return (
     <AuthProvider>
-      <div className='font-poppins'>
+      <div className="font-poppins">
         <Router>
           <AnimatedRoutes />
-          <ToastContainer 
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            pauseOnHover
-            draggable
-            toastStyle={{ zIndex: 9999 }}
-          />
         </Router>
+
+        {/* ToastContainer moved outside Router and given high z-index */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+          toastStyle={{ zIndex: 999999 }}
+          containerStyle={{ zIndex: 999999, position: 'fixed' }}
+        />
       </div>
     </AuthProvider>
   );

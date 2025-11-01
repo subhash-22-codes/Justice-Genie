@@ -3,7 +3,8 @@ import '../styles/login.css';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -37,13 +38,13 @@ const Login = () => {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // 👈 required for session cookies
+        credentials: 'include', 
         body: JSON.stringify({ username, password }),
       });
 
       if (!response.ok) throw new Error('Invalid credentials');
 
-      const data = await response.json(); // expects role/username
+      const data = await response.json();
 
       // ✅ Update context immediately
       setAuth({
@@ -57,8 +58,7 @@ const Login = () => {
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('role', data.role || (data.isAdmin ? 'admin' : 'user'));
       localStorage.setItem('username', data.username);
-
-      setLoginMessage('Login successful!');
+      toast.success('Login successful!');
 
       // ✅ Navigate after context update
       navigate(data.role === 'admin' ? '/admin' : '/chat', { replace: true });
