@@ -39,8 +39,9 @@ const ForgotPassword = () => {
             return;
           }
 
-          toast.success(data.message || 'Reset link sent!');
-          setStep(2);
+          toast.success(data.message || 'Reset link sent!', { autoClose: 4000 });
+          setTimeout(() => setStep(2), 500);
+
         } catch (error) {
           toast.error('Failed to send reset email. Try again.');
         } finally {
