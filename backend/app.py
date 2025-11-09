@@ -2226,7 +2226,7 @@ def send_email_alert(receiver_email, subject, username):
 def get_dashboard_metrics():
     auth_header = request.headers.get("Authorization")
     
-    # Secure auth check
+    # --- Secure Auth Check ---
     is_valid = False
     if auth_header and auth_header.startswith("Bearer "):
         provided_key = auth_header.split(" ")[1]
@@ -2235,59 +2235,54 @@ def get_dashboard_metrics():
     if not is_valid:
         return jsonify({"error": "Unauthorized"}), 401
 
-    # --- This is the powerful part ---
-    # This pipeline calculates all stats in one go
-    pipeline = [
+    # --- Users collection pipeline ---
+    user_pipeline = [
         {
             "$group": {
-                "_id": None,  # Group *all* documents into one result
-                
-                # 1. Count total users
+                "_id": None,
                 "total_users": { "$sum": 1 },
-                
-                # 2. Calculate average score
-                "average_cumulative_score": { "$avg": "$cumulative_score" },
-                
-                # 3. Count verified users
                 "verified_users_count": {
                     "$sum": {
                         "$cond": [ { "$eq": ["$verified", True] }, 1, 0 ]
                     }
-                },
-                
-                # 4. Count users with a quiz percentage > 80
-                "high_performers_count": {
-                    "$sum": {
-                        "$cond": [ { "$gt": ["$quiz_percentage", 80] }, 1, 0 ]
-                    }
                 }
             }
         },
-        {
-            "$project": {
-                "_id": 0  # Hide the "null" _id
-            }
-        }
+        { "$project": { "_id": 0 } }
     ]
 
     try:
-        # The result will be a list with *one* document
-        metrics = list(users_collection.aggregate(pipeline))
-        
-        if not metrics:
-            # Handle case for empty database
-            return jsonify({
+        # --- Get user stats ---
+        user_metrics = list(users_collection.aggregate(user_pipeline))
+        if not user_metrics:
+            user_metrics = [{
                 "total_users": 0,
-                "average_cumulative_score": 0,
-                "verified_users_count": 0,
-                "high_performers_count": 0
-            }), 200
+                "verified_users_count": 0
+            }]
+        metrics = user_metrics[0]
 
-        # Return the first (and only) item from the list
-        return jsonify(metrics[0]), 200
-    
+        # --- Get best score from leaderboard ---
+        best_entry = leaderboard_collection.find_one(sort=[("score", -1)])
+        metrics["best_score"] = best_entry["score"] if best_entry else 0
+
+        # --- Get average quiz score from quizzquestions_collection ---
+        quiz_pipeline = [
+            {
+                "$group": {
+                    "_id": None,
+                    "average_quiz_score": { "$avg": "$score" }
+                }
+            }
+        ]
+        quiz_stats = list(quizzquestions_collection.aggregate(quiz_pipeline))
+        metrics["average_quiz_score"] = quiz_stats[0]["average_quiz_score"] if quiz_stats else 0
+
+        # --- Return final metrics ---
+        return jsonify(metrics), 200
+
     except Exception as e:
         return jsonify({"error": f"Database error: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
