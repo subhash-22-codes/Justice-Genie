@@ -2276,9 +2276,6 @@ def get_dashboard_metrics():
         ]
         quiz_stats = list(leaderboard_collection.aggregate(quiz_pipeline))
         metrics["average_quiz_score"] = quiz_stats[0]["average_quiz_score"] if quiz_stats else 0
-        
-        total_quiz_participants = leaderboard_collection.count_documents("username")
-        metrics["total_quiz_participants"] = total_quiz_participants if total_quiz_participants else 0
 
         # --- Return final metrics ---
         return jsonify(metrics), 200
