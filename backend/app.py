@@ -29,6 +29,7 @@ from sib_api_v3_sdk.rest import ApiException
 from pprint import pprint
 from sib_api_v3_sdk.models import SendSmtpEmail
 import json
+import secrets
 
 #--Unused imports, In future may use--#
 '''
@@ -102,7 +103,7 @@ brevo_client = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(br
 # Get API key from environment
 api_key = os.getenv("GEMINI_API_KEY")
     
-
+MONITORING_API_KEY = os.getenv("MONITORING_API_KEY")
 # Fix headers if behind a proxy (safe to add, good practice)
 # app.wsgi_app = ProxyFix(app.wsgi_app)
 
@@ -157,7 +158,7 @@ cluster  = os.getenv("MONGO_CLUSTER")
 
 MONGO_URI = f"mongodb+srv://{username}:{password}@{cluster}/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGO_URI)   # single global client
-#client = MongoClient('mongodb://localhost:27017/') # local testing
+# client = MongoClient('mongodb://localhost:27017/') # local testing
 
 db = client["law_chatbot"]
 users_collection = db["users"]
@@ -2221,6 +2222,72 @@ def send_email_alert(receiver_email, subject, username):
         print(f"Failed to send alert email to {receiver_email}: {e}")
         return False
 
+@app.route("/monitor/metrics", methods=["GET"])
+def get_dashboard_metrics():
+    auth_header = request.headers.get("Authorization")
+    
+    # Secure auth check
+    is_valid = False
+    if auth_header and auth_header.startswith("Bearer "):
+        provided_key = auth_header.split(" ")[1]
+        is_valid = secrets.compare_digest(provided_key, MONITORING_API_KEY)
+
+    if not is_valid:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    # --- This is the powerful part ---
+    # This pipeline calculates all stats in one go
+    pipeline = [
+        {
+            "$group": {
+                "_id": None,  # Group *all* documents into one result
+                
+                # 1. Count total users
+                "total_users": { "$sum": 1 },
+                
+                # 2. Calculate average score
+                "average_cumulative_score": { "$avg": "$cumulative_score" },
+                
+                # 3. Count verified users
+                "verified_users_count": {
+                    "$sum": {
+                        "$cond": [ { "$eq": ["$verified", True] }, 1, 0 ]
+                    }
+                },
+                
+                # 4. Count users with a quiz percentage > 80
+                "high_performers_count": {
+                    "$sum": {
+                        "$cond": [ { "$gt": ["$quiz_percentage", 80] }, 1, 0 ]
+                    }
+                }
+            }
+        },
+        {
+            "$project": {
+                "_id": 0  # Hide the "null" _id
+            }
+        }
+    ]
+
+    try:
+        # The result will be a list with *one* document
+        metrics = list(users_collection.aggregate(pipeline))
+        
+        if not metrics:
+            # Handle case for empty database
+            return jsonify({
+                "total_users": 0,
+                "average_cumulative_score": 0,
+                "verified_users_count": 0,
+                "high_performers_count": 0
+            }), 200
+
+        # Return the first (and only) item from the list
+        return jsonify(metrics[0]), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
