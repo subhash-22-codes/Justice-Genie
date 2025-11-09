@@ -2274,7 +2274,7 @@ def get_dashboard_metrics():
                 }
             }
         ]
-        quiz_stats = list(quizzquestions_collection.aggregate(quiz_pipeline))
+        quiz_stats = list(leaderboard_collection.aggregate(quiz_pipeline))
         metrics["average_quiz_score"] = quiz_stats[0]["average_quiz_score"] if quiz_stats else 0
 
         # --- Return final metrics ---
