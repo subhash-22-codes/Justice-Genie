@@ -2265,17 +2265,28 @@ def get_dashboard_metrics():
         best_entry = leaderboard_collection.find_one(sort=[("score", -1)])
         metrics["best_score"] = best_entry["score"] if best_entry else 0
 
-        # --- Get average quiz score from quizzquestions_collection ---
+        # --- Get total quiz participants from leaderboard ---
+        total_participants = leaderboard_collection.count_documents({})
+        metrics["total_quiz_participants"] = total_participants
+
+        # --- Get average quiz score from leaderboard_collection ---
         quiz_pipeline = [
             {
                 "$group": {
                     "_id": None,
-                    "average_quiz_score": { "$avg": "$score" }
+                    "average_quiz_score": { "$avg": "$score" } 
                 }
             }
         ]
-        quiz_stats = list(leaderboard_collection.aggregate(quiz_pipeline))
-        metrics["average_quiz_score"] = quiz_stats[0]["average_quiz_score"] if quiz_stats else 0
+        
+        # --- (FIXED) Running on the correct collection ---
+        quiz_stats = list(leaderboard_collection.aggregate(quiz_pipeline)) 
+        
+        # Check if quiz_stats is not empty and the average score is not None
+        if quiz_stats and quiz_stats[0]["average_quiz_score"] is not None:
+            metrics["average_quiz_score"] = quiz_stats[0]["average_quiz_score"]
+        else:
+            metrics["average_quiz_score"] = 0 # Default to 0 if no scores
 
         # --- Return final metrics ---
         return jsonify(metrics), 200
