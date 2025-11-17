@@ -31,7 +31,6 @@ const Chat = () => {
   const navigate = useNavigate();
   const [loadingMessage, setLoadingMessage] = useState('Analyzing your query...');
   const menuRef = useRef(null);
-  const [loading, setLoading] = useState(false);
   const [popupMessageId, setPopupMessageId] = useState(null);
   const [activeTranslateMessageId, setActiveTranslateMessageId] = useState(null);
   const [loadingTranslation, setLoadingTranslation] = useState(null);
@@ -49,7 +48,8 @@ const Chat = () => {
   // In chat.jsx, at the top of your component
   const [isExportPopupOpen, setIsExportPopupOpen] = useState(false);
   const [pdfFilename, setPdfFilename] = useState(`chat_history_${new Date().toISOString().split('T')[0]}`);
-  
+  // In chat.jsx, at the top of your Chat component
+  const [analyzingMessageId, setAnalyzingMessageId] = useState(null);
   const handleMicClick = () => {
     if (isListening) {
       recognitionRef.current?.stop(); // Stop when clicking again
@@ -304,12 +304,12 @@ useEffect(() => {
    // This code in your chat.jsx is correct and does not need any more changes.
 
 const handleAnalyze = async (botMessageId) => {
-  setLoading(true);
+  setAnalyzingMessageId(botMessageId);
+  setPopupMessageId(null);
 
   const botMessageIndex = messages.findIndex(m => m.id === botMessageId);
   if (botMessageIndex < 1) {
     console.error("Could not find the preceding user query to analyze.");
-    setLoading(false);
     return;
   }
   
@@ -353,7 +353,7 @@ const handleAnalyze = async (botMessageId) => {
     console.error("Error analyzing:", error);
   }
 
-  setLoading(false);
+  setAnalyzingMessageId(null);
 };
   // Extracted MongoDB store function
 
@@ -1122,37 +1122,56 @@ if (error) {
             </>
           )}
 
-        {!message.analysis && (
-          <>
-          <button
-            className="graph-button"
-            onClick={() => setPopupMessageId(popupMessageId === message.id ? null : message.id)}
-            title="Analyze Probability"
-          >
-            <BarChart size={18} />
-          </button>
+       {!message.analysis && (
+  // 1. We wrap everything in a <div> with `position: relative`
+  // This is the key to fixing the positioning.
+  <div className="relative">
+    <button
+      className="graph-button"
+      onClick={() => {
+        if (!analyzingMessageId) {
+          setPopupMessageId(popupMessageId === message.id ? null : message.id);
+        }
+      }}
+      title="Analyze Probability"
+      disabled={analyzingMessageId}
+    >
+      {analyzingMessageId === message.id ? (
+        <Loader size={18} className="animate-spin" />
+      ) : (
+        <BarChart size={18} />
+      )}
+    </button>
 
-          {/* Popup Box */}
-          {popupMessageId === message.id && message.type === "bot" && (
-           <div className="graph-popup w-[220px] sm:w-[85%] max-w-sm md:w-[220px] text-center p-3 sm:p-4 rounded-lg shadow-xl border bg-white absolute left-1/2 bottom-[70px] translate-x-[-50%] z-[9999] transition-opacity duration-200">
-           <p className="font-poppins text-base sm:text-lg font-semibold text-gray-800">Do you want to analyze the query?</p>
-           <p className="font-urbanist popup-subtext text-xs sm:text-sm text-gray-600 mb-2">You have 2 free trials left.</p>
-            <button
-              type="button"
-              className="analyze-button font-bold w-full py-2 sm:py-2.5 px-3 bg-[#007bff] hover:bg-[#0056b3] text-[yellowgreen] text-sm rounded-md transition-all duration-300"
-              onClick={() => {
-                // --- THIS IS THE UPDATED PART ---
-                handleAnalyze(message.id); // 1. Pass the message ID
-                setPopupMessageId(null);   // 2. Close the popup
-              }}
-            >
-             {loading ? "Analyzing..." : "Analyze"}
-           </button>
-         </div>
-            )}
-          </>
-            
-          )}
+    {/* 2. This popup is now inside the relative container */}
+    {/* All the messy Tailwind classes are gone. */}
+    {popupMessageId === message.id && message.type === "bot" && (
+      <div className="graph-popup">
+        <p className="graph-popup-title font-poppins">Do you want to analyze the query?</p>
+        
+        {/* 3. Added a new container for the buttons */}
+        <div className="graph-popup-actions">
+          <button
+            type="button"
+            className="graph-popup-button cancel font-manrope"
+            onClick={() => setPopupMessageId(null)} // This closes the popup
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="graph-popup-button analyze font-manrope"
+            onClick={() => {
+              handleAnalyze(message.id);
+            }}
+          >
+            Analyze
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)}
         </div>
       )}
     </div>

@@ -2177,3 +2177,83 @@ html::-webkit-scrollbar {
 .chat-booting-logout-button:focus {
   outline: none;
 }
+/* --- Graph Analysis Popup --- */
+
+/* This simple class is for the <div> wrapper */
+.relative {
+  position: relative;
+}
+
+.graph-popup {
+  position: absolute;
+  /* Positions it 10px ABOVE the button */
+  bottom: calc(100% + 10px); 
+  /* Centers it horizontally relative to the button */
+  left: 50%;
+  transform: translateX(-50%);
+  
+  width: 240px; /* A clean, fixed width */
+  text-align: center;
+  padding: 1rem;
+  border-radius: 0.75rem; /* 12px */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  z-index: 50;
+  
+  /* Fade-in animation */
+  animation: fadeIn 0.2s ease-out;
+}
+
+.graph-popup-title {
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
+  color: #1f2937;
+  margin-top: 0;
+  margin-bottom: 0.75rem; /* 12px */
+}
+
+.graph-popup-actions {
+  display: flex;
+  gap: 0.5rem; /* 8px */
+  margin-top: 1rem; /* 16px */
+}
+
+.graph-popup-button {
+  width: 100%;
+  padding: 0.6rem 0;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  border-radius: 0.5rem; /* 8px */
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.graph-popup-button.analyze {
+  background-color: #007bff;
+  color: white;
+}
+.graph-popup-button.analyze:hover {
+  background-color: #0056b3;
+}
+
+.graph-popup-button.cancel {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+.graph-popup-button.cancel:hover {
+  background-color: #d1d5db;
+}
+
+/* --- Animation for the popup --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
