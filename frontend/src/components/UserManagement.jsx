@@ -22,7 +22,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/users`,{
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/users?page=1&limit=100`,{
           credentials: 'include'
         });
         if (!response.ok) {

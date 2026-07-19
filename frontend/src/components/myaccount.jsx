@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { ArrowLeft, LogOut, Camera, Edit2, MessageSquare, Trash2, Upload, AlertTriangle, Loader, UserPlus, Trash2Icon,HelpCircle} from 'lucide-react';
-import '../styles/my_account.css';
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import Mailcheck from 'mailcheck';
@@ -9,76 +8,64 @@ import 'animate.css/animate.min.css'; // Import animate.css for animations
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 const ProfileImage = ({ src, onUploadClick, onRemoveClick }) => (
-    <div className="myaccount-profile-image-wrapper relative">
-      <div className="myaccount-profile-image-container" onClick={onUploadClick}>
+    <div className="relative inline-block">
+      <div
+        className="relative w-32 h-32 rounded-sm overflow-hidden bg-slate-100 dark:bg-slate-700 cursor-pointer group"
+        onClick={onUploadClick}
+      >
         <img
           src={src || "./images/user.png"}
           alt={src ? "User Profile Photo" : "Default Profile Placeholder"}
           loading="lazy"
-          className="myaccount-profile-image"
+          className="w-full h-full object-cover"
         />
-        <div className="myaccount-profile-image-overlay">
-          <Camera size={24} />
-          <span className='font-sora'>Update Photo</span>
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 flex flex-col items-center justify-center gap-1 text-white opacity-0 group-hover:opacity-100 transition-all duration-200">
+          <Camera size={22} />
+          <span className="font-manrope text-xs">Update Photo</span>
         </div>
       </div>
-  
-      {/* 🔴 Circle Trash Icon — SouthEast Placement */}
+
       {src && src !== "./images/user.png" && (
         <button
-          className="absolute bottom-0 right-0 translate-x-1/3 translate-y-1/3 
-          myaccount-remove-profile-picture bg-red-500 hover:bg-red-600 
-          text-white rounded-full p-2 md:p-2.5 transition-all duration-300 shadow-md"
+          className="absolute bottom-0 right-0 translate-x-1/3 translate-y-1/3 bg-red-500 hover:bg-red-600 text-white rounded-sm p-2 shadow-md"
           onClick={onRemoveClick}
           title="Remove Photo"
         >
-          <Trash2 size={16} className="md:size-5 size-4" />
+          <Trash2 size={16} />
         </button>
       )}
-  
-      <div className="myaccount-profile-image-ring"></div>
     </div>
   );
-  
+
   ProfileImage.defaultProps = {
     src: "./images/user.png",
     onUploadClick: () => {},
     onRemoveClick: () => {},
   };
-  
-  
 
-// Component for Progress Bar
-// This is the full code for the ProgressBar component
 const ProgressBar = ({ level, rank, gameName, totalScore }) => {
-  // Define the maximum possible score in your game
   const MAX_POSSIBLE_SCORE = 75;
-
-  // Calculate the overall progress percentage
   const overallPercentage = (totalScore / MAX_POSSIBLE_SCORE) * 100;
 
   return (
-    <div className="myaccount-progress-card">
-      <h3 className='font-poppins'>Overall Quiz Progress</h3>
-      <div className="myaccount-progress-stats">
-        {/* The progress bar now shows overall progress */}
-        <div className="myaccount-progress-bar-container">
-          <div className="myaccount-progress-bar" style={{ width: `${overallPercentage || 0}%` }}>
-            <div className="myaccount-progress-glow"></div>
-          </div>
+    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm p-5">
+      <h3 className="font-poppins font-semibold text-slate-800 dark:text-slate-100">Overall Quiz Progress</h3>
+
+      <div className="mt-4">
+        <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-blue-600 rounded-full transition-all duration-500"
+            style={{ width: `${overallPercentage || 0}%` }}
+          ></div>
         </div>
 
-        <div className="myaccount-progress-details">
-          {/* This text now shows the total score out of the max possible */}
-          <p className='font-manrope'>Total Progress: <span>{totalScore || 0} / {MAX_POSSIBLE_SCORE}</span></p>
-          <p className='font-manrope'>Current Level: <span>{level || 1}</span></p>
+        <div className="flex justify-between mt-2 font-manrope text-sm text-slate-600 dark:text-slate-400">
+          <p>Total Progress: <span className="font-semibold text-slate-800 dark:text-slate-200">{totalScore || 0} / {MAX_POSSIBLE_SCORE}</span></p>
+          <p>Current Level: <span className="font-semibold text-slate-800 dark:text-slate-200">{level || 1}</span></p>
         </div>
 
-        {/* The badges for Rank, Total Score, and Game Name remain the same */}
-        <div className="quizz-game-rank flex items-center flex-wrap gap-4 mt-4 bg-white p-4 rounded-xl shadow-sm border w-full">
-          
-          {/* Rank Badge */}
-          <div className="quizz-rank flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold">
+        <div className="flex items-center flex-wrap gap-3 mt-4">
+          <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 px-3 py-1.5 rounded-sm text-sm font-manrope font-semibold">
             {rank === 1 ? (
               <img src="./images/1stplace.png" alt="1st Place" className="w-5 h-5" />
             ) : rank === 2 ? (
@@ -86,27 +73,17 @@ const ProgressBar = ({ level, rank, gameName, totalScore }) => {
             ) : rank === 3 ? (
               <img src="./images/3rdplace.png" alt="3rd Place" className="w-5 h-5" />
             ) : (
-              <span className="quizz-rank-icon">🏆</span>
+              <span>🏆</span>
             )}
-            <span className="quizz-rank-number font-urbanist">
-              {rank ? `Rank #${rank}` : 'No Rank'}
-            </span>
+            <span>{rank ? `Rank #${rank}` : 'No Rank'}</span>
           </div>
 
-          {/* Total Score Badge */}
-          <div className="quizz-total-score flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-            🌟
-            <span className="quizz-total-score-text font-urbanist">
-              Total Score: {totalScore || 0}
-            </span>
+          <div className="flex items-center gap-2 bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 px-3 py-1.5 rounded-sm text-sm font-manrope font-semibold">
+            🌟 <span>Total Score: {totalScore || 0}</span>
           </div>
-          
-          {/* Game Name Badge */}
-          <div className="quizz-game-name flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium italic">
-            🎮
-            <span className="quizz-game-name-text font-urbanist">
-              {gameName || 'Justice Warrior'}
-            </span>
+
+          <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-sm text-sm font-manrope font-medium italic">
+            🎮 <span>{gameName || 'Justice Warrior'}</span>
           </div>
         </div>
       </div>
@@ -114,17 +91,23 @@ const ProgressBar = ({ level, rank, gameName, totalScore }) => {
   );
 };
 
-// Component for Modal
+// Generic modal wrapper used by every dialog below - styled once here, so
+// every modal in this file gets consistent sizing/spacing automatically.
 const Modal = ({ isOpen, onClose, title, children, className }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="myaccount-modal-overlay" onClick={onClose}>
-            <div className={`myaccount-modal-content ${className}`} onClick={e => e.stopPropagation()}>
-                <div className="myaccount-modal-header">
-                    <h3>{title}</h3>
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div
+                className={`bg-white dark:bg-slate-800 rounded-sm shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto ${className || ''}`}
+                onClick={e => e.stopPropagation()}
+            >
+                <div className="px-6 pt-6 pb-2">
+                    <h3 className="font-poppins font-semibold text-lg text-slate-800 dark:text-slate-100">{title}</h3>
                 </div>
-                {children}
+                <div className="px-6 pb-6">
+                  {children}
+                </div>
             </div>
         </div>
     );
@@ -219,13 +202,19 @@ const MyAccount = () => {
         setModals(prev => ({ ...prev, [modalName]: value }));
     };
     
-    // Notification System
+    // Notification System - uses Swal's toast mode (already used elsewhere in
+    // this file for confirmations), so it needs zero custom CSS to look right.
     const showNotification = (message, type = 'success') => {
-        const notification = document.createElement('div');
-        notification.className = `myaccount-notification myaccount-notification-${type}`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 5000);
+        const iconMap = { success: 'success', error: 'error', info: 'info' };
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: iconMap[type] || 'success',
+            title: message,
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+        });
     };
 
     // File Upload Handler
@@ -534,13 +523,7 @@ const MyAccount = () => {
             title: "Error!",
             text: "Username not found. Please log in again.",
             icon: "error",
-            customClass: {
-              popup: 'myaccount-clear-chat-swal-popup',
-              title: 'myaccount-clear-chat-swal-title-error',
-              htmlContainer: 'myaccount-clear-chat-swal-text',
-              confirmButton: 'myaccount-clear-chat-swal-btn myaccount-clear-chat-swal-btn-red',
-            },
-            buttonsStyling: false
+            confirmButtonColor: '#dc2626',
           });
           return;
         }
@@ -552,14 +535,8 @@ const MyAccount = () => {
           showCancelButton: true,
           confirmButtonText: "Yes, delete it!",
           cancelButtonText: "Cancel",
-          customClass: {
-            popup: 'myaccount-clear-chat-swal-popup',
-            title: 'myaccount-clear-chat-swal-title',
-            htmlContainer: 'myaccount-clear-chat-swal-text',
-            confirmButton: 'myaccount-clear-chat-swal-btn myaccount-clear-chat-swal-btn-red',
-            cancelButton: 'myaccount-clear-chat-swal-btn myaccount-clear-chat-swal-btn-gray'
-          },
-          buttonsStyling: false
+          confirmButtonColor: '#dc2626',
+          cancelButtonColor: '#64748b',
         });
       
         if (!confirmation.isConfirmed) return;
@@ -578,13 +555,7 @@ const MyAccount = () => {
             title: "Deleted!",
             text: data.message,
             icon: "success",
-            customClass: {
-              popup: 'myaccount-clear-chat-swal-popup-1',
-              title: 'myaccount-clear-chat-swal-title-success',
-              htmlContainer: 'myaccount-clear-chat-swal-text',
-              confirmButton: 'myaccount-clear-chat-swal-btn myaccount-clear-chat-swal-btn-green',
-            },
-            buttonsStyling: false
+            confirmButtonColor: '#16a34a',
           });
       
           sessionStorage.removeItem("session_id");
@@ -597,13 +568,7 @@ const MyAccount = () => {
             title: "Error!",
             text: "Failed to clear chat history. Please try again.",
             icon: "error",
-            customClass: {
-              popup: 'myaccount-clear-chat-swal-popup',
-              title: 'myaccount-clear-chat-swal-title-error',
-              htmlContainer: 'myaccount-clear-chat-swal-text',
-              confirmButton: 'myaccount-clear-chat-swal-btn myaccount-clear-chat-swal-btn-red',
-            },
-            buttonsStyling: false
+            confirmButtonColor: '#dc2626',
           });
         }
       };
@@ -658,52 +623,55 @@ const MyAccount = () => {
 
     // Loading State
     if (loading) {
-        return <div className="myaccount-loading-container"><div className="myaccount-loading-spinner" /></div>;
+        return (
+          <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+            <Loader size={32} className="animate-spin text-blue-600 dark:text-blue-400" />
+          </div>
+        );
     }
 
     return (
-        <div className="myaccount-wrapper">
-            <div className="myaccount-container">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-8 px-4">
+            <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <header className="myaccount-header">
+                <header className="flex items-center justify-between mb-6">
                     <button
-                    className="myaccount-btn-back group relative overflow-hidden transition-transform duration-300 hover:scale-105 active:scale-95"
+                    className="group flex items-center gap-2 px-3 py-2 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     onClick={() => navigate("/chat")}
                     >
                     <ArrowLeft
                         size={20}
                         className="transition-transform duration-300 group-hover:-translate-x-1"
                     />
-                    <span className="tracking-wide font-manrope">Back</span>
+                    <span className="font-manrope text-sm">Back</span>
                     </button>
 
-                    <h1 className='font-poppins'>My Account</h1>
+                    <h1 className="font-poppins font-bold text-xl text-slate-800 dark:text-slate-100">My Account</h1>
+
                     <button
                     onClick={handleLogout}
-                    className="myaccount-btn-logout group relative overflow-hidden transition-transform duration-300 hover:scale-105 active:scale-95"
+                    className="group flex items-center gap-2 px-3 py-2 rounded-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                     >
                     <LogOut
                         size={20}
                         className="transition-transform duration-300 group-hover:-rotate-90"
                     />
-                    <span className="tracking-wide font-manrope">Logout</span>
+                    <span className="font-manrope text-sm">Logout</span>
                     </button>
-
-
                 </header>
 
                 {/* Main Content */}
-                <div className="myaccount-layout">
+                <div className="space-y-6">
                     {/* Profile Section */}
-                    <div className="myaccount-profile-card">
+                    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm p-6 flex items-center gap-5">
                         <ProfileImage
                             src={userDetails.profile_picture}
                             onUploadClick={() => toggleModal('upload', true)}
                             onRemoveClick={handleRemovePicture}
                         />
-                        <div className="myaccount-profile-info">
-                            <h2 className='font-poppins'>{userDetails.username}</h2>
-                            <p className="myaccount-user-email font-manrope">{userDetails.email}</p>
+                        <div>
+                            <h2 className="font-poppins font-semibold text-lg text-slate-800 dark:text-slate-100">{userDetails.username}</h2>
+                            <p className="font-manrope text-sm text-slate-500 dark:text-slate-400">{userDetails.email}</p>
                         </div>
                     </div>
 
@@ -715,15 +683,13 @@ const MyAccount = () => {
                         level={userDetails.quiz_level}
                         rank={rank}
                         gameName={gameName}
-                        totalScore={userDetails.totalScore} // 👈 Add this new prop
+                        totalScore={userDetails.totalScore}
                         />
 
-
-
                     {/* Actions Section */}
-                    <div className="myaccount-actions">
+                    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm p-6">
                         {isEditing ? (
-                            <div className="myaccount-edit-form">
+                            <div className="space-y-3 max-w-sm">
                                 <input
                                     type="text"
                                     name="username"
@@ -733,7 +699,7 @@ const MyAccount = () => {
                                         ...prev,
                                         username: e.target.value
                                     }))}
-                                    className="myaccount-edit-input"
+                                    className="w-full font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                                 <input
                                     type="password"
@@ -744,13 +710,18 @@ const MyAccount = () => {
                                         ...prev,
                                         password: e.target.value
                                     }))}
-                                    className="myaccount-edit-input"
+                                    className="w-full font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
-                                <div className="myaccount-edit-buttons">
-                                    <button className="myaccount-btn-save" onClick={handleUpdateProfile}>
+                                <div className="flex gap-2">
+                                    <button
+                                      className="font-manrope text-sm px-4 py-2 rounded-sm bg-blue-600 text-white hover:bg-blue-700"
+                                      onClick={handleUpdateProfile}
+                                    >
                                         Save Changes
                                     </button>
-                                    <button className="myaccount-btn-cancel" onClick={() => {
+                                    <button
+                                      className="font-manrope text-sm px-4 py-2 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                      onClick={() => {
                                         setIsEditing(false);
                                         setEditField({ username: '', password: '' });
                                     }}>
@@ -759,89 +730,102 @@ const MyAccount = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="myaccount-button-group">
-                            <button className="myaccount-btn-edit text-sm sm:text-base font-medium font-manrope" onClick={() => setIsEditing(true)}>
-                        <Edit2 size={20} />
-                        <span>Edit Profile</span>
-                        </button>
+                            <div className="flex flex-wrap gap-2">
+                            <button
+                              className="flex items-center gap-2 font-manrope text-sm font-medium px-4 py-2 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
+                              onClick={() => setIsEditing(true)}
+                            >
+                                <Edit2 size={18} />
+                                <span>Edit Profile</span>
+                            </button>
 
-                        <button className="myaccount-btn-feedback text-sm sm:text-base font-medium font-manrope" onClick={() => toggleModal('feedback', true)}>
-                        <MessageSquare size={20} />
-                        <span>Give Feedback</span>
-                        </button>
+                            <button
+                              className="flex items-center gap-2 font-manrope text-sm font-medium px-4 py-2 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
+                              onClick={() => toggleModal('feedback', true)}
+                            >
+                                <MessageSquare size={18} />
+                                <span>Give Feedback</span>
+                            </button>
 
-                        <button className="myaccount-btn-collab text-sm sm:text-base font-medium font-manrope" onClick={() => toggleModal('collab', true)}>
-                        <UserPlus size={20} />
-                        <span>Collab with Us?</span>
-                        </button>
+                            <button
+                              className="flex items-center gap-2 font-manrope text-sm font-medium px-4 py-2 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
+                              onClick={() => toggleModal('collab', true)}
+                            >
+                                <UserPlus size={18} />
+                                <span>Collab with Us?</span>
+                            </button>
 
-                        <button className="myaccount-btn-delete text-sm sm:text-base font-medium font-manrope" onClick={() => toggleModal('delete', true)}>
-                        <Trash2 size={20} />
-                        <span>Delete Account</span>
-                        </button>
+                            <button
+                              className="flex items-center gap-2 font-manrope text-sm font-medium px-4 py-2 rounded-sm border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                              onClick={() => toggleModal('delete', true)}
+                            >
+                                <Trash2 size={18} />
+                                <span>Delete Account</span>
+                            </button>
 
-                        <button className="myaccount-btn-delete text-sm sm:text-base font-medium font-manrope" onClick={handleClearChat}>
-                        <Trash2Icon size={20} />
-                        <span>Clear Chat History</span>
-                        </button>
+                            <button
+                              className="flex items-center gap-2 font-manrope text-sm font-medium px-4 py-2 rounded-sm border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                              onClick={handleClearChat}
+                            >
+                                <Trash2Icon size={18} />
+                                <span>Clear Chat History</span>
+                            </button>
 
-                        <button
-                        className="font-manrope myaccount-helpandsupport-button flex items-center gap-2 px-3 sm:px-4 py-2 text-sm sm:text-base bg-indigo-500 text-white rounded-lg shadow-md hover:bg-indigo-600 transition-all duration-300"
-                        onClick={() => toggleModal('help', true)}
-                        >
-                        <HelpCircle size={18} className="sm:w-5 sm:h-5" />
-                        <span>Help & Support</span>
-                        </button>
-
-
-                        </div>
-                        
+                            <button
+                              className="flex items-center gap-2 font-manrope text-sm font-medium px-4 py-2 rounded-sm bg-blue-600 text-white hover:bg-blue-700"
+                              onClick={() => toggleModal('help', true)}
+                            >
+                                <HelpCircle size={18} />
+                                <span>Help & Support</span>
+                            </button>
+                            </div>
                         )}
                     </div>
                 </div>
 
-                {/* Modals */}
+                {/* Upload Photo Modal */}
                 <Modal
                     isOpen={modals.upload}
                     onClose={() => toggleModal('upload', false)}
                     title="Update Profile Picture"
-                    className="myaccount-upload-modal"
                 >
-                    <div className="myaccount-upload-area">
-                        <div className="myaccount-upload-dropzone">
-                            <Upload size={32} />
-                            <p className='font-manrope'>Click to upload or drag and drop</p>
+                    <div className="space-y-3">
+                        <div className="relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-sm py-10 text-slate-500 dark:text-slate-400 hover:border-blue-300 dark:hover:border-blue-500/50">
+                            <Upload size={28} />
+                            <p className="font-manrope text-sm">Click to upload or drag and drop</p>
                             <input
                                 type="file"
                                 accept="image/*"
                                 onChange={handleFileUpload}
-                                className="myaccount-file-input"
+                                className="absolute inset-0 opacity-0 cursor-pointer"
                             />
                         </div>
                         {uploadProgress > 0 && (
-                            <div className="myaccount-upload-progress">
-                                <div
-                                    className="myaccount-upload-progress-bar"
-                                    style={{ width: `${uploadProgress}%` }}
-                                ></div>
-                                <span>{uploadProgress}%</span>
+                            <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-blue-600 transition-all duration-200"
+                                        style={{ width: `${uploadProgress}%` }}
+                                    ></div>
+                                </div>
+                                <span className="font-manrope text-xs text-slate-500 dark:text-slate-400">{uploadProgress}%</span>
                             </div>
                         )}
                     </div>
                 </Modal>
-                
+
+                {/* Feedback Modal */}
                 <Modal
                     isOpen={modals.feedback}
                     onClose={() => toggleModal('feedback', false)}
                     title="Share Your Feedback"
-                    className="w-[90%] sm:w-full max-w-[600px] mx-auto p-4 sm:p-6 md:p-8 bg-gray-50 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden box-border"
                 >
                     {feedbackSubmitted ? (
                         <div className="flex flex-col items-center justify-center p-4">
                             <img
                                 src="/images/ThankyouFeedback.png"
                                 alt="Thank you"
-                                className="w-72 sm:w-80 md:w-96 max-w-full h-auto"
+                                className="w-64 max-w-full h-auto"
                             />
                         </div>
                     ) : (
@@ -850,18 +834,19 @@ const MyAccount = () => {
                                 value={feedbackText}
                                 onChange={(e) => setFeedbackText(e.target.value)}
                                 placeholder="We value your thoughts and suggestions..."
-                                className="myaccount-feedback-input font-manrope"
+                                rows={4}
+                                className="w-full font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                             />
-                            <div className="myaccount-modal-actions">
+                            <div className="flex gap-2 mt-4">
                                 <button
-                                    className="myaccount-btn-submit font-manrope"
+                                    className="font-manrope text-sm px-4 py-2 rounded-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
                                     onClick={handleFeedbackSubmit}
                                     disabled={!feedbackText.trim()}
                                 >
                                     Submit Feedback
                                 </button>
                                 <button
-                                    className="myaccount-feedback-btn-cancel font-manrope"
+                                    className="font-manrope text-sm px-4 py-2 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                                     onClick={() => {
                                         toggleModal('feedback', false);
                                         setFeedbackText('');
@@ -869,88 +854,83 @@ const MyAccount = () => {
                                 >
                                     Cancel
                                 </button>
-                                
                             </div>
                         </>
                     )}
                 </Modal>
 
-
-
-                <Modal 
-                    isOpen={modals.collab} 
-                    onClose={() => toggleModal('collab', false)} 
+                {/* Collaboration Modal */}
+                <Modal
+                    isOpen={modals.collab}
+                    onClose={() => toggleModal('collab', false)}
                     title="Collaboration Request"
-                    className="myaccount-collab-modal"
-
+                    className="max-w-2xl"
                 >
-                <div id="emailModal" className="fixed inset-0 flex items-center justify-center z-50 hidden bg-gray-800 bg-opacity-50">
-                    <div className="myaccount-swal-type bg-white p-4 sm:p-6 rounded-lg shadow-lg max-w-xs sm:max-w-md md:max-w-lg w-full">
-                        
-                        <h2 className="font-poppins text-base sm:text-lg md:text-lg font-semibold mb-4">
-                        Did you mean 
-                        <span id="suggestionEmail" className="font-bold text-blue-500"></span> 
-                        instead of 
-                        <span id="currentEmail" className="font-bold text-red-500"></span>?
+                <div id="emailModal" className="fixed inset-0 flex items-center justify-center z-[60] hidden bg-black/50">
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-sm shadow-lg max-w-md w-full mx-4">
+                        <h2 className="font-poppins text-base font-semibold mb-3 text-slate-800 dark:text-slate-100">
+                        Did you mean
+                        <span id="suggestionEmail" className="font-bold text-blue-600 mx-1"></span>
+                        instead of
+                        <span id="currentEmail" className="font-bold text-red-500 mx-1"></span>?
                         </h2>
-                        
-                        <p className="font-manrope text-sm sm:text-base md:text-sm mb-4 text-gray-600">
+
+                        <p className="font-manrope text-sm mb-4 text-slate-600 dark:text-slate-400">
                         Click <strong>Yes</strong> to use the suggested email or <strong>No</strong> to keep your email.
                         </p>
-                        
-                        <div className="flex justify-end gap-2 sm:gap-4">
-                        <button id="confirmBtn" className="font-manrope myaccount-swal-type-button bg-blue-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-md hover:bg-blue-600">Yes</button>
-                        <button id="cancelBtn" className="font-manrope myaccount-swal-type-button bg-gray-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-md hover:bg-gray-600">No</button>
+
+                        <div className="flex justify-end gap-2">
+                        <button id="confirmBtn" className="font-manrope text-sm bg-blue-600 text-white px-4 py-2 rounded-sm hover:bg-blue-700">Yes</button>
+                        <button id="cancelBtn" className="font-manrope text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-sm hover:bg-slate-300 dark:hover:bg-slate-600">No</button>
                         </div>
-                        
                     </div>
                 </div>
-                    <div className="myaccount-collab-form">
+                    <div>
                     {hasSubmitted ? (
-                       <div className="flex flex-col items-center justify-center my-6 px-4 text-center">
-                        <p className="font-manrope text-base sm:text-lg font-medium text-gray-700 max-w-xl mb-4">
-                            🚀 <strong className="font-semibold">You made the right move!</strong> 
-                            Your collaboration request has been submitted successfully.  
-                            Our team is reviewing your details and will reach out via email once we verify your status and needs.  
+                       <div className="flex flex-col items-center justify-center my-4 text-center">
+                        <p className="font-manrope text-sm text-slate-600 dark:text-slate-300 mb-4">
+                            🚀 <strong className="font-semibold">You made the right move!</strong>
+                            Your collaboration request has been submitted successfully.
+                            Our team is reviewing your details and will reach out via email once we verify your status and needs.
                             Excited to build something incredible together! 🌟
                         </p>
-                        
+
                         <img
                             src="./images/collab1.png"
                             alt="Collaboration Success"
-                            className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg object-contain"
+                            className="w-full max-w-xs object-contain"
                         />
                         </div>
                         ) : (
                             <>
-                           <div className="myaccount-collab-invite from-purple-50 to-indigo-50 border border-indigo-200 rounded-2xl p-4 mb-6 shadow-sm">
-  
-                                <h2 className="font-poppins text-base sm:text-lg md:text-xl lg:text-xl font-semibold text-indigo-700 mb-2 text-center sm:text-left">
+                           <div className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-sm p-4 mb-4">
+
+                                <h2 className="font-poppins font-semibold text-indigo-700 dark:text-indigo-400 mb-2">
                                     🤝 Ready to Collaborate?
                                 </h2>
 
-                                <p className="font-manrope text-gray-700 text-base leading-relaxed">
-                                    Interested in working on real-world, impactful projects? Fill out the form, and we’ll reach out via email—<strong className="font-semibold">make sure to provide a correct email address</strong>.
+                                <p className="font-manrope text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    Interested in working on real-world, impactful projects? Fill out the form, and we'll reach out via email—<strong className="font-semibold">make sure to provide a correct email address</strong>.
                                     <br /><br />
-                                    <strong className="font-semibold">✨ Join us</strong> to gain experience, recognition, and help shape the future of <strong className="font-semibold">impactful projects</strong>.
+                                    <strong className="font-semibold">✨ Join us</strong> to gain experience, recognition, and help shape the future of impactful projects.
                                     <br /><br />
-                                    <span className="text-red-600 font-medium">Note:</span> Deleting your account will remove your collaboration request permanently.
+                                    <span className="text-red-600 dark:text-red-400 font-medium">Note:</span> Deleting your account will remove your collaboration request permanently.
                                 </p>
                             </div>
-                                <div className="myaccount-collab-row">
-                                    <input type="text" placeholder="Full Name" value={collabData.name} 
-                                        onChange={e => setCollabData({ ...collabData, name: e.target.value })} className="myaccount-collab-input font-urbanist" />
-                                    
-                                    <input type="email" placeholder="Working Email" value={collabData.email} 
-                                        onChange={e => setCollabData({ ...collabData, email: e.target.value })} className="myaccount-collab-input font-urbanist" />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                                    <input type="text" placeholder="Full Name" value={collabData.name}
+                                        onChange={e => setCollabData({ ...collabData, name: e.target.value })} className="font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+                                    <input type="email" placeholder="Working Email" value={collabData.email}
+                                        onChange={e => setCollabData({ ...collabData, email: e.target.value })} className="font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                 </div>
 
-                                <div className="myaccount-collab-row">
-                                    <input type="text" placeholder="Collaboration Type e.g., Developer, Legal Expert, Content Creator" value={collabData.collaborationType} 
-                                        onChange={e => setCollabData({ ...collabData, collaborationType: e.target.value })} className="myaccount-collab-input font-urbanist" />
-                                    
-                                    <select value={collabData.language} onChange={e => setCollabData({ ...collabData, language: e.target.value })} 
-                                        className="myaccount-collab-dropdown font-urbanist">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                                    <input type="text" placeholder="Collaboration Type e.g., Developer, Legal Expert, Content Creator" value={collabData.collaborationType}
+                                        onChange={e => setCollabData({ ...collabData, collaborationType: e.target.value })} className="font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+                                    <select value={collabData.language} onChange={e => setCollabData({ ...collabData, language: e.target.value })}
+                                        className="font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="">Select a Programming Language</option>
                                         {["JavaScript", "Python", "Java", "C++", "C#", "Ruby", "Swift", "Kotlin", "Go", "PHP", "TypeScript", "Rust", "Dart", "Scala", "Perl"].map(lang => (
                                             <option key={lang} value={lang}>{lang}</option>
@@ -958,28 +938,28 @@ const MyAccount = () => {
                                     </select>
                                 </div>
 
-                                <div className="myaccount-collab-row">
-                                    <input type="text" placeholder="Frameworks: ReactJS,Flask..." value={collabData.frameworks} 
-                                        onChange={e => setCollabData({ ...collabData, frameworks: e.target.value })} className="myaccount-collab-input font-urbanist" />
-                                    
-                                    <input type="text" placeholder="Database: MongoDB,SQL.. (Optional)" value={collabData.database} 
-                                        onChange={e => setCollabData({ ...collabData, database: e.target.value })} className="myaccount-collab-input font-urbanist" />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                                    <input type="text" placeholder="Frameworks: ReactJS,Flask..." value={collabData.frameworks}
+                                        onChange={e => setCollabData({ ...collabData, frameworks: e.target.value })} className="font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+                                    <input type="text" placeholder="Database: MongoDB,SQL.. (Optional)" value={collabData.database}
+                                        onChange={e => setCollabData({ ...collabData, database: e.target.value })} className="font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                 </div>
 
-                                <div className="myaccount-collab-row">
-                                    <textarea placeholder="Other Skills Communication,MachineLearning (Optional)" value={collabData.skills} 
-                                        onChange={e => setCollabData({ ...collabData, skills: e.target.value })} className="myaccount-collab-textarea font-urbanist"></textarea>
-                                    
-                                    <textarea placeholder="Message" value={collabData.message} 
-                                        onChange={e => setCollabData({ ...collabData, message: e.target.value })} className="myaccount-collab-textarea font-urbanist"></textarea>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                                    <textarea placeholder="Other Skills Communication,MachineLearning (Optional)" value={collabData.skills}
+                                        onChange={e => setCollabData({ ...collabData, skills: e.target.value })} rows={3} className="font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+
+                                    <textarea placeholder="Message" value={collabData.message}
+                                        onChange={e => setCollabData({ ...collabData, message: e.target.value })} rows={3} className="font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
                                 </div>
 
-                                <div className="myaccount-collab-modal-actions">
-                                <button onClick={handleCollabSubmit} disabled={isSubmittingCollab} className="myaccount-collab-submit-button font-manrope">
+                                <div className="flex justify-end">
+                                <button onClick={handleCollabSubmit} disabled={isSubmittingCollab} className="font-manrope text-sm px-4 py-2 rounded-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60">
                             {isSubmittingCollab ? (
-                                <span className="flex items-center gap-2 text-white">
+                                <span className="flex items-center gap-2">
                                 <svg
-                                    className="animate-spin h-5 w-5"
+                                    className="animate-spin h-4 w-4"
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
                                     viewBox="0 0 24 24"
@@ -1004,104 +984,102 @@ const MyAccount = () => {
                                 'Submit Request'
                             )}
                             </button>
-
                                 </div>
                             </>
                         )}
                     </div>
 
                     {/* Creator Credits */}
-                    <div className="myaccount-collab-credits font-manrope">
+                    <div className="font-manrope text-xs text-slate-400 dark:text-slate-500 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
                         <p>Developed by <strong>Subhash Yaganti</strong> & <strong>Siri Mahalaxmi Vemula</strong></p>
-                        <p>
-                            <a href="https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/" target="_blank" rel="noopener noreferrer">LinkedIn</a> | 
-                            <a href="https://github.com/subhash-22-codes" target="_blank" rel="noopener noreferrer">GitHub</a>
+                        <p className="mt-1 space-x-2">
+                            <a href="https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">LinkedIn</a>
+                            <span>|</span>
+                            <a href="https://github.com/subhash-22-codes" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">GitHub</a>
                         </p>
                     </div>
                 </Modal>
 
+                {/* Delete Account Modal */}
                 <Modal
                     isOpen={modals.delete}
                     onClose={() => toggleModal('delete', false)}
                     title="Delete Account"
-                    className="myaccount-delete-modal"
                 >
-                    <div className="myaccount-delete-modal-content">
-                        <AlertTriangle size={32} className="myaccount-delete-warning-icon" />
-                        <p className='font-poppins'>Are you sure you want to delete your account? This action cannot be undone.</p>
-                        <ul className="myaccount-delete-consequences font-urbanist">
+                    <div className="flex flex-col items-center text-center gap-2">
+                        <AlertTriangle size={30} className="text-red-500" />
+                        <p className="font-poppins text-sm text-slate-700 dark:text-slate-200">Are you sure you want to delete your account? This action cannot be undone.</p>
+                        <ul className="font-manrope text-xs text-slate-500 dark:text-slate-400 text-left list-disc list-inside space-y-1 mt-2">
                             <li>Your profile and personal data will be permanently deleted</li>
                             <li>All your quiz progress will be lost</li>
                             <li>You won't be able to recover your account</li>
-                            
                         </ul>
                     </div>
 
                     {isDeleting && (
-                        <div className="myaccount-delete-progress-bar">
-                            <div className="myaccount-delete-progress-fill"></div>
+                        <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-4">
+                            <div className="h-full bg-red-500 animate-pulse w-full"></div>
                         </div>
                     )}
 
-                    <div className="myaccount-modal-actions">
-                        <button 
-                            className="myaccount-delete-btn-confirm font-manrope" 
-                            onClick={handleDeleteAccount} 
+                    <div className="flex justify-center gap-2 mt-5">
+                        <button
+                            className="flex items-center gap-2 font-manrope text-sm px-4 py-2 rounded-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                            onClick={handleDeleteAccount}
                             disabled={isDeleting}
                         >
                             {isDeleting ? (
                                 <>
-                                    <Loader size={18} className="myaccount-loading-icon" /> Deleting...
+                                    <Loader size={16} className="animate-spin" /> Deleting...
                                 </>
                             ) : (
                                 <>
-                                    <Trash2 size={18} /> Delete Account
+                                    <Trash2 size={16} /> Delete Account
                                 </>
                             )}
                         </button>
 
-                        <button 
-                            className="myaccount-delete-btn-cancel font-manrope" 
-                            onClick={() => toggleModal('delete', false)} 
+                        <button
+                            className="font-manrope text-sm px-4 py-2 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60"
+                            onClick={() => toggleModal('delete', false)}
                             disabled={isDeleting}
                         >
                             Cancel
                         </button>
                     </div>
                 </Modal>
+
+                {/* Help & Support Modal */}
                 <Modal
                 isOpen={modals.help}
                 onClose={() => toggleModal('help', false)}
                 title="Help & Support"
-                className="myaccount-helpandsupport-modal bg-white p-4 sm:p-6 rounded-xl shadow-xl w-[90%] sm:w-full max-w-sm sm:max-w-md"
-
                 >
-                <div className="myaccount-helpandsupport-content flex flex-col items-center text-center mb-4">
-                        <img 
-                            src="https://cdn-icons-png.flaticon.com/512/5726/5726470.png" 
+                <div className="flex flex-col items-center text-center mb-4">
+                        <img
+                            src="https://cdn-icons-png.flaticon.com/512/5726/5726470.png"
                             alt="Help Icon"
-                            className="myaccount-helpandsupport-icon w-8 h-8 mb-3"
+                            className="w-8 h-8 mb-3"
                             />
 
-                    <p className="myaccount-helpandsupport-text text-gray-700 mb-4 text-sm font-poppins">
+                    <p className="font-poppins text-sm text-slate-600 dark:text-slate-300 mb-4">
                     If you're facing any issues or have questions, we're here to help!
                     </p>
 
-                    <ul className="myaccount-helpandsupport-options text-left text-sm text-gray-600 space-y-2 font-urbanist">
-                    <li>📧 Email us: <a href="mailto:justicegenie2.0@gmail.com" className="text-blue-600">justicegenie2.0@gmail.com</a></li>
+                    <ul className="font-manrope text-sm text-slate-500 dark:text-slate-400 text-left space-y-2">
+                    <li>📧 Email us: <a href="mailto:justicegenie2.0@gmail.com" className="text-blue-600 hover:underline">justicegenie2.0@gmail.com</a></li>
                     <li>📚 Read our FAQ (Coming Soon)</li>
                     <li>🔧 For urgent issues, contact the admin panel</li>
                     </ul>
                 </div>
 
-                <div className="myaccount-helpandsupport-actions mt-4 flex justify-center">
+                <div className="flex justify-center">
                 <button
-                    className="font-manrope myaccount-helpandsupport-btn-close bg-gray-200 text-gray-800 text-sm sm:text-base px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-300 transition-all duration-200"
+                    className="font-manrope text-sm px-4 py-2 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                     onClick={() => toggleModal('help', false)}
                     >
                     Close
                     </button>
-
                 </div>
                 </Modal>
 

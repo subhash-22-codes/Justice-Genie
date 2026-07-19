@@ -19,7 +19,6 @@ import {
   FactoryIcon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/tailwind.css';
 const IntroPage = () => {
   const controls = useAnimation();
   const navigate = useNavigate();

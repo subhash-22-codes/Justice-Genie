@@ -1,17 +1,18 @@
 import React, { useState, useContext } from 'react';
-import '../styles/login.css';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
+import { Loader } from 'lucide-react';
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isGenieOpen, setIsGenieOpen] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const { setAuth } = useContext(AuthContext); // ✅ use context
+  const { setAuth } = useContext(AuthContext); // use context
   const navigate = useNavigate();
 
   const handleInputFocus = () => {
@@ -38,7 +39,7 @@ const Login = () => {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', 
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
 
@@ -46,7 +47,7 @@ const Login = () => {
 
       const data = await response.json();
 
-      // ✅ Update context immediately
+      // Update context immediately
       setAuth({
         loggedIn: true,
         role: data.role || (data.isAdmin ? 'admin' : 'user'),
@@ -54,13 +55,13 @@ const Login = () => {
         loading: false
       });
 
-      // ✅ Persist in localStorage for reloads
+      // Persist in localStorage for reloads
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('role', data.role || (data.isAdmin ? 'admin' : 'user'));
       localStorage.setItem('username', data.username);
       toast.success('Login successful!');
 
-      // ✅ Navigate after context update
+      // Navigate after context update
       navigate(data.role === 'admin' ? '/admin' : '/chat', { replace: true });
 
     } catch (error) {
@@ -76,139 +77,146 @@ const Login = () => {
     exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
   };
 
-
   return (
     <motion.div
-      className="login-wrapper"
+      className="w-full min-h-screen flex items-center justify-center bg-slate-50 p-4 sm:p-8"
       variants={pageVariants}
       initial="initial"
       animate="animate"
       exit="exit"
     >
-      <div className="login-page-container">
-        <div className="login-left-panel">
+      <div className="flex flex-col lg:flex-row w-full max-w-6xl h-auto lg:h-[800px] max-h-[90vh] rounded-sm overflow-hidden shadow-xl bg-white">
+
+        {/* Left panel - brand image */}
+        <div className="relative flex-1 min-h-[280px] lg:min-h-0 overflow-hidden group">
           <img
             src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
             alt="Justice Scale"
-            className="login-background-image"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="login-overlay"></div>
-          <div className="login-brand-content">
-            <p className="login-brand-subtitle font-poppins"><strong>Justice Genie</strong></p>
-            <p className="login-welcome-message font-urbanist">
-              Welcome to <strong>GENIE</strong>! Log in to unlock a world of legal insights and resources tailored to your needs.
+          <div className="absolute inset-0 bg-gradient-to-br from-black/80 to-black/60"></div>
+          <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-8 py-12">
+            <p className="font-poppins text-lg sm:text-xl font-light opacity-90 mb-6"><strong className="font-semibold">Justice Genie</strong></p>
+            <p className="font-manrope text-sm sm:text-base leading-relaxed opacity-85 mb-10 max-w-md">
+              Welcome to <strong className="text-amber-300 font-bold">GENIE</strong>! Log in to unlock a world of legal insights and resources tailored to your needs.
             </p>
-            <div className="login-law-icons">
-              <div className="login-icon-container">
-                <img src="./images/ai.png" alt="Law Icon 1" className="login-icon" />
-              </div>
-              <div className="login-icon-container">
-                <img src="./images/just.png" alt="Law Icon 2" className="login-icon" />
-              </div>
-              <div className="login-icon-container">
-                <img src="./images/lawyer1.png" alt="Law Icon 3" className="login-icon" />
-              </div>
-              <div className="login-icon-container">
-                <img src="./images/hammer.png" alt="Law Icon 4" className="login-icon" />
-              </div>
+            <div className="flex justify-center gap-3 sm:gap-6 flex-wrap">
+              {['ai.png', 'just.png', 'lawyer1.png', 'hammer.png'].map((icon, i) => (
+                <div key={i} className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:-translate-y-1 hover:bg-white/25">
+                  <img src={`./images/${icon}`} alt={`Law Icon ${i + 1}`} className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="login-right-panel">
-          <div className="login-container">
-            <h2 className="login-heading font-montserrat">Welcome Back</h2>
-            <p className="login-subtitle font-sora">Sign in to continue</p>
+        {/* Right panel - form */}
+        <div className="flex-1 flex items-center justify-center bg-white p-6 sm:p-10">
+          <div className="w-full max-w-sm">
+            <h2 className="font-poppins text-2xl sm:text-3xl font-bold text-slate-800 mb-1">Welcome Back</h2>
+            <p className="font-manrope text-slate-500 text-sm mb-8">Sign in to continue</p>
 
-            <form onSubmit={handleSubmit} className="login-form">
-              <div className="login-input-group">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <div className="relative">
                 <input
                   type="text"
                   id="username"
                   value={username}
                   onFocus={handleInputFocus}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="login-input font-manrope"
+                  className="peer w-full py-2 font-manrope text-sm sm:text-base bg-transparent border-0 border-b-2 border-slate-200 outline-none text-slate-800 focus:border-blue-600"
                   required
                 />
-                <label htmlFor="username" className="login-label">Username or Registered Email</label>
-
-                <div className="login-input-line"></div>
+                <label
+                  htmlFor="username"
+                  className="absolute left-0 top-2 font-manrope text-slate-400 pointer-events-none transition-all duration-200 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-blue-600 peer-valid:-top-3.5 peer-valid:text-xs peer-valid:text-blue-600"
+                >
+                  Username or Registered Email
+                </label>
               </div>
 
-              <div className="login-input-group">
+              <div className="relative">
                 <input
                   type={isGenieOpen ? 'text' : 'password'}
                   id="password"
                   value={password}
                   onFocus={handleInputFocus}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="login-input font-manrope"
+                  className="peer w-full py-2 pr-8 font-manrope text-sm sm:text-base bg-transparent border-0 border-b-2 border-slate-200 outline-none text-slate-800 focus:border-blue-600"
                   required
                 />
-                <label htmlFor="password" className="login-label">Password</label>
-                <div className="login-input-line"></div>
-                <div id="genie" className="login-genie" onClick={toggleGenie}>
+                <label
+                  htmlFor="password"
+                  className="absolute left-0 top-2 font-manrope text-slate-400 pointer-events-none transition-all duration-200 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-blue-600 peer-valid:-top-3.5 peer-valid:text-xs peer-valid:text-blue-600"
+                >
+                  Password
+                </label>
+                <div
+                  id="genie"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer w-5 h-5"
+                  onClick={toggleGenie}
+                >
                   <img
                     src="https://cdn-icons-png.flaticon.com/512/1680/1680326.png"
                     alt="Genie"
-                    className={isGenieOpen ? 'login-genie-open' : 'login-genie-closed'}
+                    className={`w-full h-full object-contain transition-all duration-200 ${isGenieOpen ? 'opacity-100 scale-110' : 'opacity-70'}`}
                   />
                 </div>
               </div>
 
-              <div className="flex justify-between items-center w-full mt-4 text-sm text-gray-700">
-                <label className="font-sora flex items-center gap-2">
+              <div className="flex justify-between items-center w-full text-sm text-slate-600 font-manrope">
+                <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                   />
                   <span>Remember me</span>
                 </label>
 
                 <Link
                   to="/forgotpassword"
-                  className="font-sora text-indigo-600 hover:text-indigo-700 transition-colors duration-200 whitespace-nowrap"
+                  className="text-blue-600 hover:text-blue-700 transition-colors duration-200 whitespace-nowrap"
                 >
                   Forgot Password?
                 </Link>
               </div>
 
-
-
               <button
                 type="submit"
-                className={`login-button ${loading ? 'login-loading' : ''}`}
+                className="relative w-full py-3 rounded-sm bg-blue-600 hover:bg-blue-700 text-white font-manrope font-semibold transition-colors disabled:opacity-70 flex items-center justify-center"
                 disabled={loading}
               >
-                <span className="login-button-text  font-spacegrotesk">
-                  {loading ? 'Waking up server…' : 'Login'}
+                <span className={loading ? 'opacity-0' : 'opacity-100'}>
+                  Login
                 </span>
-                {loading && <div className="login-spinner"></div>}
+                {loading && (
+                  <span className="absolute inset-0 flex items-center justify-center gap-2">
+                    <Loader size={18} className="animate-spin" />
+                    <span className="text-sm">Waking up server…</span>
+                  </span>
+                )}
               </button>
-
             </form>
 
-            <p className="login-register-link font-sora">
+            <p className="text-center mt-6 text-sm text-slate-500 font-manrope">
               Don't have an account?{' '}
-              <Link to="/register" className="login-register-anchor font-urbanist">Create one now</Link>
+              <Link to="/register" className="text-blue-600 font-semibold hover:underline">Create one now</Link>
             </p>
 
-           {loginMessage && (
-            <div
-              className={`w-full px-4 py-2 rounded-lg text-sm font-medium text-center mb-4 border
-                ${
-                  loginMessage.toLowerCase().includes('successful')
-                    ? 'bg-white text-green-600 border-green-300'
-                    : loginMessage.toLowerCase().includes('contacting')
-                    ? 'bg-white text-blue-600 border-blue-300'   // 👈 info / waking up
-                    : 'bg-white text-red-600 border-red-300'
-                }`}
-            >
-              {loginMessage}
-            </div>
-          )}
-
+            {loginMessage && (
+              <div
+                className={`w-full px-4 py-2 rounded-sm text-sm font-medium text-center mt-4 border font-manrope
+                  ${
+                    loginMessage.toLowerCase().includes('successful')
+                      ? 'bg-white text-green-600 border-green-300'
+                      : loginMessage.toLowerCase().includes('contacting')
+                      ? 'bg-white text-blue-600 border-blue-300'
+                      : 'bg-white text-red-600 border-red-300'
+                  }`}
+              >
+                {loginMessage}
+              </div>
+            )}
           </div>
         </div>
       </div>

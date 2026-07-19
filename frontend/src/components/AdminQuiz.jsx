@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ArrowUpDown, Download, User, Mail, Trophy, Crown,  TrendingDown} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/admin.css';
 const AdminQuiz = () => {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +20,7 @@ const AdminQuiz = () => {
     const fetchParticipants = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/quiz_participants`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/quiz_participants?page=1&limit=100`, {
           method: 'GET',
           credentials: 'include',
         });
@@ -285,9 +284,9 @@ const AdminQuiz = () => {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-700">
-            <h1 className="text-2xl md:text-3xl font-bold text-white">Quiz Leaderboard Dashboard</h1>
-            <p className="text-blue-100 mt-2">
+          <div className="p-6 bg-slate-800">
+            <h1 className="font-poppins text-2xl md:text-3xl font-bold text-white">Quiz Leaderboard Dashboard</h1>
+            <p className="font-manrope text-slate-300 mt-2">
               Monitor participant rankings and performance
             </p>
           </div>
@@ -302,7 +301,7 @@ const AdminQuiz = () => {
                 </div>
                 <input
                   type="text"
-                  className="admin-search pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="font-manrope pl-10 w-full p-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Search by username or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -311,7 +310,7 @@ const AdminQuiz = () => {
 
               <button
                 onClick={exportCSV}
-                className="admin-button flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg transition-colors"
+                className="font-manrope flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-sm transition-colors"
               >
                 <Download className="h-5 w-5" />
                 <span>Export Data</span>
@@ -391,9 +390,9 @@ const AdminQuiz = () => {
        <div className="text-center mt-10">
               <button
                 onClick={() => navigate('/admin')}
-                className="admin-button inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-manrope font-medium px-5 py-2.5 rounded-sm transition-colors"
               >
-                <Crown size={18} className="text-yellow-300" />
+                <Crown size={16} />
                 Go to Admin Panel
               </button>
             </div>

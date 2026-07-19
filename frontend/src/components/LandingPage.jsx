@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import "../styles/LandingPage.css";
+import { Loader } from 'lucide-react';
 import {
   FaRobot,
   FaQuestionCircle,
@@ -25,7 +25,7 @@ export default function LandingPage() {
   const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // ✅ Redirect if already logged in
+  // Redirect if already logged in
   useEffect(() => {
     if (!auth.loading && auth.loggedIn) {
       navigate(auth.role === "admin" ? "/admin" : "/chat", { replace: true });
@@ -62,30 +62,25 @@ export default function LandingPage() {
   // Show loader while auth is loading
  if (auth.loading) {
   return (
-    <div className="loading-container">
-      {/* Spinner and Main Text */}
-      <div className="loading-spinner-advanced">
-        <div className="spinner-ring"></div>
-        <div className="spinner-ring"></div>
-        <div className="spinner-ring"></div>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-4">
+      <Loader size={36} className="animate-spin text-blue-600 mb-6" />
 
-      <div className="loading-text font-poppins">
-        <h3>Justice Genie</h3>
-        <p>Initializing your legal companion...</p>
+      <div className="font-poppins text-center mb-8">
+        <h3 className="text-xl font-bold text-slate-800">Justice Genie</h3>
+        <p className="text-sm text-slate-500 mt-1">Initializing your legal companion...</p>
       </div>
 
       {/* Developer Cards */}
-     <div className="loading-credits">
+      <div className="flex flex-col sm:flex-row gap-3">
         {[
           { img: "/images/Subhash.jpg", name: "Subhash Yaganti", role: "Full Stack Dev & UI/UX Designer" },
           { img: "/images/Siri.jpg", name: "Siri Mahalaxmi Vemula", role: "Backend + API Integration + System Architect" }
         ].map((dev, index) => (
-          <div key={index} className="dev-card">
-            <img src={dev.img} alt={dev.name} className="dev-avatar" />
-            <div className="dev-info">
-              <p className="dev-name">{dev.name}</p>
-              <span className="dev-role">{dev.role}</span>
+          <div key={index} className="flex items-center gap-3 bg-white border border-slate-200 rounded-sm px-4 py-3">
+            <img src={dev.img} alt={dev.name} className="w-10 h-10 rounded-full object-cover" />
+            <div>
+              <p className="font-manrope text-sm font-semibold text-slate-800">{dev.name}</p>
+              <span className="font-manrope text-xs text-slate-500">{dev.role}</span>
             </div>
           </div>
         ))}
@@ -100,36 +95,36 @@ export default function LandingPage() {
       title: "AI Legal Assistant",
       description: "Get instant, accurate answers to complex Indian legal questions with our advanced AI that understands legal nuances and provides contextual guidance.",
       benefits: ["24/7 Availability", "Instant Responses", "Legal Accuracy", "Context Aware"],
-      color: "#6366f1"
+      color: "#2563eb"
     },
     {
       icon: <FaQuestionCircle />,
       title: "Interactive Legal Quizzes",
       description: "Master Indian law through engaging, adaptive quizzes that adjust to your knowledge level and track your progress over time.",
       benefits: ["Global Leaderboard", "Progress Tracking", "Case-Based Questions", "Self-Evaluation"],
-      color: "#f59e0b"
+      color: "#d97706"
     },
     {
       icon: <FaFilePdf />,
       title: "Legal Document Library",
       description: "Access a comprehensive collection of legal documents, templates, and reference materials curated by legal experts.",
       benefits: ["Expert Curated", "Always Updated", "Instant Download", "Searchable Database"],
-      color: "#f12e24ff"
+      color: "#dc2626"
     },
     {
       icon: <FaBookOpen />,
       title: "Curated Legal Resources",
       description: "Discover handpicked legal books, articles, case studies, and educational materials from trusted legal authorities.",
       benefits: ["Trusted Sources", "Regular Updates", "Categorized Content", "Expert Recommendations"],
-      color: "#be37aeff"
+      color: "#7c3aed"
     }
   ];
 
   const stats = [
-    { number: "100+", label: "Legal Questions Answered", icon: <FaQuestionCircle color="#2563eb" /> },
-    { number: "soon", label: "Legal Documents", icon: <FaFilePdf color="#dc2626" /> },
-    { number: "30+", label: "Active Users", icon: <FaUsers color="#f97316" /> },
-    { number: "90%", label: "Accuracy Rate", icon: <FaCheckCircle color="#16a34a" /> }
+    { number: "100+", label: "Legal Questions Answered", icon: <FaQuestionCircle /> },
+    { number: "soon", label: "Legal Documents", icon: <FaFilePdf /> },
+    { number: "30+", label: "Active Users", icon: <FaUsers /> },
+    { number: "90%", label: "Accuracy Rate", icon: <FaCheckCircle /> }
   ];
 
   const teamMembers = [
@@ -154,69 +149,65 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="landing-page">
+    <div className="bg-slate-50 text-slate-800">
       {/* Navigation */}
-      <nav className="nav-container">
-        <div className="nav-content">
-          <div className="nav-logo">
-           <div className="logo-container">
-              <img src="/images/jg_original_logo_1.png" alt="Justice Genie Logo" className="logo-img" />
-            </div>
+      <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+          <img src="/images/jg_original_logo_1.png" alt="Justice Genie Logo" className="h-8 w-8 object-contain" />
 
+          <div className="hidden md:flex items-center gap-8 font-manrope text-sm font-medium">
+            <a
+              href="#features"
+              className="text-slate-600 hover:text-slate-900"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Features
+            </a>
+            <a
+              href="#hero"
+              className="text-slate-600 hover:text-slate-900"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              About
+            </a>
+            <a
+              href="#cta"
+              className="text-slate-600 hover:text-slate-900"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('cta')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Ready to Start?
+            </a>
+            <a
+              href="#team"
+              className="text-slate-600 hover:text-slate-900"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Team
+            </a>
           </div>
-            <div className="nav-menu font-montserrat">
-              <a
-                href="#features"
-                className="nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                Features
-              </a>
-              <a
-                href="#hero"
-                className="nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                About       
-              </a>
-              <a
-                href="#cta"
-                className="nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('cta')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                Ready to Start?
-              </a>
-              <a
-                href="#team"
-                className="nav-link"
-                onClick={(e) => { 
-                  e.preventDefault();
-                  document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                Team
-              </a>
-            </div>
 
-          <div className="nav-buttons">
-            <button 
+          <div className="flex items-center gap-2">
+            <button
               onClick={() => navigate("/login")}
-              className="nav-btn Landing-login-btn font-urbanist"
+              className="font-manrope text-sm font-medium px-4 py-2 rounded-sm text-slate-700 hover:bg-slate-100 transition-colors"
             >
               Login
             </button>
-            <button 
+            <button
               onClick={() => navigate("/register")}
-              className="nav-btn Landing-register-btn font-urbanist"
+              className="font-manrope text-sm font-medium px-4 py-2 rounded-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
             >
               Get Started
             </button>
@@ -225,361 +216,310 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="hero-section" id="hero">
-        <div className="hero-background">
-          <div className="hero-pattern"></div>
-        </div>
-        
-        <div className="hero-container">
-          <div className="hero-content">
-            
-            <h1 className="hero-title">
-              <span className="title-main font-urbanist">Justice Genie</span>
-              <span className="title-subtitle font-manrope">Making Indian Legal Knowledge Accessible</span>
+      <section className="relative overflow-hidden" id="hero">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h1 className="font-poppins font-bold text-4xl sm:text-5xl text-slate-900 leading-tight">
+              Justice Genie
+              <span className="block font-manrope font-medium text-lg sm:text-xl text-slate-500 mt-2">
+                Making Indian Legal Knowledge Accessible
+              </span>
             </h1>
-            
-            <p className="hero-description font-spacegrotesk">
-              Experience the future of legal education with our AI-powered platform. 
-              Get instant answers, master concepts through interactive quizzes, access 
-              comprehensive legal documents, and explore curated resources—all designed 
+
+            <p className="font-manrope text-base text-slate-600 mt-6 leading-relaxed max-w-lg">
+              Experience the future of legal education with our AI-powered platform.
+              Get instant answers, master concepts through interactive quizzes, access
+              comprehensive legal documents, and explore curated resources—all designed
               to democratize legal knowledge in India.
             </p>
-            
-            <div className="hero-features-preview font-sora">
-              <div className="feature-preview">
-                <FaCheckCircle className="check-icon" />
-                <span>AI-Powered Legal Assistant</span>
-              </div>
-              <div className="feature-preview">
-                <FaCheckCircle className="check-icon" />
-                <span>Interactive Learning Quizzes</span>
-              </div>
-              <div className="feature-preview">
-                <FaCheckCircle className="check-icon" />
-                <span>Comprehensive Document Library</span>
-              </div>
+
+            <div className="flex flex-col gap-2 mt-6">
+              {['AI-Powered Legal Assistant', 'Interactive Learning Quizzes', 'Comprehensive Document Library'].map((item) => (
+                <div key={item} className="flex items-center gap-2 font-manrope text-sm text-slate-600">
+                  <FaCheckCircle className="text-green-600 flex-shrink-0" />
+                  <span>{item}</span>
+                </div>
+              ))}
             </div>
-            
-            <div className="hero-buttons">
-              <button 
+
+            <div className="flex flex-wrap gap-3 mt-8">
+              <button
                 onClick={() => navigate("/register")}
-                className="primary-btn hero-primary font-urbanist"
+                className="flex items-center gap-2 font-manrope font-semibold px-6 py-3 rounded-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
               >
-                <FaPlay className="btn-icon" />
+                <FaPlay size={14} />
                 Start Your Journey
               </button>
-              <button 
+              <button
                 onClick={() => navigate("/login")}
-                className="secondary-btn hero-secondary font-urbanist"
+                className="font-manrope font-semibold px-6 py-3 rounded-sm border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 Login to Continue
               </button>
             </div>
-            
-            <div className="hero-social-proof">
-              <div className="social-proof-item">
-                <div className="proof-avatars">
-                  <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User" />
-                  <img src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User" />
-                  <img src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User" />
-                </div>
-                <div className="proof-text">
-                  <span className="proof-number font-sora">30+</span>
-                  <span className="proof-label font-sora">students already learning</span>
-                </div>
+
+            <div className="flex items-center gap-3 mt-8">
+              <div className="flex -space-x-2">
+                <img className="w-9 h-9 rounded-full border-2 border-white object-cover" src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User" />
+                <img className="w-9 h-9 rounded-full border-2 border-white object-cover" src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User" />
+                <img className="w-9 h-9 rounded-full border-2 border-white object-cover" src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop" alt="User" />
+              </div>
+              <div className="font-manrope text-sm">
+                <span className="font-semibold text-slate-800">30+</span>
+                <span className="text-slate-500"> students already learning</span>
               </div>
             </div>
           </div>
-          
-          <div className="hero-visual">
-            <div className="hero-dashboard">
-              <div className="dashboard-header">
-                <div className="dashboard-nav">
-                  <div className="nav-dot active"></div>
-                  <div className="nav-dot"></div>
-                  <div className="nav-dot"></div>
+
+          <div>
+            <div className="bg-white border border-slate-200 rounded-sm shadow-lg overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-3 bg-slate-50 border-b border-slate-200">
+                <div className="flex gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-green-400"></span>
                 </div>
-                <div className="dashboard-title font-jura">Justice Genie Dashboard</div>
+                <div className="font-manrope text-xs text-slate-500 ml-2">Justice Genie Dashboard</div>
               </div>
-              <div className="dashboard-content">
-                <div className="dashboard-card">
-                  <FaRobot className="card-icon text-blue-600" />
-                  <div className="card-content font-urbanist">
-                    <h4>AI Assistant</h4>
-                    <p>Ask any legal question</p>
+              <div className="p-4 space-y-3">
+                <div className="flex items-center gap-3 border border-slate-200 rounded-sm p-3">
+                  <FaRobot className="text-blue-600 text-xl flex-shrink-0" />
+                  <div className="font-manrope flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-slate-800">AI Assistant</h4>
+                    <p className="text-xs text-slate-500">Ask any legal question</p>
                   </div>
-                  <div className="card-status active font-sora">Active</div>
+                  <span className="font-manrope text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-sm flex-shrink-0">Active</span>
                 </div>
-                <div className="dashboard-card">
-                  <FaQuestionCircle className="card-icon text-yellow-600" />
-                  <div className="card-content font-urbanist">
-                    <h4>Legal Quiz</h4>
-                    <p>Test your knowledge</p>
+                <div className="flex items-center gap-3 border border-slate-200 rounded-sm p-3">
+                  <FaQuestionCircle className="text-amber-600 text-xl flex-shrink-0" />
+                  <div className="font-manrope flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-slate-800">Legal Quiz</h4>
+                    <p className="text-xs text-slate-500">Test your knowledge</p>
                   </div>
-                  <div className="card-status font-sora">Ready</div>
+                  <span className="font-manrope text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-sm flex-shrink-0">Ready</span>
                 </div>
-                <div className="dashboard-card">
-                  <FaFilePdf className="card-icon text-red-600" />
-                  <div className="card-content font-urbanist">
-                    <h4>PDF Generation</h4>
-                    <p>Export your chats & notes</p>
+                <div className="flex items-center gap-3 border border-slate-200 rounded-sm p-3">
+                  <FaFilePdf className="text-red-600 text-xl flex-shrink-0" />
+                  <div className="font-manrope flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-slate-800">PDF Generation</h4>
+                    <p className="text-xs text-slate-500">Export your chats & notes</p>
                   </div>
-                  <div className="card-status font-sora">Available</div>
+                  <span className="font-manrope text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-sm flex-shrink-0">Available</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
-        <div className="scroll-indicator font-montserrat" onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}>
-          <FaChevronDown className="scroll-icon" />
+
+        <div
+          className="flex flex-col items-center gap-1 pb-8 cursor-pointer text-slate-400 hover:text-slate-600 font-manrope text-xs"
+          onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+        >
+          <FaChevronDown className="animate-bounce" />
           <span>Discover More</span>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="stats-section font-manrope" id="stats">
-        <div className="container">
-          <div className="stats-grid">
-            {stats.map((stat, index) => (
-              <div key={index} className={`stat-card ${isVisible.stats ? 'animate' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
-                <div className="stat-icon">{stat.icon}</div>
-                <div className="stat-number">{stat.number}</div>
-                <div className="stat-label">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+      <section className="bg-slate-800" id="stats">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-14 grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className={`text-center transition-all duration-500 ${isVisible.stats ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              style={{ transitionDelay: `${index * 100}ms` }}
+            >
+              <div className="text-blue-400 text-2xl flex justify-center mb-2">{stat.icon}</div>
+              <div className="font-poppins text-2xl sm:text-3xl font-bold text-white">{stat.number}</div>
+              <div className="font-manrope text-xs sm:text-sm text-slate-300 mt-1">{stat.label}</div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="features-section" id="features">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-badge font-courgette">
-              <FaLightbulb className="badge-icon" />
+      <section className="py-20" id="features">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 font-manrope text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-sm mb-4">
+              <FaLightbulb />
               <span>Powerful Features</span>
             </div>
-            <h2 className="section-title font-montserrat">Everything You Need for Legal Learning</h2>
-            <p className="section-description font-urbanist">
-              Our comprehensive platform combines cutting-edge AI technology with carefully 
+            <h2 className="font-poppins text-3xl font-bold text-slate-900">Everything You Need for Legal Learning</h2>
+            <p className="font-manrope text-slate-500 mt-3">
+              Our comprehensive platform combines cutting-edge AI technology with carefully
               curated legal resources to provide an unmatched learning experience.
             </p>
           </div>
-          
-          <div className="features-showcase">
-            <div className="features-tabs">
+
+          <div className="grid lg:grid-cols-2 gap-8 items-start">
+            <div className="space-y-2">
               {features.map((feature, index) => (
                 <button
                   key={index}
-                  className={`feature-tab ${activeFeature === index ? 'active' : ''}`}
+                  className={`w-full text-left flex items-start gap-4 p-4 rounded-sm border transition-colors ${
+                    activeFeature === index
+                      ? 'border-blue-300 bg-blue-50'
+                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                  }`}
                   onClick={() => setActiveFeature(index)}
-                  style={{'--tab-color': feature.color}}
                 >
-                  <div className="tab-icon">{feature.icon}</div>
-                  <div className="tab-content font-manrope">
-                    <h4>{feature.title}</h4>
-                    <p>{feature.description}</p>
+                  <div className="text-xl flex-shrink-0 mt-0.5" style={{ color: feature.color }}>{feature.icon}</div>
+                  <div className="font-manrope">
+                    <h4 className="text-sm font-semibold text-slate-800">{feature.title}</h4>
+                    <p className="text-xs text-slate-500 mt-1">{feature.description}</p>
                   </div>
                 </button>
               ))}
             </div>
-            
-            <div className="features-display">
-              <div className="feature-visual">
-                <div className="feature-mockup" style={{'--feature-color': features[activeFeature].color}}>
-                  <div className="mockup-header">
-                    <div className="mockup-icon">{features[activeFeature].icon}</div>
-                    <h3>{features[activeFeature].title}</h3>
+
+            <div className="bg-white border border-slate-200 rounded-sm p-6 lg:sticky lg:top-24">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="text-2xl" style={{ color: features[activeFeature].color }}>{features[activeFeature].icon}</div>
+                <h3 className="font-poppins font-semibold text-lg text-slate-800">{features[activeFeature].title}</h3>
+              </div>
+              <div className="space-y-2.5">
+                {features[activeFeature].benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-center gap-2 font-manrope text-sm text-slate-600">
+                    <FaCheckCircle className="text-green-600 flex-shrink-0" />
+                    <span>{benefit}</span>
                   </div>
-                  <div className="mockup-content font-urbanist">
-                    <div className="benefits-list">
-                      {features[activeFeature].benefits.map((benefit, index) => (
-                        <div key={index} className="benefit-item">
-                          <FaCheckCircle className="benefit-icon" />
-                          <span>{benefit}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-  
-       <section className="team-section" id="team">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-badge">
-              <FaUsers className="badge-icon" />
+      {/* Team Section */}
+      <section className="py-20 bg-white" id="team">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 font-manrope text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-sm mb-4">
+              <FaUsers />
               <span>Our Team</span>
             </div>
-            <h2 className="section-title">Meet the Developers</h2>
-            <p className="section-description">
-              Passionate students combining technology and law to create something meaningful 
+            <h2 className="font-poppins text-3xl font-bold text-slate-900">Meet the Developers</h2>
+            <p className="font-manrope text-slate-500 mt-3">
+              Passionate students combining technology and law to create something meaningful
               that makes legal knowledge accessible to everyone.
             </p>
           </div>
 
-          <div className="team-grid">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {teamMembers.map((member, index) => (
-              <div 
-                key={index} 
-                className={`team-card ${isVisible.team ? 'animate' : ''}`}
-                style={{ animationDelay: `${index * 0.2}s` }}
+              <div
+                key={index}
+                className={`bg-slate-50 border border-slate-200 rounded-sm p-6 text-center transition-all duration-500 ${isVisible.team ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                style={{ transitionDelay: `${index * 150}ms` }}
               >
-                <div className="team-card-inner">
-                  
-                  <div className="team-avatar-container">
-                    <img src={member.avatar} alt={member.name} className="team-avatar" />
-                  </div>
+                <img src={member.avatar} alt={member.name} className="w-20 h-20 rounded-full object-cover mx-auto mb-4" />
 
-                  
-                  <div className="team-social-links">
-                    <a href={`mailto:${member.email}`} className="social-link mail">
-                      <FaEnvelope />
-                    </a>
-                    <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="social-link linkedin">
-                      <FaLinkedin />
-                    </a>
-                    <a href={member.github} target="_blank" rel="noopener noreferrer" className="social-link github">
-                      <FaGithub />
-                    </a>
-                    <a href={member.instagram} target="_blank" rel="noopener noreferrer" className="social-link instagram">
-                      <FaInstagram />
-                    </a>
-                  </div>
-
-                 
-                  <div className="team-info">
-                    <h3 className="team-name">{member.name}</h3>
-                    <p className="team-role">{member.role}</p>
-
-                  </div>
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <a href={`mailto:${member.email}`} className="w-8 h-8 rounded-sm bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:border-blue-300">
+                    <FaEnvelope size={14} />
+                  </a>
+                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-sm bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:border-blue-300">
+                    <FaLinkedin size={14} />
+                  </a>
+                  <a href={member.github} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-sm bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:border-blue-300">
+                    <FaGithub size={14} />
+                  </a>
+                  <a href={member.instagram} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-sm bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:border-blue-300">
+                    <FaInstagram size={14} />
+                  </a>
                 </div>
+
+                <h3 className="font-poppins font-semibold text-slate-800">{member.name}</h3>
+                <p className="font-manrope text-sm text-slate-500 mt-1">{member.role}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-
       {/* CTA Section */}
-      <section className="cta-section" id="cta">
-        <div className="container">
-          <div className="cta-content">
-           <div className="cta-visual">
-              <div className="cta-icon-container">
-                <div className="logo-circle">
-                <img src="/images/jg_original_logo.png" alt="Justice Genie Logo" className="cta-main-logo" />
-                </div>
+      <section className="py-20 bg-slate-800" id="cta">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 text-center">
+          <div className="w-16 h-16 rounded-sm bg-white/10 flex items-center justify-center mx-auto mb-6">
+            <img src="/images/jg_original_logo.png" alt="Justice Genie Logo" className="w-10 h-10 object-contain" />
+          </div>
+
+          <h2 className="font-poppins text-3xl font-bold text-white">Ready to Transform Your Legal Learning?</h2>
+          <p className="font-manrope text-slate-300 mt-4 leading-relaxed">
+            Join Justice Genie today and experience the future of legal education.
+            Get instant AI assistance, master concepts through interactive learning,
+            and access comprehensive legal resources—all in one powerful platform.
+          </p>
+
+          <div className="flex flex-col items-center gap-2 mt-6">
+            {['Free to start', 'Instant access to all features', 'Join 30+ active learners'].map((item) => (
+              <div key={item} className="flex items-center gap-2 font-manrope text-sm text-slate-200">
+                <FaCheckCircle className="text-green-400 flex-shrink-0" />
+                <span>{item}</span>
               </div>
-            </div>
-            <div className="cta-text">
-              <h2 className="cta-title font-sora">Ready to Transform Your Legal Learning?</h2>
-              <p className="cta-description font-spacegrotesk">
-                Join Justice Genie today and experience the future of legal education. 
-                Get instant AI assistance, master concepts through interactive learning, 
-                and access comprehensive legal resources—all in one powerful platform.
-              </p>
-              
-              <div className="cta-features font-sora">
-                <div className="cta-feature">
-                  <FaCheckCircle className="cta-check" />
-                  <span>Free to start</span>
-                </div>
-                <div className="cta-feature">
-                  <FaCheckCircle className="cta-check" />
-                  <span>Instant access to all features</span>
-                </div>
-                <div className="cta-feature">
-                  <FaCheckCircle className="cta-check" />
-                  <span>Join 30+ active learners</span>
-                </div>
-              </div>
-              
-              <div className="cta-buttons">
-                <button 
-                  onClick={() => navigate("/register")}
-                  className="cta-primary-btn font-urbanist"
-                >
-                  <FaArrowRight className="btn-icon" />
-                  Start Learning Now
-                </button>
-                <button 
-                  onClick={() => navigate("/login")}
-                  className="cta-secondary-btn font-urbanist"
-                >
-                  Already have an account?
-                </button>
-              </div>
-            </div>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3 mt-8">
+            <button
+              onClick={() => navigate("/register")}
+              className="flex items-center gap-2 font-manrope font-semibold px-6 py-3 rounded-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
+              <FaArrowRight size={14} />
+              Start Learning Now
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="font-manrope font-semibold px-6 py-3 rounded-sm border border-slate-500 text-slate-200 hover:bg-slate-700 transition-colors"
+            >
+              Already have an account?
+            </button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-top">
-            <div className="footer-brand">
-              <div className="footer-logo">
-                <img src="/images/jg_original_logo.png" alt="Justice Genie Logo" className="footer-logo-img" />
-                <span className="logo-text font-manrope">Justice Genie</span>
+      <footer className="bg-slate-900 pt-14 pb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="grid sm:grid-cols-2 gap-10 pb-10 border-b border-slate-800">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <img src="/images/jg_original_logo.png" alt="Justice Genie Logo" className="w-7 h-7 object-contain" />
+                <span className="font-manrope font-semibold text-white">Justice Genie</span>
               </div>
-
-              <p className="footer-description font-manrope">
+              <p className="font-manrope text-sm text-slate-400 max-w-sm">
                 Democratizing legal knowledge through innovative technology. Built with passion by students combining technology & law.
               </p>
-              {/* <div className="footer-social">
-                <a href="https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/" target="_blank" rel="noopener noreferrer" className="footer-social-link linkedin">
-                  <FaLinkedin />
-                </a>
-                <a href="https://github.com/subhash-22-codes" target="_blank" rel="noopener noreferrer" className="footer-social-link github">
-                  <FaGithub />
-                </a>
-                <a href="https://instagram.com/subhash__spiody" target="_blank" rel="noopener noreferrer" className="footer-social-link instagram">
-                  <FaInstagram />
-                </a>
-                <a href="mailto:subashyagantisubbu@gmail.com" className="footer-social-link  mail">
-                  <FaEnvelope />
-                </a>
-              </div> */}
             </div>
 
-            <div className="footer-links">
-              <div className="footer-section font-montserrat">
-                <h4>Platform</h4>
-                <ul>
-                  <li><a href="#features">Features</a></li>
-                  <li><a href="/register">Get Started</a></li>
-                  <li><a href="/login">Login</a></li>
-                  <li><a href="#testimonials">Reviews</a></li>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-poppins text-sm font-semibold text-white mb-3">Platform</h4>
+                <ul className="space-y-2 font-manrope text-sm text-slate-400">
+                  <li><a href="#features" className="hover:text-white">Features</a></li>
+                  <li><a href="/register" className="hover:text-white">Get Started</a></li>
+                  <li><a href="/login" className="hover:text-white">Login</a></li>
+                  <li><a href="#testimonials" className="hover:text-white">Reviews</a></li>
                 </ul>
               </div>
-              <div className="footer-section font-montserrat">
-                <h4>Resources</h4>
-                <ul>
-                  <li><a href="/login">AI Chat</a></li>
-                  <li><a href="/login">Legal Quizzes</a></li>
-                  <li><a href="/login">Document Library</a></li>
-                  <li><a href="/login">Learning Resources</a></li>
+              <div>
+                <h4 className="font-poppins text-sm font-semibold text-white mb-3">Resources</h4>
+                <ul className="space-y-2 font-manrope text-sm text-slate-400">
+                  <li><a href="/login" className="hover:text-white">AI Chat</a></li>
+                  <li><a href="/login" className="hover:text-white">Legal Quizzes</a></li>
+                  <li><a href="/login" className="hover:text-white">Document Library</a></li>
+                  <li><a href="/login" className="hover:text-white">Learning Resources</a></li>
                 </ul>
               </div>
             </div>
           </div>
 
-          <footer className="text-white py-6">
-            <p className="text-center text-sm font-urbanist">
-              © 2025 Justice Genie. College project by Subhash Yaganti & Siri Mahalaxmi Vemula.
-            </p>
-          </footer>
+          <p className="text-center font-manrope text-sm text-slate-500 pt-6">
+            © 2025 Justice Genie. College project by Subhash Yaganti & Siri Mahalaxmi Vemula.
+          </p>
         </div>
       </footer>
-
     </div>
   );
 }

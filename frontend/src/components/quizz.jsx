@@ -6,7 +6,6 @@ import {
   BookOpen, Lock, Unlock, Crown, Save, Edit, X, Info 
 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import '../styles/quizz.css';
 
 const Quiz = () => {
   const [questions, setQuestions] = useState([]);
@@ -181,9 +180,14 @@ const Quiz = () => {
   };
 
   const renderProgressBar = () => (
-    <div className="quiz-progress">
-      <div className="quiz-progress-bar" style={{ width: `${((currentQuestion + 1) / (questions.length || 1)) * 100}%` }}></div>
-      <span className="quiz-progress-text">
+    <div className="mb-5">
+      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-blue-600 transition-all duration-300"
+          style={{ width: `${((currentQuestion + 1) / (questions.length || 1)) * 100}%` }}
+        ></div>
+      </div>
+      <span className="font-manrope text-xs text-slate-400 mt-1.5 block">
         Question {currentQuestion + 1} of {questions.length}
       </span>
     </div>
@@ -191,27 +195,31 @@ const Quiz = () => {
 
   const renderLevelSelector = () => {
     return (
-      <div className="quiz-levels-container">
-        <h2 className="quiz-levels-title">Challenge Levels</h2>
-        <div className="quiz-levels-grid font-urbanist">
+      <div className="mt-6">
+        <h2 className="font-poppins font-semibold text-slate-800 mb-3">Challenge Levels</h2>
+        <div className="space-y-2">
           {quizLevels.map((level) => {
             const isLocked = level.id > unlockedLevel;
             return (
               <div 
                 key={level.id}
-                className={`quiz-level-card ${selectedLevel === level.id ? 'quiz-level-selected' : ''} ${isLocked ? 'quiz-level-locked' : ''}`}
+                className={`relative p-3 rounded-sm border cursor-pointer transition-colors ${
+                  selectedLevel === level.id
+                    ? 'border-blue-400 bg-blue-50'
+                    : 'border-slate-200 bg-white hover:bg-slate-50'
+                } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={() => !isLocked && handleSelectLevel(level.id)}
                 onMouseEnter={() => setShowLevelInfo(level.id)}
                 onMouseLeave={() => setShowLevelInfo(null)}
               >
-                <div className="quiz-level-content">
-                  <h3 className="quiz-level-name">{level.name}</h3>
-                  {isLocked ? <Lock className="quiz-level-icon" /> : <Unlock className="quiz-level-icon" />}
+                <div className="flex items-center justify-between">
+                  <h3 className="font-manrope text-sm font-medium text-slate-700">{level.name}</h3>
+                  {isLocked ? <Lock size={16} className="text-slate-400" /> : <Unlock size={16} className="text-green-500" />}
                 </div>
                 {showLevelInfo === level.id && (
-                  <div className="quiz-level-tooltip">
-                    <p>{level.description}</p>
-                    {isLocked && <p className="quiz-level-locked-message font-poppins">Complete previous levels to unlock</p>}
+                  <div className="absolute z-10 left-0 top-full mt-1 w-64 bg-white border border-slate-200 rounded-sm shadow-lg p-3">
+                    <p className="font-manrope text-xs text-slate-600">{level.description}</p>
+                    {isLocked && <p className="font-poppins text-xs text-red-500 mt-1">Complete previous levels to unlock</p>}
                   </div>
                 )}
               </div>
@@ -223,28 +231,33 @@ const Quiz = () => {
   };
 
   const renderUserProfile = () => (
-    <div className="quiz-user-profile">
-      <div className="quiz-user-info">
-        <div className="quiz-username font-urbanist">{username}</div>
-        <div className="quiz-game-name-container">
+    <div className="flex items-center justify-between bg-white border border-slate-200 rounded-sm p-4 mt-4">
+      <div>
+        <div className="font-manrope font-semibold text-slate-800">{username}</div>
+        <div className="flex items-center gap-1.5 mt-1">
           {editingName ? (
-            <div className="quiz-game-name-edit font-urbanist">
-              <input type="text" value={tempGameName} onChange={(e) => setTempGameName(e.target.value)} className="quiz-game-name-input font-urbanist" />
-              <button className="quiz-game-name-save" onClick={handleSaveGameName}><Save size={16} /></button>
-              <button className="quiz-game-name-cancel" onClick={handleCancelGameName}><X size={16} /></button>
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                value={tempGameName}
+                onChange={(e) => setTempGameName(e.target.value)}
+                className="font-manrope text-xs px-2 py-1 rounded-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 w-28"
+              />
+              <button className="text-green-600 hover:bg-green-50 p-1 rounded-sm" onClick={handleSaveGameName}><Save size={14} /></button>
+              <button className="text-slate-400 hover:bg-slate-100 p-1 rounded-sm" onClick={handleCancelGameName}><X size={14} /></button>
             </div>
           ) : (
             <>
-              <span className="quiz-game-name">{gameName}</span>
-              <button className="quiz-game-name-edit-btn" onClick={handleEditGameName}><Edit size={16} /></button>
+              <span className="font-manrope text-xs text-slate-500 italic">{gameName}</span>
+              <button className="text-slate-400 hover:text-slate-600" onClick={handleEditGameName}><Edit size={12} /></button>
             </>
           )}
         </div>
       </div>
-      <div className="quiz-user-rank font-urbanist" onClick={toggleLeaderboard}>
-        <Trophy size={20} />
-        <span>Rank #{userRank || 'N/A'}</span>
-      </div>
+      <button className="flex items-center gap-1.5 font-manrope text-sm font-medium text-amber-600 hover:bg-amber-50 px-2 py-1.5 rounded-sm" onClick={toggleLeaderboard}>
+        <Trophy size={18} />
+        <span>#{userRank || 'N/A'}</span>
+      </button>
     </div>
   );
 
@@ -252,54 +265,54 @@ const Quiz = () => {
     if (!leaderboardVisible) return null;
   
     return (
-      <div className="quiz-leaderboard-overlay">
-        <div className="quiz-leaderboard-container">
-          <div className="quiz-leaderboard-header">
-            <h2 className="quiz-leaderboard-title">
-              <Crown size={24} />
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-sm shadow-xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+            <h2 className="font-poppins font-semibold text-slate-800 flex items-center gap-2">
+              <Crown size={20} className="text-amber-500" />
               Global Leaderboard
             </h2>
-            <button className="quiz-leaderboard-close" onClick={toggleLeaderboard}>×</button>
+            <button className="text-slate-400 hover:text-slate-600 text-xl leading-none" onClick={toggleLeaderboard}>×</button>
           </div>
-          <div className="quiz-leaderboard-content">
-            <table className="quiz-leaderboard-table font-poppins">
+          <div className="overflow-y-auto p-2">
+            <table className="w-full font-manrope text-sm">
               <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Player</th>
-                  <th>Game Name</th>
-                  <th>Score</th>
+                <tr className="text-left text-slate-400 text-xs">
+                  <th className="px-3 py-2">Rank</th>
+                  <th className="px-3 py-2">Player</th>
+                  <th className="px-3 py-2">Game Name</th>
+                  <th className="px-3 py-2">Score</th>
                 </tr>
               </thead>
               <tbody>
               {leaderboard.map((player) => (
-                <tr key={player.username} className={player.username === username ? 'quiz-leaderboard-current-user' : ''}>
-                  <td className="flex items-center justify-center">
+                <tr key={player.username} className={`${player.username === username ? 'bg-blue-50' : ''} border-t border-slate-100`}>
+                  <td className="px-3 py-2 flex items-center justify-center">
                     {player.rank === 1 ? (
                       <img
                         src="./images/1stplace.png"
                         alt="1st Place"
-                        className="quiz-rank-icon w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10"
+                        className="w-6 h-6 sm:w-8 sm:h-8"
                       />
                     ) : player.rank === 2 ? (
                       <img
                         src="./images/2ndplace.png"
                         alt="2nd Place"
-                        className="quiz-rank-icon w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10"
+                        className="w-6 h-6 sm:w-8 sm:h-8"
                       />
                     ) : player.rank === 3 ? (
                       <img
                         src="./images/3rdplace.png"
                         alt="3rd Place"
-                        className="quiz-rank-icon w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10"
+                        className="w-6 h-6 sm:w-8 sm:h-8"
                       />
                     ) : (
-                      <span className="text-sm sm:text-base md:text-lg font-semibold">{player.rank}</span>
+                      <span className="text-sm font-semibold text-slate-500">{player.rank}</span>
                     )}
                   </td>
-                  <td>{player.username}</td>
-                  <td>{player.gameName}</td>
-                  <td className="font-spacegrotesk">{player.score}</td>
+                  <td className="px-3 py-2 text-slate-700">{player.username}</td>
+                  <td className="px-3 py-2 text-slate-500">{player.gameName}</td>
+                  <td className="px-3 py-2 font-semibold text-slate-800">{player.score}</td>
                 </tr>
               ))}
 
@@ -313,91 +326,120 @@ const Quiz = () => {
 
 
   return (
-    <div className="quiz-app-container">
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
       {renderLeaderboard()}
   
-      <div className="quiz-sidebar">
-        <button className="font-manrope law-pdf-back-button flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105" onClick={() => navigate('/chat')} aria-label="Back to Dashboard">
+      <aside className="lg:w-80 flex-shrink-0 bg-white border-b lg:border-b-0 lg:border-r border-slate-200 p-5">
+        <button
+          className="flex items-center gap-2 font-manrope font-medium bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-sm transition-colors"
+          onClick={() => navigate('/chat')}
+          aria-label="Back to Dashboard"
+        >
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Chat</span>
         </button>
         {renderUserProfile()}
         {renderLevelSelector()}
-      </div>
+      </aside>
   
-      <div className="quiz-main-container">
-        <div className="quiz-header sticky-header">
-          <h1 className="quiz-title"><Brain className="quiz-title-icon" /> Justice Genie Quiz</h1>
+      <main className="flex-1 p-5 sm:p-8">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+          <h1 className="font-poppins text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <Brain className="text-blue-600" /> Justice Genie Quiz
+          </h1>
           {!quizStarted ? (
-            <button className="quiz-start-button font-manrope" onClick={() => {
-              if (questions.length > 0) {
-                setQuizStarted(true);
-              } else {
-                handleSelectLevel(selectedLevel); // Fetch questions if not already loaded
-                setQuizStarted(true);
-              }
-            }}>
+            <button
+              className="font-manrope font-medium bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-sm transition-colors"
+              onClick={() => {
+                if (questions.length > 0) {
+                  setQuizStarted(true);
+                } else {
+                  handleSelectLevel(selectedLevel); // Fetch questions if not already loaded
+                  setQuizStarted(true);
+                }
+              }}
+            >
               Start Quiz
             </button>
           ) : !submitted && (
-            <div className="quiz-timer"><Timer size={20} /><span>{formatTime(timeLeft)}</span></div>
+            <div className="flex items-center gap-2 font-manrope font-semibold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-sm">
+              <Timer size={18} /><span>{formatTime(timeLeft)}</span>
+            </div>
           )}
           {submitted && (
             <button onClick={() => {
               setQuizStarted(false); setSubmitted(false); setAnswers({}); setScore(0);
               setCurrentQuestion(0); setTimeLeft(900); setQuestions([]);
-            }} className="font-manrope Quizz-restart bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-4">
+            }} className="font-manrope font-medium bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-sm transition-colors">
               Restart Quiz
             </button>
           )}
         </div>
 
         {!quizStarted && (
-          <div className="quiz-placeholder">
-            <img src="/images/right-image.png" alt="Justice Quiz" className="quiz-banner" />
-            <h2 className="quiz-welcome">📜 Justice Genie Quiz</h2>
-            <p className="quiz-instruction font-manrope">Once you start, <strong>there's no turning back!</strong></p>
-            <p className="quiz-details font-manrope">⏳ <strong>Time Limit:</strong> 15 minutes</p>
-            <p className="quiz-warning font-manrope">⚠️ <strong>Important:</strong> If time runs out, your answers will be auto-submitted.</p>
-            <p className="quiz-leaderboard-note font-manrope">Get <strong>80%</strong> to pass the level.</p>
+          <div className="flex flex-col items-center text-center max-w-lg mx-auto py-10">
+            <img src="/images/right-image.png" alt="Justice Quiz" className="w-48 h-48 object-contain mb-4" />
+            <h2 className="font-poppins text-xl font-bold text-slate-800 mb-3">📜 Justice Genie Quiz</h2>
+            <p className="font-manrope text-sm text-slate-600 mb-1">Once you start, <strong>there's no turning back!</strong></p>
+            <p className="font-manrope text-sm text-slate-600 mb-1">⏳ <strong>Time Limit:</strong> 15 minutes</p>
+            <p className="font-manrope text-sm text-amber-600 mb-1">⚠️ <strong>Important:</strong> If time runs out, your answers will be auto-submitted.</p>
+            <p className="font-manrope text-sm text-slate-600">Get <strong>80%</strong> to pass the level.</p>
           </div>
         )}
 
         {quizStarted && !submitted && (
-          <div className={`quiz-main level-${selectedLevel}`}>
+          <div className="max-w-2xl mx-auto animate-fadeIn">
             {renderProgressBar()}
-            <div className="quiz-question-container animate-fade-in">
+            <div>
               {questions.length > 0 && questions[currentQuestion] ? (
-                <div className="quiz-card">
-                  <h3 className="quiz-question-text"><BookOpen className="quiz-question-icon" /> {questions[currentQuestion].question}</h3>
-                  <div className="quiz-options">
+                <div className="bg-white border border-slate-200 rounded-sm p-6">
+                  <h3 className="font-poppins font-semibold text-slate-800 flex items-start gap-2 mb-4">
+                    <BookOpen size={20} className="text-blue-600 flex-shrink-0 mt-0.5" /> {questions[currentQuestion].question}
+                  </h3>
+                  <div className="space-y-2">
                     {questions[currentQuestion].options.map((option, index) => {
                       const questionId = questions[currentQuestion]._id;
+                      const isSelected = answers[questionId] === option;
                       return (
-                        <label key={index} className={`quiz-option ${answers[questionId] === option ? 'quiz-option-selected' : ''}`}>
+                        <label key={index} className={`flex items-center gap-3 p-3 rounded-sm border cursor-pointer transition-colors ${isSelected ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:bg-slate-50'}`}>
                           <input
                             type="radio"
                             name={`quiz-question-${currentQuestion}`}
                             value={option}
-                            checked={answers[questionId] === option}
+                            checked={isSelected}
                             onChange={() => handleAnswerChange(questionId, option)}
-                            className="quiz-radio"
+                            className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                           />
-                          <span className="quiz-option-text">{option}</span>
+                          <span className="font-manrope text-sm text-slate-700">{option}</span>
                         </label>
                       );
                     })}
                   </div>
                 </div>
-              ) : ( <div>Loading questions...</div> )}
-              <div className="quiz-navigation">
-                <button className="quiz-nav-button font-manrope" onClick={handlePrevious} disabled={currentQuestion === 0}>Previous</button>
+              ) : ( <div className="font-manrope text-slate-500">Loading questions...</div> )}
+              <div className="flex justify-between mt-5">
+                <button
+                  className="font-manrope font-medium px-4 py-2 rounded-sm border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                  onClick={handlePrevious}
+                  disabled={currentQuestion === 0}
+                >
+                  Previous
+                </button>
                 {currentQuestion === questions.length - 1 ? (
-                  <button className="quiz-submit font-manrope" onClick={handleSubmit} disabled={isSubmitting}>
+                  <button
+                    className="font-manrope font-medium px-4 py-2 rounded-sm bg-green-600 hover:bg-green-700 text-white disabled:opacity-60"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
                   </button>
                 ) : (
-                  <button className="quiz-nav-button quiz-next font-manrope" onClick={handleNext}>Next</button>
+                  <button
+                    className="font-manrope font-medium px-4 py-2 rounded-sm bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={handleNext}
+                  >
+                    Next
+                  </button>
                 )}
               </div>
             </div>
@@ -405,39 +447,44 @@ const Quiz = () => {
         )}
         
         {submitted && (
-          <div className="quiz-results animate-fade-in">
-            <div className="quiz-score-container">
-              <div className="quiz-score-circle" style={{ '--percentage': `${percentage.toFixed(2)}%`, '--color': percentage >= 70 ? '#4CAF50' : percentage >= 40 ? '#FFA726' : '#F44336' }}>
-                <div className="quiz-score-inner font-courgette">
-                  <span className="quiz-score-number">{score}</span>
-                  <span className="quiz-score-total">/ {questions.length}</span>
-                  <div className="quiz-percentage">{percentage.toFixed(2)}%</div>
+          <div className="max-w-2xl mx-auto animate-fadeIn">
+            <div className="flex justify-center mb-8">
+              <div
+                className="w-44 h-44 rounded-full flex items-center justify-center"
+                style={{
+                  background: `conic-gradient(${percentage >= 70 ? '#16a34a' : percentage >= 40 ? '#f59e0b' : '#dc2626'} ${percentage.toFixed(2)}%, #e5e7eb ${percentage.toFixed(2)}%)`
+                }}
+              >
+                <div className="w-36 h-36 bg-white rounded-full flex flex-col items-center justify-center">
+                  <span className="font-poppins text-4xl font-bold text-slate-800">{score}</span>
+                  <span className="font-manrope text-sm text-slate-400">/ {questions.length}</span>
+                  <div className="font-manrope text-sm font-semibold text-slate-600 mt-1">{percentage.toFixed(2)}%</div>
                 </div>
               </div>
             </div>
-            <div className="quiz-results-list">
+            <div className="space-y-3">
               {results.map((result, index) => (
-                <div key={index} className={`quiz-result-item ${result.answer_status === 'correct' ? 'quiz-correct' : 'quiz-incorrect'}`}>
-                  {result.answer_status === 'correct' ? <CheckCircle2 className="quiz-result-icon quiz-correct" /> : <XCircle className="quiz-result-icon quiz-incorrect" />}
-                  <div className="quiz-result-content">
-                    <h3 className="quiz-question-text">{result.question}</h3>
-                    <div className="quiz-answer-box">
-                      <p>
-                        <span className="quiz-answer-label font-manrope">Your Answer:</span>
-                        <span className={result.answer_status === 'correct' ? 'quiz-correct-text' : 'quiz-incorrect-text'}>
+                <div key={index} className={`flex items-start gap-3 p-4 rounded-sm border ${result.answer_status === 'correct' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  {result.answer_status === 'correct' ? <CheckCircle2 size={20} className="text-green-600 flex-shrink-0 mt-0.5" /> : <XCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />}
+                  <div className="flex-1">
+                    <h3 className="font-poppins text-sm font-semibold text-slate-800">{result.question}</h3>
+                    <div className="mt-2 space-y-1">
+                      <p className="font-manrope text-sm">
+                        <span className="text-slate-500">Your Answer: </span>
+                        <span className={result.answer_status === 'correct' ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
                           {result.user_answer}
                         </span>
                       </p>
                       {result.answer_status !== 'correct' && (
-                        <p>
-                          <span className="quiz-answer-label font-manrope">Correct Answer:</span>
-                          <span className="quiz-correct-text">{result.correct_answer}</span>
+                        <p className="font-manrope text-sm">
+                          <span className="text-slate-500">Correct Answer: </span>
+                          <span className="text-green-700 font-medium">{result.correct_answer}</span>
                         </p>
                       )}
                     </div>
                     {result.explanation && (
-                      <div className="quiz-explanation font-manrope">
-                        <Info /> <p>{result.explanation}</p>
+                      <div className="flex items-start gap-2 mt-2 font-manrope text-xs text-slate-500 bg-white/60 p-2 rounded-sm">
+                        <Info size={14} className="flex-shrink-0 mt-0.5" /> <p>{result.explanation}</p>
                       </div>
                     )}
                   </div>
@@ -447,12 +494,12 @@ const Quiz = () => {
             <button onClick={() => {
               setQuizStarted(false); setSubmitted(false); setAnswers({}); setScore(0);
               setCurrentQuestion(0); setTimeLeft(900); setQuestions([]);
-            }} className="font-manrope Quizz-restart bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg mt-4">
+            }} className="font-manrope font-medium bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-sm mt-6 transition-colors">
               Restart Quiz
             </button>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faKey, faArrowLeft, faEye, faEyeSlash, faSpinner, faShieldAlt, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-import '../styles/forgotpassword.css';
 import { Link } from "react-router-dom";
 import Mailcheck from 'mailcheck';
 import { toast } from 'react-toastify';
@@ -112,21 +111,18 @@ const ForgotPassword = () => {
           icon: faEnvelope,
           title: 'Reset Your Password',
           subtitle: 'Enter your email address and we\'ll send you a verification code',
-          color: '#2563eb'
         };
       case 2:
         return {
           icon: faKey,
           title: 'Verify Your Identity',
           subtitle: 'Enter the 6-digit code we sent to your email',
-          color: '#2563eb'
         };
       case 3:
         return {
           icon: faShieldAlt,
           title: 'Create New Password',
           subtitle: 'Choose a strong password to secure your account',
-          color: '#2563eb'
         };
       default:
         return {};
@@ -136,213 +132,202 @@ const ForgotPassword = () => {
   const stepConfig = getStepConfig();
 
   return (
-    <div className="forgot-container">
-      <div className="forgot-content">
-        <div className="forgot-branding">
-          <div className="forgot-brand-content">
-            <div className="forgot-brand-icon">
-              <img
-                src="/images/jg_original_logo_1.png"
-                alt="Brand Logo"
-                className="forgot-logo"
-              />
-            </div>
-            <h1 className="forgot-brand-title font-poppins">Secure Account Recovery</h1>
-            <p className="forgot-brand-description font-urbanist">
-              Your security is our priority. Follow our secure 3-step process to regain access to your account safely.
-            </p>
-            <div className="forgot-features font-manrope">
-              <div className="forgot-feature">
-                <FontAwesomeIcon icon={faCheckCircle} />
-                <span>Email Verification</span>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="flex flex-col lg:flex-row w-full max-w-4xl rounded-sm overflow-hidden shadow-xl bg-white">
+
+        {/* Left panel - branding */}
+        <div className="flex-1 bg-slate-800 text-white p-8 sm:p-10 flex flex-col justify-center">
+          <img
+            src="/images/jg_original_logo_1.png"
+            alt="Brand Logo"
+            className="w-12 h-12 object-contain mb-6"
+          />
+          <h1 className="font-poppins text-2xl font-bold mb-3">Secure Account Recovery</h1>
+          <p className="font-manrope text-sm text-slate-300 leading-relaxed mb-8">
+            Your security is our priority. Follow our secure 3-step process to regain access to your account safely.
+          </p>
+          <div className="space-y-3 font-manrope text-sm">
+            {['Email Verification', 'Secure Code Validation', 'Password Encryption'].map((feature) => (
+              <div key={feature} className="flex items-center gap-2 text-slate-200">
+                <FontAwesomeIcon icon={faCheckCircle} className="text-blue-400" />
+                <span>{feature}</span>
               </div>
-              <div className="forgot-feature">
-                <FontAwesomeIcon icon={faCheckCircle} />
-                <span>Secure Code Validation</span>
-              </div>
-              <div className="forgot-feature">
-                <FontAwesomeIcon icon={faCheckCircle} />
-                <span>Password Encryption</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        <div className="forgot-form-section">
-          <div className="forgot-card">
-            <div className="forgot-header">
-              {step > 1 && (
-                <button
-                  type="button"
-                  className="forgot-back-btn"
-                  onClick={goBack}
-                  disabled={isLoading}
-                >
-                  <FontAwesomeIcon icon={faArrowLeft} />
-                </button>
-              )}
+        {/* Right panel - form */}
+        <div className="flex-1 p-8 sm:p-10">
+          <div className="flex items-center gap-3 mb-6">
+            {step > 1 && (
+              <button
+                type="button"
+                className="w-9 h-9 rounded-sm flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-40"
+                onClick={goBack}
+                disabled={isLoading}
+              >
+                <FontAwesomeIcon icon={faArrowLeft} />
+              </button>
+            )}
 
-              <div className="forgot-step-indicator">
-                <div className="forgot-steps font-poppins">
-                  {[1, 2, 3].map((stepNum) => (
-                    <div
-                      key={stepNum}
-                      className={`forgot-step ${step >= stepNum ? 'active' : ''} ${step === stepNum ? 'current' : ''}`}
-                    >
-                      <span>{stepNum}</span>
-                    </div>
-                  ))}
+            <div className="flex items-center gap-2 font-poppins">
+              {[1, 2, 3].map((stepNum) => (
+                <div
+                  key={stepNum}
+                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-semibold transition-colors ${
+                    step >= stepNum
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
+                  }`}
+                >
+                  {stepNum}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="w-12 h-12 rounded-sm bg-blue-600 text-white flex items-center justify-center mb-4">
+            <FontAwesomeIcon icon={stepConfig.icon} />
+          </div>
+
+          <h2 className="font-poppins text-xl font-bold text-slate-800 mb-1">{stepConfig.title}</h2>
+          <p className="font-manrope text-sm text-slate-500 mb-6">{stepConfig.subtitle}</p>
+
+          {step === 1 && (
+            <form onSubmit={handleEmailSubmit} className="space-y-5">
+              <div>
+                <label className="font-poppins text-sm font-medium text-slate-700 block mb-1.5">Email Address</label>
+                <div className="relative">
+                  <FontAwesomeIcon icon={faEnvelope} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    className="w-full font-manrope text-sm pl-10 pr-3 py-2.5 rounded-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+                    required
+                    disabled={isLoading}
+                  />
                 </div>
               </div>
 
-              <div className="forgot-icon" style={{ backgroundColor: stepConfig.color }}>
-                <FontAwesomeIcon icon={stepConfig.icon} />
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 font-manrope font-medium py-2.5 rounded-sm bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
+                disabled={isLoading || !email.trim()}
+              >
+                {isLoading ? (
+                  <>
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                    Sending Code...
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faEnvelope} />
+                    Send Verification Code
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {step === 2 && (
+            <form onSubmit={handleResetCodeSubmit} className="space-y-5">
+              <div>
+                <label className="font-poppins text-sm font-medium text-slate-700 block mb-1.5">Verification Code</label>
+                <div className="relative">
+                  <FontAwesomeIcon icon={faKey} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                  <input
+                    type="text"
+                    value={resetCode}
+                    onChange={(e) => setResetCode(e.target.value)}
+                    placeholder="000000"
+                    className="w-full font-manrope text-sm tracking-widest pl-10 pr-3 py-2.5 rounded-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+                    maxLength="6"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+                <p className="font-manrope text-xs text-slate-400 mt-1.5">
+                  Code sent to: <strong className="text-slate-600">{email}</strong>
+                </p>
               </div>
 
-              <h2 className="forgot-title font-poppins">{stepConfig.title}</h2>
-              <p className="forgot-subtitle font-urbanist">{stepConfig.subtitle}</p>
-            </div>
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 font-manrope font-medium py-2.5 rounded-sm bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
+                disabled={isLoading || resetCode.length !== 6}
+              >
+                {isLoading ? (
+                  <>
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faKey} />
+                    Verify Code
+                  </>
+                )}
+              </button>
+            </form>
+          )}
 
-            <div className="forgot-form-container">
-              {step === 1 && (
-                <form onSubmit={handleEmailSubmit} className="forgot-form">
-                  <div className="forgot-input-group">
-                    <label className="forgot-label font-poppins">Email Address</label>
-                    <div className="forgot-input-wrapper">
-                      <FontAwesomeIcon icon={faEnvelope} className="forgot-input-icon" />
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email address"
-                        className="forgot-input font-manrope"
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-
+          {step === 3 && (
+            <form onSubmit={handlePasswordSubmit} className="space-y-5">
+              <div>
+                <label className="font-poppins text-sm font-medium text-slate-700 block mb-1.5">New Password</label>
+                <div className="relative">
+                  <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter your new password"
+                    className="w-full font-manrope text-sm pl-10 pr-10 py-2.5 rounded-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+                    minLength="6"
+                    required
+                    disabled={isLoading}
+                  />
                   <button
-                    type="submit"
-                    className="forgot-button forgot-primary font-manrope"
-                    disabled={isLoading || !email.trim()}
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
                   >
-                    {isLoading ? (
-                      <>
-                        <FontAwesomeIcon icon={faSpinner} className="forgot-spinner" />
-                        Sending Code...
-                      </>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon={faEnvelope} />
-                        Send Verification Code
-                      </>
-                    )}
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                   </button>
-                </form>
-              )}
+                </div>
+                <p className="font-manrope text-xs text-slate-400 mt-1.5">Password must be at least 6 characters long</p>
+              </div>
 
-              {step === 2 && (
-                <form onSubmit={handleResetCodeSubmit} className="forgot-form">
-                  <div className="forgot-input-group">
-                    <label className="forgot-label font-poppins">Verification Code</label>
-                    <div className="forgot-input-wrapper">
-                      <FontAwesomeIcon icon={faKey} className="forgot-input-icon" />
-                      <input
-                        type="text"
-                        value={resetCode}
-                        onChange={(e) => setResetCode(e.target.value)}
-                        placeholder="000000"
-                        className="forgot-input forgot-code-input font-manrope"
-                        maxLength="6"
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-                    <p className="forgot-help-text font-urbanist">
-                      Code sent to: <strong>{email}</strong>
-                    </p>
-                  </div>
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 font-manrope font-medium py-2.5 rounded-sm bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
+                disabled={isLoading || newPassword.length < 6}
+              >
+                {isLoading ? (
+                  <>
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                    Updating Password...
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faShieldAlt} />
+                    Reset Password
+                  </>
+                )}
+              </button>
+            </form>
+          )}
 
-                  <button
-                    type="submit"
-                    className="forgot-button forgot-primary font-manrope"
-                    disabled={isLoading || resetCode.length !== 6}
-                  >
-                    {isLoading ? (
-                      <>
-                        <FontAwesomeIcon icon={faSpinner} className="forgot-spinner" />
-                        Verifying...
-                      </>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon={faKey} />
-                        Verify Code
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-
-              {step === 3 && (
-                <form onSubmit={handlePasswordSubmit} className="forgot-form">
-                  <div className="forgot-input-group">
-                    <label className="forgot-label font-poppins">New Password</label>
-                    <div className="forgot-input-wrapper">
-                      <FontAwesomeIcon icon={faLock} className="forgot-input-icon" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Enter your new password"
-                        className="forgot-input font-manrope"
-                        minLength="6"
-                        required
-                        disabled={isLoading}
-                      />
-                      <button
-                        type="button"
-                        className="forgot-toggle-password"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={isLoading}
-                      >
-                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                      </button>
-                    </div>
-                    <div className="forgot-password-requirements font-urbanist">
-                      <p>Password must be at least 6 characters long</p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="forgot-button forgot-primary font-manrope"
-                    disabled={isLoading || newPassword.length < 6}
-                  >
-                    {isLoading ? (
-                      <>
-                        <FontAwesomeIcon icon={faSpinner} className="forgot-spinner" />
-                        Updating Password...
-                      </>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon={faShieldAlt} />
-                        Reset Password
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-
-            <div className="forgot-footer font-urbanist">
-              <p>
-                Remember your password?
-                <Link to="/login" className="forgot-link">
-                  Sign In
-                </Link>
-              </p>
-            </div>
+          <div className="font-manrope text-sm text-slate-500 text-center mt-6">
+            <p>
+              Remember your password?{' '}
+              <Link to="/login" className="text-blue-600 font-medium hover:underline">
+                Sign In
+              </Link>
+            </p>
           </div>
         </div>
       </div>

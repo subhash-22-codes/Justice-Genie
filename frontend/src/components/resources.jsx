@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Bell, BookOpen } from 'lucide-react';
-import '../styles/resources.css';
 
 export default function ResourcePage() {
   const navigate = useNavigate();
@@ -25,54 +24,53 @@ export default function ResourcePage() {
   ];
 
   return (
-    <div className="resource-page-wrapper min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
-      <div className="resource-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        <div className="resource-header text-center mb-16">
-          <h1 className="resource-title text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+        <div className="text-center mb-14">
+          <h1 className="font-poppins text-4xl md:text-5xl font-bold text-slate-800 dark:text-slate-100 mb-4">
             Resources Coming Soon
           </h1>
-          <p className="resource-subtitle text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="font-manrope text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
             We're currently developing a comprehensive resource center to provide you with valuable legal information and guidance.
           </p>
         </div>
-  
-        <div className="resource-feature-grid grid md:grid-cols-3 gap-8 mb-16">
+
+        <div className="grid md:grid-cols-3 gap-6 mb-14">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="resource-feature-card bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm p-6 hover:border-blue-300 dark:hover:border-blue-500/40 transition-colors duration-300"
             >
-              <div className="resource-feature-icon text-blue-600 mb-4">
+              <div className="text-blue-600 dark:text-blue-400 mb-3">
                 {feature.icon}
               </div>
-              <h3 className="resource-feature-title text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="font-poppins font-semibold text-slate-800 dark:text-slate-100 mb-1">
                 {feature.title}
               </h3>
-              <p className="resource-feature-description text-gray-600">
+              <p className="font-manrope text-sm text-slate-500 dark:text-slate-400">
                 {feature.description}
               </p>
             </div>
           ))}
         </div>
-  
-        <div className="resource-back-button-wrapper flex justify-center">
+
+        <div className="flex justify-center">
           <button
             onClick={() => navigate("/chat")}
-            className="resource-back-button flex items-center gap-2 px-5 py-2 bg-blue-600 text-white font-semibold rounded-xl shadow-md transition-all duration-300 hover:bg-blue-700 hover:shadow-lg active:scale-95"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-sm bg-blue-600 text-white font-manrope font-medium hover:bg-blue-700 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Chat
           </button>
         </div>
-  
-        <div className="resource-footer mt-16 text-center">
-          <p className="resource-footer-text text-gray-500">
+
+        <div className="mt-14 text-center">
+          <p className="font-manrope text-sm text-slate-400 dark:text-slate-500">
             Have questions? Contact our support team for assistance.
           </p>
         </div>
       </div>
     </div>
   );
-  
 }

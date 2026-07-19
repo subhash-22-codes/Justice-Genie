@@ -4,7 +4,6 @@ import {
   User, FileText, Zap, Loader, Scale, 
   BookOpen, Download, AlertCircle, Menu,Clipboard,ThumbsDown,ThumbsUp,Globe,Mic,BarChart,XCircle,RotateCcw,MicOff,Volume2,SquareDotIcon,Check
 } from 'lucide-react';
-import '../styles/chat.css';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Link } from 'react-router-dom';
@@ -417,12 +416,15 @@ const handleAnalyze = async (botMessageId) => {
     }
   }, [input]);
 
-  // Apply dark mode to document body
+  // Apply dark mode - toggles the 'dark' class on <html>, which is what
+  // Tailwind's dark: variant looks for (darkMode: 'class' in tailwind.config.js).
+  // Scoped to <html> is safe: only Tailwind classes with a dark: prefix respond
+  // to it, so other pages that don't use dark: are completely unaffected.
   useEffect(() => {
     if (isDarkMode) {
-      document.body.classList.add('chat-dark-theme');
+      document.documentElement.classList.add('dark');
     } else {
-      document.body.classList.remove('chat-dark-theme');
+      document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
 
@@ -655,13 +657,10 @@ useEffect(() => {
       showCancelButton: true,
       confirmButtonText: "Yes, clear it!",
       cancelButtonText: "Cancel",
-      customClass: {
-        popup: "chat-swal-popup",
-        title: "chat-swal-title",
-        content: "chat-swal-content",
-        confirmButton: "chat-swal-confirm",
-        cancelButton: "chat-swal-cancel",
-      },
+      background: isDarkMode ? '#1e293b' : '#ffffff', // slate-800 / white
+      color: isDarkMode ? '#e2e8f0' : '#1e293b', // slate-200 / slate-800
+      confirmButtonColor: '#dc2626', // red-600 - destructive action
+      cancelButtonColor: isDarkMode ? '#475569' : '#e2e8f0', // slate-600 / slate-200
     }).then((result) => {
       if (result.isConfirmed) {
         setMessages([]);
@@ -669,7 +668,7 @@ useEffect(() => {
         localStorage.removeItem(`chatHistory_${username}`);
       }
     });
-  }, [username]);
+  }, [username, isDarkMode]);
   
 const handleLogout = useCallback(() => {
   Modal.confirm({
@@ -678,7 +677,6 @@ const handleLogout = useCallback(() => {
     okText: "Save & Log Out",
     cancelText: "Cancel",
     okType: "danger",
-    className: "chat-modal-popup",
     onOk: async () => {
   try {
     await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
@@ -744,14 +742,11 @@ const handleLogout = useCallback(() => {
 
 if (bootLoading && !error) {
   return (
-    // Full-page loader container
-    <div className="relative w-full h-full min-h-[calc(100vh-100px)] flex flex-col items-center justify-center">
-
-      {/* Top progress bar */}
+    <div className="relative w-full h-full min-h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900">
       <div className="absolute top-0 left-0 w-full h-1 bg-blue-200 dark:bg-blue-900/50 overflow-hidden">
-        <div 
+        <div
           className="absolute top-0 left-0 h-full bg-blue-500 dark:bg-blue-400"
-          style={{ 
+          style={{
             width: '100%',
             transformOrigin: '0% 50%',
             animation: 'indeterminate-animation 1.5s infinite linear'
@@ -759,29 +754,24 @@ if (bootLoading && !error) {
         ></div>
       </div>
 
-      {/* Centered spinner and text */}
       <div className="flex flex-col items-center animate-fadeIn">
-        {/* Font Awesome spinner */}
-        <div className="mb-4">
-        <i className="fas fa-spinner fa-pulse text-4xl text-blue-500 dark:text-blue-400"></i>
-        </div>
-        <p className="text-lg font-medium text-gray-700 dark:text-gray-300 text-center">
+        <Loader size={40} className="mb-4 text-blue-500 dark:text-blue-400 animate-spin" />
+        <p className="text-lg font-manrope font-medium text-slate-700 dark:text-slate-300 text-center">
           Connecting to Justice Genie...
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 text-center">
+        <p className="text-sm font-manrope text-slate-500 dark:text-slate-400 mt-1 text-center">
           Please wait a moment.
         </p>
-        <p className="text-xs sm:text-sm md:text-base text-gray-400 dark:text-gray-500 mt-6 text-center">
+        <p className="text-xs sm:text-sm font-manrope text-slate-400 dark:text-slate-500 mt-6 text-center max-w-xs">
           Loading may take a few seconds depending on server response.
         </p>
 
-         <button
+        <button
           onClick={handleLogout}
-          className="chat-booting-logout-button"
+          className="mt-6 px-4 py-2 text-sm font-manrope text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 underline underline-offset-2"
         >
           Cancel and Logout
         </button>
-
       </div>
     </div>
   );
@@ -789,31 +779,23 @@ if (bootLoading && !error) {
 
 if (error) {
   return (
-    // Main container to center the chat content
     <div className="w-full max-w-4xl mx-auto px-4 md:px-8 py-10">
       <div className="flex justify-start items-start space-x-4">
-        {/* Bot Avatar */}
-        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex-shrink-0 flex items-center justify-center">
-          <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+        <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-sm flex-shrink-0 flex items-center justify-center">
+          <AlertCircle className="w-6 h-6 text-slate-500 dark:text-slate-400" />
         </div>
 
         <div className="flex-1">
-          {/* The error message bubble */}
-          <div className="bg-red-50 dark:bg-gray-800 border border-red-200 dark:border-red-500/30 rounded-lg rounded-bl-none p-4 max-w-lg">
+          <div className="bg-red-50 dark:bg-slate-800 border border-red-200 dark:border-red-500/30 rounded-sm rounded-bl-none p-4 max-w-lg">
             <div className="flex items-start space-x-3">
-              <svg className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-gray-800 dark:text-gray-200">
+                <p className="font-poppins font-semibold text-slate-800 dark:text-slate-200">
                   Connection Error
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm font-manrope text-slate-600 dark:text-slate-400 mt-1">
                   Apologies, I'm having trouble connecting to my services at the moment.
                 </p>
-                {/* Optional: Display the actual error subtly */}
                 {error && (
                   <p className="text-xs text-red-500/80 dark:text-red-500/50 mt-2 font-mono">
                     Details: {error}
@@ -823,11 +805,10 @@ if (error) {
             </div>
           </div>
 
-          {/* Action button */}
-          <div className="chat-boot-error-action-container">
+          <div className="mt-3">
             <button
               onClick={() => fetchUserData()}
-              className="chat-boot-error-retry-button font-manrope"
+              className="px-4 py-2 text-sm font-manrope font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors"
             >
               Try Again
             </button>
@@ -837,90 +818,94 @@ if (error) {
     </div>
   );
 }
-  return (
-    <div className={`chat-container ${isDarkMode ? 'chat-dark-mode' : ''}`}>
 
-      {/* Sidebar */}
-      <aside className={`chat-sidebar ${sidebarOpen ? 'chat-sidebar-open' : ''}`}>
-        <div className="chat-sidebar-header">
-          <div className="chat-logo flex items-center space-x-2">
-          {/* Logo Image */}
+return (
+  <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-900 overflow-hidden">
+
+    {/* Sidebar */}
+    <aside
+      className={`fixed inset-y-0 left-0 z-40 w-72 flex flex-col bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transform transition-transform duration-300 lg:static lg:translate-x-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
+      <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center space-x-2">
           <img
-            src="/images/jg_original_logo_1.png" 
+            src="/images/jg_original_logo_1.png"
             alt="Justice Genie Logo"
-            className="w-6 h-6 object-contain" 
+            className="w-6 h-6 object-contain"
           />
-          <h1 className="text-[1.1rem] font-bold font-manrope"><strong>Justice Genie</strong></h1>
+          <h1 className="text-lg font-poppins font-bold text-slate-800 dark:text-slate-100">Justice Genie</h1>
         </div>
+        <button
+          className="lg:hidden p-1.5 rounded-sm text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+          onClick={toggleSidebar}
+          aria-label="Close sidebar"
+        >
+          <Menu size={22} />
+        </button>
+      </div>
 
-          <button 
-            className="chat-sidebar-close"
-            onClick={toggleSidebar}
-            aria-label="Close sidebar"
-          >
-            <Menu size={24} />
-          </button>
+      <div className="flex items-center space-x-3 px-4 py-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="w-12 h-12 rounded-sm overflow-hidden bg-slate-100 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center">
+          {profilePicture ? (
+            <img
+              src={profilePicture}
+              alt="Profile"
+              loading="lazy"
+              className="w-full h-full object-cover"
+              srcSet={`${profilePicture}?w=300 300w, ${profilePicture}?w=500 500w, ${profilePicture}?w=800 800w`}
+              sizes="(max-width: 600px) 300px, (max-width: 1024px) 500px, 800px"
+            />
+          ) : (
+            <User size={26} className="text-slate-400" />
+          )}
         </div>
+        <div className="min-w-0">
+          <h3 className="font-poppins font-semibold text-slate-800 dark:text-slate-100 truncate">{username || 'Guest User'}</h3>
+          <span className="text-xs font-manrope text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <span className={`inline-block w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-slate-400'}`}></span>
+            {isOnline ? 'Online' : 'Offline'}
+          </span>
+        </div>
+      </div>
 
-        <div className="chat-user-profile">
-        <div className="chat-avatar-large">
-            {profilePicture ? (
-              <img
-                src={profilePicture}
-                alt="Profile"
-                loading="lazy"
-                srcSet={`${profilePicture}?w=300 300w, ${profilePicture}?w=500 500w, ${profilePicture}?w=800 800w`}
-                sizes="(max-width: 600px) 300px, (max-width: 1024px) 500px, 800px"
-              />
-            ) : (
-              <div className="avatar-placeholder">
-                <User size={36} />
-              </div>
-            )}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <h4 className="px-2 text-xs font-manrope font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-2">Tools</h4>
+          <div className="space-y-1">
+            {navItems.map((item, index) => (
+              <Link
+                key={index}
+                to={item.path}
+                className="flex items-center gap-3 px-2 py-2 rounded-sm text-sm font-manrope text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                onClick={(e) => {
+                  if (!isOnline) {
+                    e.preventDefault();
+                    alert('This feature is not available offline');
+                  }
+                }}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </Link>
+            ))}
           </div>
-          <div className="chat-user-details">
-            <h3 className="chat-username-large font-poppins">{username || 'Guest User'}</h3>
-            <span className="chat-user-status font-urbanist">
-              {isOnline ? 'Online' : 'Offline'}
-            </span>
-          </div>
         </div>
 
-        <nav className="chat-nav">
-        <div className="chat-nav-section font-manrope">
-              <h4 className="chat-nav-title">Tools</h4>
-              {navItems.map((item, index) => (
-                <Link 
-                  key={index} 
-                  to={item.path} // Use 'to' instead of 'href'
-                  className="chat-nav-item"
-                  onClick={(e) => {
-                    if (!isOnline) {
-                      e.preventDefault();
-                      alert('This feature is not available offline');
-                    }
-                  }}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-            </div>
-
-          <div className="chat-nav-section font-manrope">
-            <h4 className="chat-nav-title">Preferences</h4>
-            {/* Dark Mode button */}
-            <button 
-              className="chat-nav-item chat-action-btn"
+        <div>
+          <h4 className="px-2 text-xs font-manrope font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-2">Preferences</h4>
+          <div className="space-y-1">
+            <button
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-sm text-sm font-manrope text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
               onClick={toggleDarkMode}
             >
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
 
-            {/* Clear Chat button */}
-            <button 
-              className="chat-nav-item chat-action-btn"
+            <button
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-sm text-sm font-manrope text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
               onClick={handleClearChat}
               disabled={messages.length === 0}
             >
@@ -928,303 +913,304 @@ if (error) {
               <span>Clear Chat</span>
             </button>
 
-            {/* Logout button */}
-            <button 
-              className="chat-nav-item chat-action-btn chat-logout-btn"
+            <button
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-sm text-sm font-manrope text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
               onClick={handleLogout}
             >
               <LogOut size={20} />
               <span>Logout</span>
             </button>
           </div>
-        </nav>
-
-        <div className="chat-sidebar-footer font-urbanist">
-          <p>© 2025 Justice Genie</p>
-          <p>All rights reserved</p>
         </div>
-      </aside>
+      </nav>
 
-      <main className="chat-main">
-        {/* Chat Header */}
-        <header className="chat-header">
-          <div className="chat-header-title">
-            {/* <MessageSquare size={24} className="chat-pulse" /> */}
-            <button 
-            className="chat-sidebar-close"
-            onClick={toggleSidebar}
-            aria-label="Close sidebar"
-          >
-            <Menu size={24} />
-          </button>
-            <h2 className='font-manrope'>Understand Your Legal Rights</h2>
-            {!isOnline && (
-              <span className="chat-offline-badge font-urbanist">
-                <AlertCircle size={16} />
-                Offline
-              </span>
-            )}
-          </div>
-        </header>
+      <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-700 text-xs font-manrope text-slate-400 dark:text-slate-500">
+        <p>© 2025 Justice Genie</p>
+        <p>All rights reserved</p>
+      </div>
+    </aside>
 
-        {error && (
-          <div className="chat-error">
-            <AlertCircle size={16} />
-            <span>{error}</span>
+    {/* Main area */}
+    <main className="flex-1 flex flex-col min-w-0">
+      <header className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+        <button
+          className="lg:hidden p-1.5 rounded-sm text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+          onClick={toggleSidebar}
+          aria-label="Open sidebar"
+        >
+          <Menu size={22} />
+        </button>
+        <h2 className="font-poppins font-semibold text-slate-800 dark:text-slate-100">Understand Your Legal Rights</h2>
+        {!isOnline && (
+          <span className="flex items-center gap-1 text-xs font-manrope text-amber-700 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 px-2 py-1 rounded-sm ml-auto">
+            <AlertCircle size={14} />
+            Offline
+          </span>
+        )}
+      </header>
+
+      {error && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 text-sm font-manrope">
+          <AlertCircle size={16} />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4" ref={chatBoxRef}>
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-16">
+            <div className="w-14 h-14 rounded-sm bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-4">
+              <MessageSquare size={26} className="text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="font-poppins font-semibold text-lg text-slate-800 dark:text-slate-100">Start Your Legal Conversation</h3>
+            <p className="font-manrope text-sm text-slate-500 dark:text-slate-400 mt-1">Ask any legal question and get expert guidance from Justice Genie</p>
+            <div className="flex flex-col gap-2 mt-6 w-full">
+              <button
+                onClick={() => handleSampleQuestion("What are my rights as a tenant?")}
+                className="font-manrope text-sm text-left px-4 py-3 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700"
+              >
+                What are my rights as a tenant?
+              </button>
+              <button
+                onClick={() => handleSampleQuestion("How do I file a small claims case?")}
+                className="font-manrope text-sm text-left px-4 py-3 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700"
+              >
+                How do I file a small claims case?
+              </button>
+              <button
+                onClick={() => handleSampleQuestion("Explain employment discrimination laws")}
+                className="font-manrope text-sm text-left px-4 py-3 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700"
+              >
+                Explain employment discrimination laws
+              </button>
+            </div>
           </div>
         )}
-
-        {/* Messages Area */}
-        <div className="chat-messages" ref={chatBoxRef}>
-          {messages.length === 0 && (
-            <div className="chat-empty-state">
-              <div className="chat-empty-illustration">
-                <MessageSquare size={24} />
-              </div>
-              <h3 className='font-poppins'>Start Your Legal Conversation</h3>
-              <p className='font-urbanist'>Ask any legal question and get expert guidance from Justice Genie</p>
-              <div className="chat-sample-questions">
-                <button 
-                  onClick={() => handleSampleQuestion("What are my rights as a tenant?")}
-                  className="chat-sample-question  font-manrope"
-                >
-                  What are my rights as a tenant?
-                </button>
-                <button 
-                  onClick={() => handleSampleQuestion("How do I file a small claims case?")}
-                  className="chat-sample-question  font-manrope"
-                >
-                  How do I file a small claims case?
-                </button>
-                <button 
-                  onClick={() => handleSampleQuestion("Explain employment discrimination laws")}
-                  className="chat-sample-question  font-manrope"
-                >
-                  Explain employment discrimination laws
-                </button>
-              </div>
-            </div>
-          )}
 
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`chat-message ${
-              message.type === "user" ? "chat-message-user" : "chat-message-bot"
-            }`}
+            className={`flex items-start gap-3 ${message.type === "user" ? "flex-row-reverse" : ""}`}
           >
-            <div className="chat-message-avatar">
+            <div className="w-8 h-8 rounded-sm flex-shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-700 overflow-hidden">
               {message.type === "user" ? (
                 profilePicture ? (
-                  <img src={profilePicture} alt="You" />
+                  <img src={profilePicture} alt="You" className="w-full h-full object-cover" />
                 ) : (
-                  <User size={24} />
+                  <User size={18} className="text-slate-500" />
                 )
               ) : (
-                <Zap size={24} className="chat-pulse-bot" />
+                <Zap size={18} className="text-blue-600 dark:text-blue-400" />
               )}
             </div>
 
-            <div className="chat-message-text-container">
-              <div className="chat-message-text font-manrope text-sm md:text-base">
-                  <ReactMarkdown>{message.content}</ReactMarkdown>
-                  {message.analysis && <AnalysisReport data={message.analysis} />}
-              </div>
-
-              {/* Show actions ONLY for bot messages */}
-              {message.type === "bot" && (
-                <div className="chat-message-actions">
-                   <button
-            onClick={() => {
-              // The logic is now super simple! No more manual parsing.
-              navigator.clipboard.writeText(message.content);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 4000);
-            }}
-            title="Copy"
-          >
-            {copied ? <Check size={18} className="text-green-500" /> : <Clipboard size={18} />}
-          </button>
-
-
-          <button
-            onClick={() => setFeedback(feedback === "up" ? null : "up")}
-            className={feedback === "up" ? "active" : ""}
-            title="Thumbs Up"
-          >
-            <ThumbsUp size={18} />
-          </button>
-          <button
-            onClick={() => setFeedback(feedback === "down" ? null : "down")}
-            className={feedback === "down" ? "active" : ""}
-            title="Thumbs Down"
-          >
-            <ThumbsDown size={18} />
-          </button>
-
-          <div className="translate-container" ref={menuRef}>
-            {/* Show Translate button if not translated */}
-            {!message.translated ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveTranslateMessageId((prev) =>
-                    prev === message.id ? null : message.id
-                  );
-                }}
-                title="Translate"
+            <div className={`flex flex-col max-w-[85%] md:max-w-[70%] ${message.type === "user" ? "items-end" : "items-start"}`}>
+              <div
+                className={`font-manrope text-sm md:text-base px-4 py-3 rounded-sm ${
+                  message.type === "user"
+                    ? "bg-blue-600 text-white rounded-br-none"
+                    : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-none"
+                }`}
               >
-                <Globe size={18} />
-              </button>
-            ) : (
-              /* Show Restore button when translated */
-              <button onClick={() => handleRestore(message.id)} title="Restore">
-                <RotateCcw size={18} />
-              </button>
-            )}
+                <div className={message.type === "user" ? "prose-invert" : ""}>
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                </div>
+                {message.analysis && <AnalysisReport data={message.analysis} />}
+              </div>
 
-            {activeTranslateMessageId === message.id && (
-              <div className="language-menu font-urbanist">
-                {loadingTranslation && currentMessageId === message.id ? (
-                  <div className="chat-transLoad">
-                    <div className="loader"></div>
-                    <p className='font-poppins'>Translating into {languages.find(lang => lang.code === loadingTranslation)?.name || loadingTranslation}...</p>
-                    <button className="chat-trans-cancel-btn font-spacegrotesk" onClick={handleCancelTranslation}>
-                      Cancel
-                    </button>
+              {/* Actions - bot messages only */}
+              {message.type === "bot" && (
+                <div className="flex items-center gap-1 mt-1.5 text-slate-400 dark:text-slate-500">
+                  <button
+                    className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                    onClick={() => {
+                      navigator.clipboard.writeText(message.content);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 4000);
+                    }}
+                    title="Copy"
+                  >
+                    {copied ? <Check size={16} className="text-green-500" /> : <Clipboard size={16} />}
+                  </button>
+
+                  <button
+                    onClick={() => setFeedback(feedback === "up" ? null : "up")}
+                    className={`p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${feedback === "up" ? "text-green-600" : "hover:text-slate-600 dark:hover:text-slate-300"}`}
+                    title="Thumbs Up"
+                  >
+                    <ThumbsUp size={16} />
+                  </button>
+                  <button
+                    onClick={() => setFeedback(feedback === "down" ? null : "down")}
+                    className={`p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${feedback === "down" ? "text-red-600" : "hover:text-slate-600 dark:hover:text-slate-300"}`}
+                    title="Thumbs Down"
+                  >
+                    <ThumbsDown size={16} />
+                  </button>
+
+                  <div className="relative" ref={menuRef}>
+                    {!message.translated ? (
+                      <button
+                        className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveTranslateMessageId((prev) =>
+                            prev === message.id ? null : message.id
+                          );
+                        }}
+                        title="Translate"
+                      >
+                        <Globe size={16} />
+                      </button>
+                    ) : (
+                      <button
+                        className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                        onClick={() => handleRestore(message.id)}
+                        title="Restore"
+                      >
+                        <RotateCcw size={16} />
+                      </button>
+                    )}
+
+                    {activeTranslateMessageId === message.id && (
+                      <div className="absolute z-10 bottom-full mb-2 left-0 w-56 max-h-64 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm shadow-lg font-manrope text-sm">
+                        {loadingTranslation && currentMessageId === message.id ? (
+                          <div className="flex flex-col items-center gap-2 p-4 text-center">
+                            <Loader size={18} className="animate-spin text-blue-500" />
+                            <p className="font-poppins text-xs text-slate-600 dark:text-slate-300">
+                              Translating into {languages.find(lang => lang.code === loadingTranslation)?.name || loadingTranslation}...
+                            </p>
+                            <button
+                              className="text-xs text-red-600 hover:underline"
+                              onClick={handleCancelTranslation}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          languages.map(({ name, code, native }) => (
+                            <div
+                              key={code}
+                              className="px-3 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer"
+                              onClick={() => handleTranslate(message.id, code, message.content)}
+                            >
+                              {name} ({native})
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  languages.map(({ name, code, native }) => (
-                    <div
-                      key={code}
-                      className="language-option"
-                      onClick={() => handleTranslate(message.id, code, message.content)}
+
+                  {!speakingMessageId || speakingMessageId !== message.id ? (
+                    <button
+                      className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                      onClick={() => speakText(message.content, message.id)}
+                      title="Listen"
                     >
-                      {name} ({native})
+                      <Volume2 size={16} />
+                    </button>
+                  ) : (
+                    <button
+                      className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                      onClick={stopSpeech}
+                      title="Stop"
+                    >
+                      <SquareDotIcon size={16} />
+                    </button>
+                  )}
+
+                  {!message.analysis && (
+                    <div className="relative">
+                      <button
+                        className="graph-button p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300 disabled:opacity-40"
+                        onClick={() => {
+                          if (!analyzingMessageId) {
+                            setPopupMessageId(popupMessageId === message.id ? null : message.id);
+                          }
+                        }}
+                        title="Analyze Probability"
+                        disabled={analyzingMessageId}
+                      >
+                        {analyzingMessageId === message.id ? (
+                          <Loader size={16} className="animate-spin" />
+                        ) : (
+                          <BarChart size={16} />
+                        )}
+                      </button>
+
+                      {popupMessageId === message.id && message.type === "bot" && (
+                        <div className="graph-popup absolute z-10 bottom-full mb-2 left-0 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm shadow-lg p-3">
+                          <p className="font-poppins text-sm text-slate-700 dark:text-slate-200 mb-3">Do you want to analyze the query?</p>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              type="button"
+                              className="font-manrope text-xs px-3 py-1.5 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                              onClick={() => setPopupMessageId(null)}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              className="font-manrope text-xs px-3 py-1.5 rounded-sm bg-blue-600 text-white hover:bg-blue-700"
+                              onClick={() => {
+                                handleAnalyze(message.id);
+                              }}
+                            >
+                              Analyze
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-
-          {message.type === "bot" && (
-            <>
-              {!speakingMessageId || speakingMessageId !== message.id ? (
-                <button onClick={() => speakText(message.content, message.id)} title="Listen">
-                  <Volume2 size={18} />
-                </button>
-              ) : (
-                <button onClick={stopSpeech} title="Stop">
-                  <SquareDotIcon size={18} />
-                </button>
+                  )}
+                </div>
               )}
-            </>
-          )}
-
-       {!message.analysis && (
-  // 1. We wrap everything in a <div> with `position: relative`
-  // This is the key to fixing the positioning.
-  <div className="relative">
-    <button
-      className="graph-button"
-      onClick={() => {
-        if (!analyzingMessageId) {
-          setPopupMessageId(popupMessageId === message.id ? null : message.id);
-        }
-      }}
-      title="Analyze Probability"
-      disabled={analyzingMessageId}
-    >
-      {analyzingMessageId === message.id ? (
-        <Loader size={18} className="animate-spin" />
-      ) : (
-        <BarChart size={18} />
-      )}
-    </button>
-
-    {/* 2. This popup is now inside the relative container */}
-    {/* All the messy Tailwind classes are gone. */}
-    {popupMessageId === message.id && message.type === "bot" && (
-      <div className="graph-popup">
-        <p className="graph-popup-title font-poppins">Do you want to analyze the query?</p>
-        
-        {/* 3. Added a new container for the buttons */}
-        <div className="graph-popup-actions">
-          <button
-            type="button"
-            className="graph-popup-button cancel font-manrope"
-            onClick={() => setPopupMessageId(null)} // This closes the popup
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="graph-popup-button analyze font-manrope"
-            onClick={() => {
-              handleAnalyze(message.id);
-            }}
-          >
-            Analyze
-          </button>
-        </div>
-      </div>
-    )}
-  </div>
-)}
-        </div>
-      )}
-    </div>
-  </div>
-))}
-
-          {isLoading && (
-            <div className="chat-message chat-message-bot">
-              <div className="chat-message-avatar">
-                <Zap size={24} className="chat-pulse" />
-              </div>
-              <div className="chat-message-content">
-                <div className="chat-message-author">
-                  <span>Justice Genie</span>
-                </div>
-                <div className="chat-message-text chat-typing">
-                  <Loader className="chat-spinner" size={20} />
-                  <span>{loadingMessage}</span>
-                </div>
-              </div>
             </div>
-          )}
-        </div>
+          </div>
+        ))}
 
-        <div className="chat-input-container">
-      <div className="chat-input-wrapper">
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);  // Update input value
-             // Set isTyping to true if there is input
-          }}
-          onKeyPress={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              isLoading ? handleStopRequest() : handleSendMessage();
+        {isLoading && (
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-sm flex-shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-700">
+              <Zap size={18} className="text-blue-600 dark:text-blue-400 animate-pulse" />
+            </div>
+            <div className="flex items-center gap-2 px-4 py-3 rounded-sm rounded-bl-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-manrope text-sm text-slate-500 dark:text-slate-400">
+              <Loader size={16} className="animate-spin" />
+              <span>{loadingMessage}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input bar */}
+      <div className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
+        <div className="flex items-end gap-2 max-w-4xl mx-auto">
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+            }}
+            onKeyPress={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                isLoading ? handleStopRequest() : handleSendMessage();
+              }
+            }}
+            placeholder={
+              isOnline
+                ? "Ask about your legal rights..."
+                : "You're offline. Messages will be sent when you're back online."
             }
-          }}
-          placeholder={
-            isOnline
-              ? "Ask about your legal rights..."
-              : "You're offline. Messages will be sent when you're back online."
-          }
-          className="chat-input font-manrope"
-          rows={1}
-          disabled={!isOnline || isLoading}
-        />
-       
+            className="flex-1 resize-none font-manrope text-sm md:text-base bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-sm px-4 py-2.5 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-40"
+            rows={1}
+            disabled={!isOnline || isLoading}
+          />
 
-        <div className="chat-actions">
           <button
-            className={`chat-mic-btn ${isListening ? "listening" : ""}`}
+            className={`p-2.5 rounded-sm border ${isListening ? "bg-red-50 border-red-300 text-red-600 dark:bg-red-500/10 dark:border-red-500/30" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"}`}
             onClick={handleMicClick}
             title={isListening ? "Listening... Click to Stop" : "Click to Speak"}
           >
@@ -1232,7 +1218,7 @@ if (error) {
           </button>
           <button
             onClick={isLoading ? handleStopRequest : handleSendMessage}
-            className={`chat-send-btn ${input.trim() || isLoading ? "chat-send-btn-active" : ""}`}
+            className={`p-2.5 rounded-sm ${input.trim() || isLoading ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500"} disabled:opacity-50 disabled:cursor-not-allowed`}
             disabled={!isOnline || (!input.trim() && !isLoading)}
           >
             {isLoading ? <XCircle size={20} /> : <Send size={20} />}
@@ -1240,65 +1226,52 @@ if (error) {
           <button
             onClick={() => setIsExportPopupOpen(true)}
             onMouseDown={(e) => e.currentTarget.blur()}
-            className="chat-export-btn"
+            className="p-2.5 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
             disabled={messages.length === 0 || !isOnline}
             title="Export conversation as PDF"
           >
             <Download size={20} />
-         
           </button>
-     
         </div>
       </div>
-    </div>
-      </main>
+    </main>
 
-      {/* Overlay for mobile when sidebar is open */}
-      {sidebarOpen && window.innerWidth < 1024 && (
-        <div className="chat-overlay" onClick={toggleSidebar}></div>
-      )}
-      {/* --- Add this entire block for the Export PDF Popup --- */}
-      {isExportPopupOpen && (
-        <div style={styles.overlay}>
-          <div style={styles.popup}>
-            <h3 style={styles.title}>Export Chat as PDF</h3>
-            <p style={styles.label}>Enter a filename for your PDF:</p>
-            <input
-              type="text"
-              value={pdfFilename}
-              onChange={(e) => setPdfFilename(e.target.value)}
-              style={styles.input}
-            />
-            <div style={styles.buttonContainer}>
-              <button 
-                onClick={() => setIsExportPopupOpen(false)} 
-                style={{...styles.button, ...styles.cancelButton}}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleExportPDF} 
-                style={{...styles.button, ...styles.downloadButton}}
-              >
-                Download
-              </button>
-            </div>
+    {/* Mobile overlay */}
+    {sidebarOpen && (
+      <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={toggleSidebar}></div>
+    )}
+
+    {/* Export PDF modal */}
+    {isExportPopupOpen && (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+        <div className="bg-white dark:bg-slate-800 rounded-sm shadow-xl w-full max-w-sm p-6">
+          <h3 className="font-poppins font-semibold text-lg text-slate-800 dark:text-slate-100 mb-1">Export Chat as PDF</h3>
+          <p className="font-manrope text-sm text-slate-500 dark:text-slate-400 mb-3">Enter a filename for your PDF:</p>
+          <input
+            type="text"
+            value={pdfFilename}
+            onChange={(e) => setPdfFilename(e.target.value)}
+            className="w-full font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setIsExportPopupOpen(false)}
+              className="font-manrope text-sm px-4 py-2 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="font-manrope text-sm px-4 py-2 rounded-sm bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Download
+            </button>
           </div>
         </div>
-      )}
-    </div>
-  );
-};
-const styles = {
-  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  popup: { background: 'white', padding: '25px', borderRadius: '10px', width: '90%', maxWidth: '400px', boxShadow: '0 5px 15px rgba(0,0,0,0.3)' },
-  title: { marginTop: 0, marginBottom: '15px', fontSize: '1.2em' },
-  label: { marginBottom: '5px', fontSize: '0.9em', color: '#555' },
-  input: { width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', boxSizing: 'border-box', marginBottom: '20px' },
-  buttonContainer: { display: 'flex', justifyContent: 'flex-end', gap: '10px' },
-  button: { padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' },
-  cancelButton: { background: '#eee', color: '#333' },
-  downloadButton: { background: '#007bff', color: 'white' }
+      </div>
+    )}
+  </div>
+);
 };
 
 export default Chat;

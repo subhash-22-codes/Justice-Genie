@@ -8,11 +8,11 @@ import {
   Clock, 
   Award, 
   Eye,
-  FileText
+  FileText,
+  Loader
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../styles/lawpdf.css';
 
 const LawPDF = () => {
   const [books, setBooks] = useState([]);
@@ -38,10 +38,9 @@ const LawPDF = () => {
       setError(null);
       const response = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/api/books${selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''}`,
-        { withCredentials: true } // ✅ important for production
+        { withCredentials: true } // important for production
       );
 
-      console.log('Fetched Books:', response.data); // 🔍 Debugging log
       setBooks(response.data);
     } catch (err) {
       setError('Failed to fetch books. Please try again later.');
@@ -54,8 +53,6 @@ const LawPDF = () => {
   useEffect(() => {
     fetchBooks();
   }, [fetchBooks]); // Safe to include fetchBooks now
- 
-
 
 // Helper to call backend for stats update
 // Helper to safely update book stats in backend
@@ -64,7 +61,7 @@ const updateBookStats = async (bookId, action) => {
   try {
     await axios.get(
       `${process.env.REACT_APP_BACKEND_URL}/api/books/${bookId}/${action}`,
-      { withCredentials: true } // ✅ include session cookies
+      { withCredentials: true } // include session cookies
     );
   } catch (err) {
     console.error(`Failed to update ${action} count:`, err);
@@ -132,78 +129,79 @@ const handleView = async (book) => {
   });
 
   return (
-    <div className="law-pdf-container">
-      <header className="law-pdf-header">
-      <button
-  className="font-manrope law-pdf-back-button flex items-center justify-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105"
-  onClick={() => navigate('/chat')}
-  aria-label="Back to Dashboard"
->
-  <ArrowLeft className="w-5 h-5" />
-  <span>Back to Chat</span>
-</button>
+    <div className="min-h-screen bg-slate-50 px-4 sm:px-8 py-8">
+      <header className="flex items-center gap-4 mb-6">
+        <button
+          className="flex items-center gap-2 font-manrope font-medium bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-sm transition-colors"
+          onClick={() => navigate('/chat')}
+          aria-label="Back to Dashboard"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>Back to Chat</span>
+        </button>
 
-
-        <h1 className="law-pdf-title">Digital Law Library</h1>
+        <h1 className="font-poppins text-2xl font-bold text-slate-800">Digital Law Library</h1>
       </header>
 
-      <div className="law-pdf-search-filter">
-        <div className="law-pdf-search">
-          <Search className="law-pdf-search-icon" />
+      <div className="mb-8 space-y-4">
+        <div className="relative max-w-xl">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="Search by title, author, or keywords..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="law-pdf-search-input font-manrope"
+            className="w-full font-manrope text-sm pl-10 pr-4 py-2.5 rounded-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Search documents"
           />
         </div>
 
-   <div className="law-pdf-categories flex flex-wrap gap-2 sm:gap-3" role="tablist">
-  {categories.map((category) => (
-    <button
-      key={category.id}
-      className={`law-pdf-category-btn ${selectedCategory === category.id ? 'law-pdf-active' : ''} flex items-center gap-1 px-2 py-1 text-xs sm:text-sm`}
-      onClick={() => setSelectedCategory(category.id)}
-      role="tab"
-      aria-selected={selectedCategory === category.id}
-      aria-controls={`${category.id}-panel`}
-    >
-      <category.icon size={16} className="shrink-0" />
-      <span className='font-urbanist'>{category.name}</span>
-    </button>
-  ))}
-</div>
-
-
+        <div className="flex flex-wrap gap-2" role="tablist">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs sm:text-sm font-manrope font-medium transition-colors ${
+                selectedCategory === category.id
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+              }`}
+              onClick={() => setSelectedCategory(category.id)}
+              role="tab"
+              aria-selected={selectedCategory === category.id}
+              aria-controls={`${category.id}-panel`}
+            >
+              <category.icon size={14} className="shrink-0" />
+              <span>{category.name}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (
-        <div className="law-pdf-error" role="alert">
-          <p>{error}</p>
-          <button onClick={fetchBooks} className="law-pdf-retry-btn font-manrope">
+        <div className="bg-red-50 border border-red-200 text-red-700 font-manrope p-4 rounded-sm mb-6 flex items-center justify-between" role="alert">
+          <p className="text-sm">{error}</p>
+          <button onClick={fetchBooks} className="text-sm font-medium underline hover:no-underline">
             Try Again
           </button>
         </div>
       )}
 
       {loading ? (
-        <div className="law-pdf-loading" role="status">
-          <div className="law-pdf-spinner" aria-hidden="true"></div>
-          <p className='font-poppins'>Loading legal documents...</p>
+        <div className="flex flex-col items-center justify-center py-20" role="status">
+          <Loader className="w-8 h-8 animate-spin text-blue-600 mb-3" aria-hidden="true" />
+          <p className="font-poppins text-slate-500">Loading legal documents...</p>
         </div>
       ) : (
-        <div className="law-pdf-grid" role="main">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" role="main">
           {filteredBooks.length === 0 ? (
-            <div className="law-pdf-no-results font-manrope" role="alert">
+            <div className="col-span-full flex flex-col items-center justify-center py-16 font-manrope text-slate-400" role="alert">
               <FileText size={48} />
-              <p>No documents found matching your criteria</p>
+              <p className="mt-3">No documents found matching your criteria</p>
             </div>
           ) : (
             filteredBooks.map((book) => (
-              <article key={book.id} className="law-pdf-card">
-                  <div className="w-full aspect-[3/2] overflow-hidden rounded-t-xl bg-gray-100">
+              <article key={book.id} className="bg-white border border-slate-200 rounded-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div className="w-full aspect-[3/2] overflow-hidden bg-slate-100">
                   <img 
                       src={book.image || "/images/IPC.jpg"} 
                       alt={`${book.title} cover`} 
@@ -212,62 +210,58 @@ const handleView = async (book) => {
                     />
                   </div>
 
+                <div className="p-5">
+                  <span className="inline-block font-manrope text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-sm mb-2">
+                    {book.category || 'Legal Document'}
+                  </span>
 
-                <div className="law-pdf-card-content">
-                  <div className="law-pdf-card-header">
-                    <span className="law-pdf-tag">{book.category || 'Legal Document'}</span>
-                    <div className="law-pdf-card-actions">
-                    </div>
-                  </div>
-
-                  <h2 className="law-pdf-card-title">{book.title}</h2>
-                  <p className="law-pdf-author">
-                    <span>Author:</span> {book.author}
+                  <h2 className="font-poppins font-semibold text-slate-800 mb-1">{book.title}</h2>
+                  <p className="font-manrope text-xs text-slate-500 mb-2">
+                    <span className="font-medium">Author:</span> {book.author}
                   </p>
-                  <p className="law-pdf-description font-urbanist">{book.description}</p>
-                  
-                  <div className="law-pdf-stats font-urbanist">
-                    <span className="law-pdf-views">
-                      <Eye size={16} />
+                  <p className="font-manrope text-sm text-slate-500 line-clamp-2 mb-3">{book.description}</p>
+
+                  <div className="flex items-center gap-4 font-manrope text-xs text-slate-400 mb-4">
+                    <span className="flex items-center gap-1">
+                      <Eye size={14} />
                       {book.views || 0} views
                     </span>
-                    <span className="law-pdf-downloads">
-                      <Download size={16} />
+                    <span className="flex items-center gap-1">
+                      <Download size={14} />
                       {book.downloads || 0} downloads
                     </span>
                   </div>
 
-                  <div className="law-pdf-actions">
-                  <button 
-                    type="button"  // Explicitly set type to prevent unintended form submission
-                    onClick={(event) => { 
-                      event.preventDefault();  // Prevent page reload
-                      handleView(book);  // Call your function
-                    }} 
-                    className="law-pdf-btn law-pdf-view-btn font-manrope"
-                  >
-                    <BookOpen size={18} />
-                    <span>View Document</span>
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      type="button"
+                      onClick={(event) => { 
+                        event.preventDefault();
+                        handleView(book);
+                      }} 
+                      className="flex-1 flex items-center justify-center gap-1.5 font-manrope text-sm font-medium px-3 py-2 rounded-sm border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <BookOpen size={16} />
+                      <span>View</span>
+                    </button>
 
-                    
                     <button 
                       onClick={() => handleDownload(book)}
-                      className="law-pdf-btn law-pdf-download-btn font-manrope"
+                      className="flex-1 flex items-center justify-center gap-1.5 font-manrope text-sm font-medium px-3 py-2 rounded-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                     >
-                      <Download size={18} />
-                      <span>Download PDF</span>
+                      <Download size={16} />
+                      <span>Download</span>
                     </button>
                   </div>
 
-                  <div className="law-pdf-card-footer">
-                    <div className="law-pdf-file-info">
-                      <span className="law-pdf-file-type font-poppins">PDF</span>
-                      <span className="law-pdf-file-size font-urbanist">
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 font-manrope text-xs text-slate-400">
+                    <div className="flex items-center gap-2">
+                      <span className="font-poppins font-semibold text-slate-500">PDF</span>
+                      <span>
                         {(book.file_size / 1024 / 1024).toFixed(1)} MB
                       </span>
                     </div>
-                    <div className="law-pdf-updated font-urbanist">
+                    <div>
                       Updated: {new Date(book.updated_at).toLocaleDateString()}
                     </div>
                   </div>
