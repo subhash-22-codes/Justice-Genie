@@ -10,7 +10,8 @@ backend/node_modules
 backend/.env
 frontend/.env
 
-
+backend/flask_session/
+backend/images/
 # ======================
 # Python dependencies
 # ======================
