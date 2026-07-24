@@ -858,16 +858,19 @@ return (
       }`}
     >
       <div className="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-md bg-slate-900 dark:bg-white flex items-center justify-center flex-shrink-0">
-            <img
-              src="/images/jg_original_logo_1.png"
-              alt="Justice Genie"
-              className="w-5 h-5 object-contain"
-            />
-          </div>
-          <h1 className="text-[15px] font-poppins font-bold text-slate-900 dark:text-slate-50 tracking-tight">Justice Genie</h1>
+       <div className="flex items-center gap-2.5">
+        <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+          <img
+            src="/images/jg_original_logo_1.png"
+            alt="Justice Genie"
+            className="w-8 h-8 object-contain"
+          />
         </div>
+
+        <h1 className="text-[15px] font-poppins font-bold text-slate-900 dark:text-slate-50 tracking-tight">
+          Justice Genie
+        </h1>
+      </div>
         <button
           className="lg:hidden p-2 rounded-md text-slate-400 hover:bg-slate-100 dark:text-slate-500 dark:hover:bg-slate-800 transition-colors"
           onClick={toggleSidebar}
@@ -1232,16 +1235,21 @@ return (
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm px-4 sm:px-6 py-4">
-        <div className="flex items-end gap-2 max-w-3xl mx-auto">
-          <div className="flex-1 flex items-end gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-card focus-within:ring-2 focus-within:ring-blue-500/40 focus-within:border-blue-400 transition-all duration-150">
+      <div className="border-t border-slate-200/70 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl px-3 sm:px-5 py-3">
+        <div className="max-w-3xl mx-auto">
+
+          <div className="rounded-[28px] border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm transition-all duration-200 focus-within:border-slate-300 dark:focus-within:border-slate-600 focus-within:shadow-md">
+
             <textarea
               ref={inputRef}
               value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
+              onChange={(e) => setInput(e.target.value)}
+              onInput={(e) => {
+                const el = e.currentTarget;
+                el.style.height = "0px";
+                el.style.height = `${Math.min(el.scrollHeight, 192)}px`;
               }}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   isLoading ? handleStopRequest() : handleSendMessage();
@@ -1252,37 +1260,65 @@ return (
                   ? "Ask about your legal rights..."
                   : "You're offline. Messages will be sent when you're back online."
               }
-              className="flex-1 resize-none font-manrope text-[14.5px] bg-transparent text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none max-h-40 py-1"
               rows={1}
+              style={{ height: "32px" }}
               disabled={!isOnline || isLoading}
+              className="w-full resize-none overflow-y-auto bg-transparent border-0 outline-none ring-0 focus:border-0 focus:outline-none focus:ring-0 shadow-none px-5 pt-4 pb-2 text-[15px] leading-7 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 max-h-48 font-manrope"
             />
-            <button
-              className={`flex-shrink-0 p-2 rounded-md transition-all duration-150 active:scale-90 ${isListening ? "bg-red-50 text-red-600 dark:bg-red-500/10" : "text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700"}`}
-              onClick={handleMicClick}
-              title={isListening ? "Listening... Click to Stop" : "Click to Speak"}
-              aria-label={isListening ? "Listening, click to stop" : "Click to speak"}
-            >
-              {isListening ? <Mic size={19} /> : <MicOff size={19} />}
-            </button>
+
+            <div className="flex items-center justify-between px-2 sm:px-3 pb-2 sm:pb-3">
+
+              <button
+                onClick={() => setIsExportPopupOpen(true)}
+                onMouseDown={(e) => e.currentTarget.blur()}
+                disabled={messages.length === 0 || !isOnline}
+                title="Export conversation"
+                className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition disabled:opacity-40"
+              >
+                <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
+              </button>
+
+              <div className="flex items-center gap-1 sm:gap-2">
+
+                <button
+                  onClick={handleMicClick}
+                  title={isListening ? "Stop listening" : "Voice input"}
+                  aria-label="Voice input"
+                  className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full transition ${
+                    isListening
+                      ? "bg-red-100 text-red-600 dark:bg-red-500/20"
+                      : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
+                  }`}
+                >
+                  {isListening ? (
+                    <Mic size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  ) : (
+                    <MicOff size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  )}
+                </button>
+
+                <button
+                  onClick={isLoading ? handleStopRequest : handleSendMessage}
+                  disabled={!isOnline || (!input.trim() && !isLoading)}
+                  className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full transition-all active:scale-95 ${
+                    input.trim() || isLoading
+                      ? "bg-blue-600 hover:bg-blue-700 text-white shadow-card hover:shadow-card-hover"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600"
+                  } disabled:cursor-not-allowed`}
+                >
+                  {isLoading ? (
+                    <XCircle size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  ) : (
+                    <Send size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  )}
+                </button>
+
+              </div>
+
+            </div>
+
           </div>
 
-          <button
-            onClick={isLoading ? handleStopRequest : handleSendMessage}
-            className={`flex-shrink-0 p-3 rounded-lg transition-all duration-200 ease-premium active:scale-90 ${input.trim() || isLoading ? "bg-blue-600 text-white shadow-card hover:shadow-card-hover hover:bg-blue-700" : "bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600"} disabled:opacity-50 disabled:cursor-not-allowed`}
-            disabled={!isOnline || (!input.trim() && !isLoading)}
-          >
-            {isLoading ? <XCircle size={19} /> : <Send size={19} />}
-          </button>
-          <button
-            onClick={() => setIsExportPopupOpen(true)}
-            onMouseDown={(e) => e.currentTarget.blur()}
-            className="flex-shrink-0 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
-            disabled={messages.length === 0 || !isOnline}
-            title="Export conversation as PDF"
-            aria-label="Export conversation as PDF"
-          >
-            <Download size={19} />
-          </button>
         </div>
       </div>
     </main>
