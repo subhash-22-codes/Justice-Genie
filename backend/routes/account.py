@@ -3,6 +3,7 @@ Account blueprint: profile picture, myaccount summary, game name, PDF export,
 account deletion (+ goodbye email), and account lock-status check.
 """
 import re
+import os
 from io import BytesIO
 from datetime import datetime, timedelta
 
@@ -10,8 +11,13 @@ from flask import Blueprint, request, jsonify, session, send_file
 import cloudinary
 import cloudinary.uploader
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 from config import logger
 from extensions import users_collection, leaderboard_collection, collab_collection, chats_collection
@@ -162,36 +168,152 @@ def update_game_name():
     return jsonify({'message': 'Game name updated successfully'}), 200
 
 
+# ---------------------------------------------------------------------------
+# PDF export — Unicode font registration (Hindi / Telugu / English support)
+# ---------------------------------------------------------------------------
+#
+# SETUP REQUIRED: create a `fonts/` folder next to this file (commit it to
+# git so it survives Render redeploys) and place these .ttf files in it,
+# downloaded from Google Fonts (free, open license):
+#
+#   Noto Sans             -> https://fonts.google.com/noto/specimen/Noto+Sans
+#   Noto Sans Devanagari  -> https://fonts.google.com/noto/specimen/Noto+Sans+Devanagari
+#   Noto Sans Telugu      -> https://fonts.google.com/noto/specimen/Noto+Sans+Telugu
+#
+#   fonts/NotoSans-Regular.ttf
+#   fonts/NotoSans-Bold.ttf
+#   fonts/NotoSansDevanagari-Regular.ttf
+#   fonts/NotoSansDevanagari-Bold.ttf
+#   fonts/NotoSansTelugu-Regular.ttf
+#   fonts/NotoSansTelugu-Bold.ttf
+#
+# If a font file is missing, that script silently falls back to Helvetica
+# (won't crash, just won't render that script's glyphs correctly).
+
+FONT_DIR = os.path.join(os.path.dirname(__file__), 'fonts')
+
+FONT_REGISTRY = {
+    'Latin':      ('NotoSans-Regular.ttf', 'NotoSans-Bold.ttf'),
+    'Devanagari': ('NotoSansDevanagari-Regular.ttf', 'NotoSansDevanagari-Bold.ttf'),
+    'Telugu':     ('NotoSansTelugu-Regular.ttf', 'NotoSansTelugu-Bold.ttf'),
+}
+
+_fonts_registered = False
+
+
+def register_fonts():
+    """Register each Unicode font family once per process."""
+    global _fonts_registered
+    if _fonts_registered:
+        return
+    for script, (regular_file, bold_file) in FONT_REGISTRY.items():
+        regular_path = os.path.join(FONT_DIR, regular_file)
+        bold_path = os.path.join(FONT_DIR, bold_file)
+        if os.path.exists(regular_path):
+            pdfmetrics.registerFont(TTFont(script, regular_path))
+        if os.path.exists(bold_path):
+            pdfmetrics.registerFont(TTFont(f'{script}-Bold', bold_path))
+    _fonts_registered = True
+
+
+SCRIPT_RANGES = [
+    ('Devanagari', 0x0900, 0x097F),
+    ('Telugu',     0x0C00, 0x0C7F),
+]
+
+
+def detect_script(ch):
+    cp = ord(ch)
+    for name, start, end in SCRIPT_RANGES:
+        if start <= cp <= end:
+            return name
+    return 'Latin'
+
+
+def split_by_script(text):
+    """Split text into consecutive runs of the same script.
+    Punctuation/whitespace/digits inherit the surrounding script so words
+    don't get split mid-token just because of a comma or space."""
+    if not text:
+        return []
+    runs = []
+    current_script = detect_script(next((c for c in text if c.isalpha()), text[0]))
+    current_text = text[0]
+    for ch in text[1:]:
+        script = detect_script(ch) if ch.isalpha() else current_script
+        if script != current_script:
+            runs.append((current_script, current_text))
+            current_script = script
+            current_text = ch
+        else:
+            current_text += ch
+    runs.append((current_script, current_text))
+    return runs
+
+
+def wrap_multiscript(text):
+    """Wrap each script run in a <font face="..."> tag so mixed
+    English/Hindi/Telugu text renders with the correct glyphs."""
+    registered = pdfmetrics.getRegisteredFontNames()
+    out = []
+    for script, chunk in split_by_script(text):
+        face = script if script in registered else 'Helvetica'
+        out.append(f'<font face="{face}">{chunk}</font>')
+    return ''.join(out)
+
+
 #export pdf
 @account_bp.route('/api/export-pdf', methods=['POST'])
 def export_pdf():
     try:
+        register_fonts()
         data = request.get_json()
         messages = data.get('messages', [])
 
-        # REMOVED: The font registration logic is gone
-
         pdf_buffer = BytesIO()
-        doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
+        doc = SimpleDocTemplate(
+            pdf_buffer, pagesize=letter,
+            topMargin=0.9 * inch, bottomMargin=0.9 * inch,
+            leftMargin=0.85 * inch, rightMargin=0.85 * inch,
+        )
 
         styles = getSampleStyleSheet()
-        # CHANGED: The fontName is now back to the standard 'Helvetica'
-        heading_style = ParagraphStyle(
-            'HeadingStyle', parent=styles['Normal'], fontName='Helvetica-Bold',
-            fontSize=16, spaceAfter=15, alignment=1
+
+        title_style = ParagraphStyle(
+            'TitleStyle', parent=styles['Normal'],
+            fontName='Helvetica-Bold', fontSize=20, alignment=TA_CENTER,
+            textColor=colors.HexColor('#1a1a1a'), spaceAfter=4,
         )
-        user_style = ParagraphStyle(
-            'UserStyle', parent=styles['Normal'], fontName='Helvetica-Bold',
-            fontSize=11, textColor='blue', spaceAfter=8
+        subtitle_style = ParagraphStyle(
+            'SubtitleStyle', parent=styles['Normal'],
+            fontName='Helvetica', fontSize=10, alignment=TA_CENTER,
+            textColor=colors.HexColor('#666666'), spaceAfter=18,
         )
-        bot_style = ParagraphStyle(
-            'BotStyle', parent=styles['Normal'], fontName='Helvetica',
-            fontSize=11, textColor='black', spaceAfter=8
+        query_label_style = ParagraphStyle(
+            'QueryLabelStyle', parent=styles['Normal'],
+            fontName='Helvetica-Bold', fontSize=9,
+            textColor=colors.HexColor('#0a3d62'), spaceAfter=3,
+        )
+        response_label_style = ParagraphStyle(
+            'ResponseLabelStyle', parent=query_label_style,
+            textColor=colors.HexColor('#5a1a1a'),
+        )
+        body_style = ParagraphStyle(
+            'BodyStyle', parent=styles['Normal'],
+            fontName='Helvetica', fontSize=10.5, leading=15,
+            alignment=TA_JUSTIFY, spaceAfter=14,
+            textColor=colors.HexColor('#1a1a1a'),
         )
 
         elements = [
-            Paragraph("<b>Chat History with Justice Genie</b>", heading_style),
-            Spacer(1, 20)
+            Paragraph("Justice Genie", title_style),
+            Paragraph(
+                f"Legal Consultation Record &nbsp;&bull;&nbsp; "
+                f"Generated on {datetime.now().strftime('%d %B %Y, %I:%M %p')}",
+                subtitle_style
+            ),
+            HRFlowable(width="100%", thickness=1,
+                       color=colors.HexColor('#cccccc'), spaceAfter=18),
         ]
 
         # This function converts markdown to ReportLab-compatible HTML
@@ -199,28 +321,42 @@ def export_pdf():
             text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text) # Bold
             text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)     # Italic
             text = text.replace("\n", "<br/>")                 # Newlines
-            return text.strip()
+            return wrap_multiscript(text.strip())
 
-        # This logic remains the same
-        for message in messages:
+        for idx, message in enumerate(messages):
             user = message.get('user', 'Unknown')
             text = message.get('text', '').strip()
-            
-            if user.lower() == 'you':
-                name_part = f"<b>{user}:</b>"
-                style = user_style
-            else:
-                name_part = f"<b>{user}:</b>"
-                style = bot_style
-                
-            formatted_text = prettify_text_for_pdf(text)
-            
-            elements.append(Paragraph(f"{name_part} {formatted_text}", style))
-            elements.append(Spacer(1, 10))
+            is_user = user.lower() == 'you'
 
-        doc.build(elements)
+            label = "QUERY" if is_user else "JUSTICE GENIE — RESPONSE"
+            label_style = query_label_style if is_user else response_label_style
+
+            elements.append(Paragraph(label, label_style))
+            elements.append(Paragraph(prettify_text_for_pdf(text), body_style))
+
+            if idx < len(messages) - 1:
+                elements.append(HRFlowable(
+                    width="100%", thickness=0.5,
+                    color=colors.HexColor('#e0e0e0'), spaceAfter=14
+                ))
+
+        def add_footer(canvas, doc_):
+            canvas.saveState()
+            canvas.setFont('Helvetica', 8)
+            canvas.setFillColor(colors.HexColor('#999999'))
+            canvas.drawString(
+                0.85 * inch, 0.5 * inch,
+                "Generated by Justice Genie — for informational purposes only, "
+                "not a substitute for legal advice."
+            )
+            canvas.drawRightString(
+                letter[0] - 0.85 * inch, 0.5 * inch, f"Page {doc_.page}"
+            )
+            canvas.restoreState()
+
+        doc.build(elements, onFirstPage=add_footer, onLaterPages=add_footer)
         pdf_buffer.seek(0)
-        return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name='chat_history.pdf')
+        return send_file(pdf_buffer, mimetype='application/pdf', as_attachment=True, download_name='justice_genie_chat_history.pdf')
 
     except Exception as e:
         return jsonify({'error': f'Failed to generate PDF: {str(e)}'}), 500
