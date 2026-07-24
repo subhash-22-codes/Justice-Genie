@@ -12,6 +12,22 @@ import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
 import ReactMarkdown from 'react-markdown';
 import  AnalysisReport  from './AnalysisReport';
+
+// Shared toast helper - replaces native alert() with a proper non-blocking
+// notification. Uses Swal's toast mode (already a dependency), so it needs
+// no extra library and matches the confirm-dialog styling used elsewhere.
+const showToast = (message, icon = 'info') => {
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon,
+    title: message,
+    showConfirmButton: false,
+    timer: 3500,
+    timerProgressBar: true,
+  });
+};
+
 const Chat = () => {
   const [messages, setMessages] = useState([]); // Removed localStorage
   const [input, setInput] = useState('');
@@ -60,7 +76,7 @@ const Chat = () => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Speech Recognition is not supported in this browser.");
+      showToast("Speech Recognition is not supported in this browser.", "warning");
       return;
     }
 
@@ -148,7 +164,7 @@ const Chat = () => {
 
       // 🔹 Handle "coming soon" message
       if (data.message?.toLowerCase().includes("coming soon")) {
-        alert("🔊 Text-to-Speech is coming soon in production!");
+        showToast("Text-to-Speech is coming soon.", "info");
         setSpeakingMessageId(null);
       }
     }
@@ -171,7 +187,7 @@ const stopSpeech = async () => {
       }
 
       if (data.message?.toLowerCase().includes("coming soon")) {
-        alert("⏹️ Stop speech is coming soon in production!");
+        showToast("Stop speech is coming soon.", "info");
       }
     }
   } catch (error) {
@@ -229,12 +245,12 @@ const stopSpeech = async () => {
 
       // Optional: show a notification if it's the placeholder
       if (data.translatedText.includes("coming soon")) {
-        alert("Translation service is coming soon!", "info");
+        showToast("Translation service is coming soon.", "info");
       }
     }
   } catch (error) {
     console.error("Translation request failed:", error);
-    alert("Translation failed. Please try again later.", "error");
+    showToast("Translation failed. Please try again later.", "error");
   } finally {
     setLoadingTranslation(null);
     setCurrentMessageId(null);
@@ -586,7 +602,7 @@ const handleStopRequest = () => {
 };
 
  const handleExportPDF = async () => {
-  if (!messages.length) return alert('No messages to export.');
+  if (!messages.length) return showToast('No messages to export.', 'warning');
   setIsExportPopupOpen(false);
 
   try {
@@ -623,7 +639,7 @@ const handleStopRequest = () => {
   } catch (error) {
     console.error('Error exporting PDF:', error);
     // You can use your setError state function here if you have one
-    alert('Failed to export chat history. Please try again.');
+    showToast('Failed to export chat history. Please try again.', 'error');
   }
 };
 
@@ -740,12 +756,28 @@ const handleLogout = useCallback(() => {
     }
   };
 
+  // Modal UX: ESC closes it, background scroll locks while it's open.
+  useEffect(() => {
+    if (!isExportPopupOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setIsExportPopupOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isExportPopupOpen]);
+
 if (bootLoading && !error) {
   return (
     <div className="relative w-full h-full min-h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900">
-      <div className="absolute top-0 left-0 w-full h-1 bg-blue-200 dark:bg-blue-900/50 overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-0.5 bg-blue-100 dark:bg-blue-900/40 overflow-hidden">
         <div
-          className="absolute top-0 left-0 h-full bg-blue-500 dark:bg-blue-400"
+          className="absolute top-0 left-0 h-full bg-blue-600 dark:bg-blue-400"
           style={{
             width: '100%',
             transformOrigin: '0% 50%',
@@ -755,20 +787,19 @@ if (bootLoading && !error) {
       </div>
 
       <div className="flex flex-col items-center animate-fadeIn">
-        <Loader size={40} className="mb-4 text-blue-500 dark:text-blue-400 animate-spin" />
-        <p className="text-lg font-manrope font-medium text-slate-700 dark:text-slate-300 text-center">
-          Connecting to Justice Genie...
+        <div className="w-14 h-14 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-5 shadow-card">
+          <Loader size={26} className="text-blue-600 dark:text-blue-400 animate-spin" />
+        </div>
+        <p className="text-lg font-poppins font-semibold text-slate-800 dark:text-slate-100 text-center">
+          Connecting to Justice Genie
         </p>
-        <p className="text-sm font-manrope text-slate-500 dark:text-slate-400 mt-1 text-center">
-          Please wait a moment.
-        </p>
-        <p className="text-xs sm:text-sm font-manrope text-slate-400 dark:text-slate-500 mt-6 text-center max-w-xs">
-          Loading may take a few seconds depending on server response.
+        <p className="text-sm font-manrope text-slate-500 dark:text-slate-400 mt-1.5 text-center">
+          This usually takes just a few seconds
         </p>
 
         <button
           onClick={handleLogout}
-          className="mt-6 px-4 py-2 text-sm font-manrope text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 underline underline-offset-2"
+          className="mt-8 px-4 py-2 text-sm font-manrope text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-200"
         >
           Cancel and Logout
         </button>
@@ -780,39 +811,37 @@ if (bootLoading && !error) {
 if (error) {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-8 py-10">
-      <div className="flex justify-start items-start space-x-4">
-        <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-sm flex-shrink-0 flex items-center justify-center">
-          <AlertCircle className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+      <div className="flex justify-start items-start gap-4">
+        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex-shrink-0 flex items-center justify-center shadow-card">
+          <AlertCircle className="w-5 h-5 text-slate-400 dark:text-slate-500" />
         </div>
 
         <div className="flex-1">
-          <div className="bg-red-50 dark:bg-slate-800 border border-red-200 dark:border-red-500/30 rounded-sm rounded-bl-none p-4 max-w-lg">
-            <div className="flex items-start space-x-3">
-              <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
+          <div className="bg-white dark:bg-slate-800 border border-red-100 dark:border-red-500/20 rounded-lg rounded-tl-md shadow-card p-5 max-w-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-poppins font-semibold text-slate-800 dark:text-slate-200">
                   Connection Error
                 </p>
-                <p className="text-sm font-manrope text-slate-600 dark:text-slate-400 mt-1">
+                <p className="text-sm font-manrope text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                   Apologies, I'm having trouble connecting to my services at the moment.
                 </p>
                 {error && (
-                  <p className="text-xs text-red-500/80 dark:text-red-500/50 mt-2 font-mono">
-                    Details: {error}
+                  <p className="text-xs text-red-500/70 dark:text-red-400/60 mt-2 font-mono">
+                    {error}
                   </p>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="mt-3">
-            <button
-              onClick={() => fetchUserData()}
-              className="px-4 py-2 text-sm font-manrope font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors"
-            >
-              Try Again
-            </button>
-          </div>
+          <button
+            onClick={() => fetchUserData()}
+            className="mt-3 px-4 py-2 text-sm font-manrope font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] rounded-md shadow-card hover:shadow-card-hover transition-all duration-200 ease-premium"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     </div>
@@ -820,73 +849,80 @@ if (error) {
 }
 
 return (
-  <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-900 overflow-hidden">
+  <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 overflow-hidden">
 
     {/* Sidebar */}
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-72 flex flex-col bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transform transition-transform duration-300 lg:static lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-40 w-72 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 transform transition-transform duration-300 ease-premium lg:static lg:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200 dark:border-slate-700">
-        <div className="flex items-center space-x-2">
-          <img
-            src="/images/jg_original_logo_1.png"
-            alt="Justice Genie Logo"
-            className="w-6 h-6 object-contain"
-          />
-          <h1 className="text-lg font-poppins font-bold text-slate-800 dark:text-slate-100">Justice Genie</h1>
+      <div className="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-md bg-slate-900 dark:bg-white flex items-center justify-center flex-shrink-0">
+            <img
+              src="/images/jg_original_logo_1.png"
+              alt="Justice Genie"
+              className="w-5 h-5 object-contain"
+            />
+          </div>
+          <h1 className="text-[15px] font-poppins font-bold text-slate-900 dark:text-slate-50 tracking-tight">Justice Genie</h1>
         </div>
         <button
-          className="lg:hidden p-1.5 rounded-sm text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+          className="lg:hidden p-2 rounded-md text-slate-400 hover:bg-slate-100 dark:text-slate-500 dark:hover:bg-slate-800 transition-colors"
           onClick={toggleSidebar}
           aria-label="Close sidebar"
         >
-          <Menu size={22} />
+          <Menu size={20} />
         </button>
       </div>
 
-      <div className="flex items-center space-x-3 px-4 py-4 border-b border-slate-200 dark:border-slate-700">
-        <div className="w-12 h-12 rounded-sm overflow-hidden bg-slate-100 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center">
-          {profilePicture ? (
-            <img
-              src={profilePicture}
-              alt="Profile"
-              loading="lazy"
-              className="w-full h-full object-cover"
-              srcSet={`${profilePicture}?w=300 300w, ${profilePicture}?w=500 500w, ${profilePicture}?w=800 800w`}
-              sizes="(max-width: 600px) 300px, (max-width: 1024px) 500px, 800px"
-            />
-          ) : (
-            <User size={26} className="text-slate-400" />
-          )}
-        </div>
-        <div className="min-w-0">
-          <h3 className="font-poppins font-semibold text-slate-800 dark:text-slate-100 truncate">{username || 'Guest User'}</h3>
-          <span className="text-xs font-manrope text-slate-500 dark:text-slate-400 flex items-center gap-1">
-            <span className={`inline-block w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-slate-400'}`}></span>
-            {isOnline ? 'Online' : 'Offline'}
-          </span>
+      <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center gap-3 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+          <div className="relative flex-shrink-0">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt="Profile"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  srcSet={`${profilePicture}?w=300 300w, ${profilePicture}?w=500 500w, ${profilePicture}?w=800 800w`}
+                  sizes="(max-width: 600px) 300px, (max-width: 1024px) 500px, 800px"
+                />
+              ) : (
+                <User size={18} className="text-slate-400" />
+              )}
+            </div>
+            <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ring-2 ring-white dark:ring-slate-900 ${isOnline ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}></span>
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-poppins text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{username || 'Guest User'}</h3>
+            <span className="text-xs font-manrope text-slate-400 dark:text-slate-500">
+              {isOnline ? 'Online' : 'Offline'}
+            </span>
+          </div>
         </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         <div>
-          <h4 className="px-2 text-xs font-manrope font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-2">Tools</h4>
-          <div className="space-y-1">
+          <h4 className="px-3 text-[11px] font-manrope font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-600 mb-2">Tools</h4>
+          <div className="space-y-0.5">
             {navItems.map((item, index) => (
               <Link
                 key={index}
                 to={item.path}
-                className="flex items-center gap-3 px-2 py-2 rounded-sm text-sm font-manrope text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="group relative flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-manrope font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors duration-150"
                 onClick={(e) => {
                   if (!isOnline) {
                     e.preventDefault();
-                    alert('This feature is not available offline');
+                    showToast('This feature is not available offline', 'warning');
                   }
                 }}
               >
-                {item.icon}
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-0 w-0.5 bg-blue-600 rounded-r-full group-hover:h-5 transition-all duration-200 ease-premium"></span>
+                <span className="text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{item.icon}</span>
                 <span>{item.label}</span>
               </Link>
             ))}
@@ -894,96 +930,94 @@ return (
         </div>
 
         <div>
-          <h4 className="px-2 text-xs font-manrope font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-2">Preferences</h4>
-          <div className="space-y-1">
+          <h4 className="px-3 text-[11px] font-manrope font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-600 mb-2">Preferences</h4>
+          <div className="space-y-0.5">
             <button
-              className="w-full flex items-center gap-3 px-2 py-2 rounded-sm text-sm font-manrope text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-manrope font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors duration-150"
               onClick={toggleDarkMode}
             >
-              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+              {isDarkMode ? <Sun size={17} className="text-slate-400 dark:text-slate-500" /> : <Moon size={17} className="text-slate-400" />}
               <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
 
             <button
-              className="w-full flex items-center gap-3 px-2 py-2 rounded-sm text-sm font-manrope text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-manrope font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
               onClick={handleClearChat}
               disabled={messages.length === 0}
             >
-              <Trash2 size={20} />
+              <Trash2 size={17} className="text-slate-400 dark:text-slate-500" />
               <span>Clear Chat</span>
             </button>
 
             <button
-              className="w-full flex items-center gap-3 px-2 py-2 rounded-sm text-sm font-manrope text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-manrope font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150"
               onClick={handleLogout}
             >
-              <LogOut size={20} />
+              <LogOut size={17} />
               <span>Logout</span>
             </button>
           </div>
         </div>
       </nav>
 
-      <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-700 text-xs font-manrope text-slate-400 dark:text-slate-500">
+      <div className="px-5 py-4 border-t border-slate-100 dark:border-slate-800 text-[11px] font-manrope text-slate-400 dark:text-slate-600">
         <p>© 2025 Justice Genie</p>
-        <p>All rights reserved</p>
       </div>
     </aside>
 
     {/* Main area */}
     <main className="flex-1 flex flex-col min-w-0">
-      <header className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+      <header className="flex items-center gap-3 h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
         <button
-          className="lg:hidden p-1.5 rounded-sm text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+          className="lg:hidden p-2 -ml-2 rounded-md text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
           onClick={toggleSidebar}
           aria-label="Open sidebar"
         >
-          <Menu size={22} />
+          <Menu size={20} />
         </button>
-        <h2 className="font-poppins font-semibold text-slate-800 dark:text-slate-100">Understand Your Legal Rights</h2>
+        <div className="min-w-0">
+          <h2 className="font-poppins font-semibold text-slate-900 dark:text-slate-100 text-[15px] truncate">Understand Your Legal Rights</h2>
+        </div>
         {!isOnline && (
-          <span className="flex items-center gap-1 text-xs font-manrope text-amber-700 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 px-2 py-1 rounded-sm ml-auto">
-            <AlertCircle size={14} />
+          <span className="flex items-center gap-1.5 text-xs font-manrope font-medium text-amber-700 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 px-2.5 py-1 rounded-md ml-auto flex-shrink-0">
+            <AlertCircle size={13} />
             Offline
           </span>
         )}
       </header>
 
       {error && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 text-sm font-manrope">
-          <AlertCircle size={16} />
+        <div className="flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm font-manrope">
+          <AlertCircle size={15} />
           <span>{error}</span>
         </div>
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4" ref={chatBoxRef}>
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6" ref={chatBoxRef}>
+        <div className="max-w-3xl mx-auto space-y-5">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-16">
-            <div className="w-14 h-14 rounded-sm bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-4">
-              <MessageSquare size={26} className="text-blue-600 dark:text-blue-400" />
+          <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 sm:py-20 animate-revealUp">
+            <div className="w-16 h-16 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-5 shadow-card">
+              <MessageSquare size={28} className="text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="font-poppins font-semibold text-lg text-slate-800 dark:text-slate-100">Start Your Legal Conversation</h3>
-            <p className="font-manrope text-sm text-slate-500 dark:text-slate-400 mt-1">Ask any legal question and get expert guidance from Justice Genie</p>
-            <div className="flex flex-col gap-2 mt-6 w-full">
-              <button
-                onClick={() => handleSampleQuestion("What are my rights as a tenant?")}
-                className="font-manrope text-sm text-left px-4 py-3 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700"
-              >
-                What are my rights as a tenant?
-              </button>
-              <button
-                onClick={() => handleSampleQuestion("How do I file a small claims case?")}
-                className="font-manrope text-sm text-left px-4 py-3 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700"
-              >
-                How do I file a small claims case?
-              </button>
-              <button
-                onClick={() => handleSampleQuestion("Explain employment discrimination laws")}
-                className="font-manrope text-sm text-left px-4 py-3 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700"
-              >
-                Explain employment discrimination laws
-              </button>
+            <h3 className="font-poppins font-bold text-xl text-slate-900 dark:text-slate-100">Start Your Legal Conversation</h3>
+            <p className="font-manrope text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm">Ask any legal question and get expert guidance from Justice Genie</p>
+            <div className="flex flex-col gap-2.5 mt-7 w-full">
+              {[
+                "What are my rights as a tenant?",
+                "How do I file a small claims case?",
+                "Explain employment discrimination laws"
+              ].map((q) => (
+                <button
+                  key={q}
+                  onClick={() => handleSampleQuestion(q)}
+                  className="group font-manrope text-sm text-left px-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 shadow-card hover:shadow-card-hover hover:border-blue-200 dark:hover:border-blue-500/40 hover:-translate-y-0.5 transition-all duration-200 ease-premium flex items-center justify-between"
+                >
+                  <span>{q}</span>
+                  <Send size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors flex-shrink-0 ml-3" />
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -991,26 +1025,26 @@ return (
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex items-start gap-3 ${message.type === "user" ? "flex-row-reverse" : ""}`}
+            className={`flex items-start gap-3 animate-revealUp ${message.type === "user" ? "flex-row-reverse" : ""}`}
           >
-            <div className="w-8 h-8 rounded-sm flex-shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-700 overflow-hidden">
+            <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden mt-0.5 ${message.type === "user" ? "bg-slate-800 dark:bg-slate-700" : "bg-blue-50 dark:bg-blue-500/10"}`}>
               {message.type === "user" ? (
                 profilePicture ? (
                   <img src={profilePicture} alt="You" className="w-full h-full object-cover" />
                 ) : (
-                  <User size={18} className="text-slate-500" />
+                  <User size={16} className="text-white" />
                 )
               ) : (
-                <Zap size={18} className="text-blue-600 dark:text-blue-400" />
+                <Zap size={16} className="text-blue-600 dark:text-blue-400" />
               )}
             </div>
 
-            <div className={`flex flex-col max-w-[85%] md:max-w-[70%] ${message.type === "user" ? "items-end" : "items-start"}`}>
+            <div className={`flex flex-col max-w-[88%] sm:max-w-[75%] ${message.type === "user" ? "items-end" : "items-start"}`}>
               <div
-                className={`font-manrope text-sm md:text-base px-4 py-3 rounded-sm ${
+                className={`font-manrope text-[14.5px] leading-relaxed px-4 py-3 rounded-lg shadow-card ${
                   message.type === "user"
-                    ? "bg-blue-600 text-white rounded-br-none"
-                    : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-bl-none"
+                    ? "bg-slate-800 dark:bg-slate-700 text-white rounded-tr-md"
+                    : "bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-tl-md"
                 }`}
               >
                 <div className={message.type === "user" ? "prose-invert" : ""}>
@@ -1021,38 +1055,41 @@ return (
 
               {/* Actions - bot messages only */}
               {message.type === "bot" && (
-                <div className="flex items-center gap-1 mt-1.5 text-slate-400 dark:text-slate-500">
+                <div className="flex items-center gap-0.5 mt-1.5 text-slate-300 dark:text-slate-600">
                   <button
-                    className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                    className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 active:scale-90 transition-all duration-150"
                     onClick={() => {
                       navigator.clipboard.writeText(message.content);
                       setCopied(true);
                       setTimeout(() => setCopied(false), 4000);
                     }}
                     title="Copy"
+                    aria-label="Copy message"
                   >
-                    {copied ? <Check size={16} className="text-green-500" /> : <Clipboard size={16} />}
+                    {copied ? <Check size={15} className="text-green-500" /> : <Clipboard size={15} />}
                   </button>
 
                   <button
                     onClick={() => setFeedback(feedback === "up" ? null : "up")}
-                    className={`p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${feedback === "up" ? "text-green-600" : "hover:text-slate-600 dark:hover:text-slate-300"}`}
+                    className={`p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-90 transition-all duration-150 ${feedback === "up" ? "text-green-600" : "hover:text-slate-600 dark:hover:text-slate-300"}`}
                     title="Thumbs Up"
+                    aria-label="Mark response as helpful"
                   >
-                    <ThumbsUp size={16} />
+                    <ThumbsUp size={15} />
                   </button>
                   <button
                     onClick={() => setFeedback(feedback === "down" ? null : "down")}
-                    className={`p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${feedback === "down" ? "text-red-600" : "hover:text-slate-600 dark:hover:text-slate-300"}`}
+                    className={`p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-90 transition-all duration-150 ${feedback === "down" ? "text-red-600" : "hover:text-slate-600 dark:hover:text-slate-300"}`}
                     title="Thumbs Down"
+                    aria-label="Mark response as not helpful"
                   >
-                    <ThumbsDown size={16} />
+                    <ThumbsDown size={15} />
                   </button>
 
                   <div className="relative" ref={menuRef}>
                     {!message.translated ? (
                       <button
-                        className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                        className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 active:scale-90 transition-all duration-150"
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveTranslateMessageId((prev) =>
@@ -1060,21 +1097,23 @@ return (
                           );
                         }}
                         title="Translate"
+                        aria-label="Translate message"
                       >
-                        <Globe size={16} />
+                        <Globe size={15} />
                       </button>
                     ) : (
                       <button
-                        className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                        className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 active:scale-90 transition-all duration-150"
                         onClick={() => handleRestore(message.id)}
                         title="Restore"
+                        aria-label="Restore original message"
                       >
-                        <RotateCcw size={16} />
+                        <RotateCcw size={15} />
                       </button>
                     )}
 
                     {activeTranslateMessageId === message.id && (
-                      <div className="absolute z-10 bottom-full mb-2 left-0 w-56 max-h-64 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm shadow-lg font-manrope text-sm">
+                      <div className="absolute z-10 bottom-full mb-2 left-0 w-56 max-h-64 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-elevated font-manrope text-sm animate-scaleIn origin-bottom-left">
                         {loadingTranslation && currentMessageId === message.id ? (
                           <div className="flex flex-col items-center gap-2 p-4 text-center">
                             <Loader size={18} className="animate-spin text-blue-500" />
@@ -1092,10 +1131,10 @@ return (
                           languages.map(({ name, code, native }) => (
                             <div
                               key={code}
-                              className="px-3 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer"
+                              className="px-3.5 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
                               onClick={() => handleTranslate(message.id, code, message.content)}
                             >
-                              {name} ({native})
+                              {name} <span className="text-slate-400 dark:text-slate-500">({native})</span>
                             </div>
                           ))
                         )}
@@ -1105,55 +1144,58 @@ return (
 
                   {!speakingMessageId || speakingMessageId !== message.id ? (
                     <button
-                      className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                      className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 active:scale-90 transition-all duration-150"
                       onClick={() => speakText(message.content, message.id)}
                       title="Listen"
+                      aria-label="Listen to message"
                     >
-                      <Volume2 size={16} />
+                      <Volume2 size={15} />
                     </button>
                   ) : (
                     <button
-                      className="p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+                      className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 active:scale-90 transition-all duration-150"
                       onClick={stopSpeech}
                       title="Stop"
+                      aria-label="Stop speaking"
                     >
-                      <SquareDotIcon size={16} />
+                      <SquareDotIcon size={15} />
                     </button>
                   )}
 
                   {!message.analysis && (
                     <div className="relative">
                       <button
-                        className="graph-button p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300 disabled:opacity-40"
+                        className="graph-button p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 active:scale-90 transition-all duration-150 disabled:opacity-40"
                         onClick={() => {
                           if (!analyzingMessageId) {
                             setPopupMessageId(popupMessageId === message.id ? null : message.id);
                           }
                         }}
                         title="Analyze Probability"
+                        aria-label="Analyze case probability"
                         disabled={analyzingMessageId}
                       >
                         {analyzingMessageId === message.id ? (
-                          <Loader size={16} className="animate-spin" />
+                          <Loader size={15} className="animate-spin" />
                         ) : (
-                          <BarChart size={16} />
+                          <BarChart size={15} />
                         )}
                       </button>
 
                       {popupMessageId === message.id && message.type === "bot" && (
-                        <div className="graph-popup absolute z-10 bottom-full mb-2 left-0 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm shadow-lg p-3">
-                          <p className="font-poppins text-sm text-slate-700 dark:text-slate-200 mb-3">Do you want to analyze the query?</p>
+                        <div className="graph-popup absolute z-10 bottom-full mb-2 left-0 w-60 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-elevated p-4 animate-scaleIn origin-bottom-left">
+                          <p className="font-poppins text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">Analyze this query?</p>
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
-                              className="font-manrope text-xs px-3 py-1.5 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                              className="font-manrope text-xs font-medium px-3 py-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                               onClick={() => setPopupMessageId(null)}
                             >
                               Cancel
                             </button>
                             <button
                               type="button"
-                              className="font-manrope text-xs px-3 py-1.5 rounded-sm bg-blue-600 text-white hover:bg-blue-700"
+                              className="font-manrope text-xs font-semibold px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all duration-150"
                               onClick={() => {
                                 handleAnalyze(message.id);
                               }}
@@ -1172,65 +1214,74 @@ return (
         ))}
 
         {isLoading && (
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-sm flex-shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-700">
-              <Zap size={18} className="text-blue-600 dark:text-blue-400 animate-pulse" />
+          <div className="flex items-start gap-3 animate-revealUp">
+            <div className="w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 mt-0.5">
+              <Zap size={16} className="text-blue-600 dark:text-blue-400 animate-pulse" />
             </div>
-            <div className="flex items-center gap-2 px-4 py-3 rounded-sm rounded-bl-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-manrope text-sm text-slate-500 dark:text-slate-400">
-              <Loader size={16} className="animate-spin" />
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg rounded-tl-md bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-card font-manrope text-sm text-slate-500 dark:text-slate-400">
+              <span className="flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse [animation-delay:-0.3s]"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse [animation-delay:-0.15s]"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse"></span>
+              </span>
               <span>{loadingMessage}</span>
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
-        <div className="flex items-end gap-2 max-w-4xl mx-auto">
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-            }}
-            onKeyPress={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                isLoading ? handleStopRequest() : handleSendMessage();
+      <div className="border-t border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm px-4 sm:px-6 py-4">
+        <div className="flex items-end gap-2 max-w-3xl mx-auto">
+          <div className="flex-1 flex items-end gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-card focus-within:ring-2 focus-within:ring-blue-500/40 focus-within:border-blue-400 transition-all duration-150">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+              onKeyPress={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  isLoading ? handleStopRequest() : handleSendMessage();
+                }
+              }}
+              placeholder={
+                isOnline
+                  ? "Ask about your legal rights..."
+                  : "You're offline. Messages will be sent when you're back online."
               }
-            }}
-            placeholder={
-              isOnline
-                ? "Ask about your legal rights..."
-                : "You're offline. Messages will be sent when you're back online."
-            }
-            className="flex-1 resize-none font-manrope text-sm md:text-base bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-sm px-4 py-2.5 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-40"
-            rows={1}
-            disabled={!isOnline || isLoading}
-          />
+              className="flex-1 resize-none font-manrope text-[14.5px] bg-transparent text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none max-h-40 py-1"
+              rows={1}
+              disabled={!isOnline || isLoading}
+            />
+            <button
+              className={`flex-shrink-0 p-2 rounded-md transition-all duration-150 active:scale-90 ${isListening ? "bg-red-50 text-red-600 dark:bg-red-500/10" : "text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700"}`}
+              onClick={handleMicClick}
+              title={isListening ? "Listening... Click to Stop" : "Click to Speak"}
+              aria-label={isListening ? "Listening, click to stop" : "Click to speak"}
+            >
+              {isListening ? <Mic size={19} /> : <MicOff size={19} />}
+            </button>
+          </div>
 
           <button
-            className={`p-2.5 rounded-sm border ${isListening ? "bg-red-50 border-red-300 text-red-600 dark:bg-red-500/10 dark:border-red-500/30" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"}`}
-            onClick={handleMicClick}
-            title={isListening ? "Listening... Click to Stop" : "Click to Speak"}
-          >
-            {isListening ? <Mic size={20} /> : <MicOff size={20} />}
-          </button>
-          <button
             onClick={isLoading ? handleStopRequest : handleSendMessage}
-            className={`p-2.5 rounded-sm ${input.trim() || isLoading ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500"} disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`flex-shrink-0 p-3 rounded-lg transition-all duration-200 ease-premium active:scale-90 ${input.trim() || isLoading ? "bg-blue-600 text-white shadow-card hover:shadow-card-hover hover:bg-blue-700" : "bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600"} disabled:opacity-50 disabled:cursor-not-allowed`}
             disabled={!isOnline || (!input.trim() && !isLoading)}
           >
-            {isLoading ? <XCircle size={20} /> : <Send size={20} />}
+            {isLoading ? <XCircle size={19} /> : <Send size={19} />}
           </button>
           <button
             onClick={() => setIsExportPopupOpen(true)}
             onMouseDown={(e) => e.currentTarget.blur()}
-            className="p-2.5 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-shrink-0 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
             disabled={messages.length === 0 || !isOnline}
             title="Export conversation as PDF"
+            aria-label="Export conversation as PDF"
           >
-            <Download size={20} />
+            <Download size={19} />
           </button>
         </div>
       </div>
@@ -1238,31 +1289,40 @@ return (
 
     {/* Mobile overlay */}
     {sidebarOpen && (
-      <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={toggleSidebar}></div>
+      <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] z-30 lg:hidden animate-fadeIn" onClick={toggleSidebar}></div>
     )}
 
     {/* Export PDF modal */}
     {isExportPopupOpen && (
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
-        <div className="bg-white dark:bg-slate-800 rounded-sm shadow-xl w-full max-w-sm p-6">
-          <h3 className="font-poppins font-semibold text-lg text-slate-800 dark:text-slate-100 mb-1">Export Chat as PDF</h3>
-          <p className="font-manrope text-sm text-slate-500 dark:text-slate-400 mb-3">Enter a filename for your PDF:</p>
+      <div
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-50 flex items-center justify-center px-4 animate-fadeIn"
+        onClick={() => setIsExportPopupOpen(false)}
+      >
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="export-pdf-title"
+          className="bg-white dark:bg-slate-800 rounded-lg shadow-elevated w-full max-w-sm p-6 animate-scaleIn"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 id="export-pdf-title" className="font-poppins font-bold text-lg text-slate-900 dark:text-slate-100 mb-1">Export Chat as PDF</h3>
+          <p className="font-manrope text-sm text-slate-500 dark:text-slate-400 mb-4">Enter a filename for your PDF:</p>
           <input
             type="text"
             value={pdfFilename}
             onChange={(e) => setPdfFilename(e.target.value)}
-            className="w-full font-manrope text-sm px-3 py-2 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"
+            className="w-full font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150 mb-5"
           />
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setIsExportPopupOpen(false)}
-              className="font-manrope text-sm px-4 py-2 rounded-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="font-manrope text-sm font-medium px-4 py-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleExportPDF}
-              className="font-manrope text-sm px-4 py-2 rounded-sm bg-blue-600 text-white hover:bg-blue-700"
+              className="font-manrope text-sm font-semibold px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-card hover:shadow-card-hover transition-all duration-150"
             >
               Download
             </button>

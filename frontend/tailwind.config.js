@@ -1,15 +1,23 @@
 // tailwind.config.js
 //
-// Design system going forward (chat.jsx, myaccount.jsx rebuild, and any new work):
+// Design system v2 (user-facing "premium" pass - chat, myaccount, auth, landing,
+// quiz, lawpdf, resources; admin pages intentionally excluded, still on v1):
 // - Fonts: Manrope for body text, Poppins for headings
-// - Colors: Tailwind's built-in `slate` palette (already the dominant choice
-//   across existing Tailwind-styled components - stick with it, don't add gray too)
-// - Radius: rounded-sm everywhere (not lg/xl/2xl/full mixed like older components)
-// - No neon gradients or glow effects
+// - Colors: Tailwind's built-in `slate` palette + blue-600 as the single accent
+// - Radius: rounded-lg on cards/modals/containers, rounded-md on buttons/inputs,
+//   rounded-full ONLY for avatars/status pills (functional, not decorative).
+//   Deliberately moderate, not sharp (cold) or bubbly (playful) - a legal
+//   product should read as structured and credible.
+// - Depth: soft layered shadows (shadow-sm resting -> shadow-md/lg on hover).
+//   No gradients, no glow, ever.
+// - Motion: restrained visuals, alive interactions - scroll-reveal on major
+//   sections (see `revealUp` below), hover-lift + tap-scale on every
+//   clickable element, real page transitions via framer-motion (already
+//   wired in App.js).
 //
 // The other registered fonts below (montserrat, sora, urbanist, spacegrotesk,
-// courgette, jura) are still used in untouched components - don't remove them
-// until those components are migrated too, or their text will fall back to
+// courgette, jura) are still used in untouched (admin/v1) components - don't
+// remove them until those are migrated too, or their text will fall back to
 // the browser default font.
 module.exports = {
   darkMode: 'class', // toggled via a `dark` class on <html> - see chat.jsx's dark mode effect
@@ -38,6 +46,14 @@ module.exports = {
           from: { opacity: '0', transform: 'translateY(10px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        revealUp: {
+          from: { opacity: '0', transform: 'translateY(24px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          from: { opacity: '0', transform: 'scale(0.96)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
       },
       animation: {
         // Was previously only working because admin.css happened to be
@@ -45,6 +61,18 @@ module.exports = {
         // Now it's a real Tailwind utility - `animate-fadeIn` works anywhere,
         // reliably, regardless of which components still have CSS files.
         fadeIn: 'fadeIn 0.4s ease-out',
+        // v2 motion tokens: scroll reveals + modal/popover entrances.
+        revealUp: 'revealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        scaleIn: 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      },
+      boxShadow: {
+        // Soft, layered, but actually visible - use `card` at rest, `card-hover` on interaction.
+        card: '0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.10)',
+        'card-hover': '0 8px 20px rgba(15, 23, 42, 0.12), 0 3px 6px rgba(15, 23, 42, 0.08)',
+        elevated: '0 16px 40px rgba(15, 23, 42, 0.16), 0 4px 12px rgba(15, 23, 42, 0.10)',
+      },
+      transitionTimingFunction: {
+        premium: 'cubic-bezier(0.16, 1, 0.3, 1)', // smooth "settle" easing for hover/tap/reveal
       },
     },
   },

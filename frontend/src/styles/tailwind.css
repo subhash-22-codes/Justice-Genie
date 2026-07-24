@@ -55,6 +55,24 @@ a {
   }
 
 }
+/* Button reset - preflight is disabled globally (see tailwind.config.js), so
+   native browser button chrome (grey background, border, padding) was
+   showing through underneath Tailwind classes. This strips ONLY buttons,
+   without touching anything else preflight would normally reset. */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: inherit;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* Prevent zoom on input focus (Safari & mobile Chrome) */
 input,
 textarea,
@@ -63,8 +81,12 @@ select {
   caret-color: #333;
 
 }
-/* Remove focus outline for all input, textarea, and select elements globally */
-input:focus, textarea:focus, select:focus {
-  outline: none;
-  box-shadow: none; /* Optional: Removes the shadow too */
-}
+/* NOTE: previously this file also removed ALL focus outlines/box-shadows on
+   input/textarea/select globally, which killed focus:ring-* utilities
+   everywhere (including ones deliberately added for accessibility) and is
+   itself an accessibility violation - keyboard users need a visible focus
+   indicator. That rule is gone; components should set their own focus style
+   via Tailwind (e.g. focus:ring-2 focus:ring-blue-500) as chat.jsx and
+   myaccount.jsx already do. Components without an explicit focus style will
+   fall back to the browser default outline, which is a correct and
+   accessible (if unstyled) result - better than no indicator at all. */
