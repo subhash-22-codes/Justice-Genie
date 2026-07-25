@@ -140,7 +140,7 @@ const Chat = () => {
       speechSynthesis.speak(speech);
     } else {
       const response = await fetch(
-  `${process.env.REACT_APP_BACKEND_URL}/api/text-to-speech`,
+  `/api/text-to-speech`,
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -172,7 +172,7 @@ const stopSpeech = async () => {
     if (isMobile) {
       speechSynthesis.cancel();
     } else {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stop-speech`, { method: "POST" });
+      const response = await fetch(`/api/stop-speech`, { method: "POST" });
       const data = await response.json();
 
       if (!response.ok) {
@@ -211,7 +211,7 @@ const stopSpeech = async () => {
   setCancelled(false);
 
   try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/translate`, {
+    const response = await fetch(`/api/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messageId, targetLang, messageContent }),
@@ -273,7 +273,7 @@ useEffect(() => {
     try {
       setMessages([]); 
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/get_chat?username=${username}`,
+        `/api/get_chat?username=${username}`,
         {
           method: "GET",
           credentials: "include", 
@@ -317,7 +317,7 @@ const handleAnalyze = async (botMessageId) => {
   const userQuery = messages[botMessageIndex - 1];
 
   try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/analyze_probability`, {
+    const response = await fetch(`/api/analyze_probability`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -338,7 +338,7 @@ const handleAnalyze = async (botMessageId) => {
       )
     );
 
-    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/save_analysis`, {
+    await fetch(`/api/save_analysis`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -428,7 +428,7 @@ const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
     setBootLoading(true);
 
     const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
+      `/api/myaccount`,
       { credentials: "include" }
     );
 
@@ -475,7 +475,7 @@ useEffect(() => {
     setMessages(chatCacheRef.current[username]);
   } else {
     setMessages([]);
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/get_chat?username=${username}`, { credentials: "include" })
+    fetch(`/api/get_chat?username=${username}`, { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setMessages(data.messages || []);
@@ -515,7 +515,7 @@ const handleSendMessage = async () => {
   abortControllerRef.current = new AbortController();
 
   try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat`, {
+    const response = await fetch(`/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -537,7 +537,7 @@ const handleSendMessage = async () => {
       setMessages((prev) => [...prev, botMessage]);
       setIsLoading(false);
 
-      await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/store_message`, {
+      await fetch(`/api/store_message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -570,7 +570,7 @@ const handleStopRequest = () => {
   setIsExportPopupOpen(false);
 
   try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/export-pdf`, {
+    const response = await fetch(`/api/export-pdf`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -656,7 +656,7 @@ const handleLogout = useCallback(() => {
     okType: "danger",
     onOk: async () => {
   try {
-    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+    await fetch(`/api/logout`, {
       method: "POST",
       credentials: "include",
     });

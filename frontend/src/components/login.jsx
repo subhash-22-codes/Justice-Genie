@@ -36,7 +36,7 @@ const Login = () => {
     setLoginMessage('Contacting server, this may take a few seconds if it\u2019s waking up.');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
+      const response = await fetch(`/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

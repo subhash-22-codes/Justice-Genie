@@ -22,7 +22,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/users?page=1&limit=100`,{
+        const response = await fetch(`/api/admin/users?page=1&limit=100`,{
           credentials: 'include'
         });
         if (!response.ok) {
@@ -38,7 +38,7 @@ const UserManagement = () => {
   
         // Fetch lock status only for locked users
         const lockStatusPromises = lockedUserEmails.map(async (email) => {
-          const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/user/lock-status?email=${email}`,{
+          const res = await fetch(`/api/user/lock-status?email=${email}`,{
             credentials: 'include'
           });
           if (!res.ok) return null;
@@ -100,7 +100,7 @@ const UserManagement = () => {
     if (result.isConfirmed) {
       try {
         // Send request to lock the user
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/remove-user`, {
+        const response = await fetch(`/api/admin/remove-user`, {
           method: 'POST',
           credentials: 'include',
           headers: {

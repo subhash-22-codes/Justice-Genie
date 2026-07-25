@@ -19,7 +19,7 @@ const AdminCollab = () => {
   useEffect(() => {
     const fetchCollabs = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/collab-requests?page=1&limit=100`, {
+        const response = await axios.get(`/api/admin/collab-requests?page=1&limit=100`, {
           withCredentials: true,
         });
         setCollabs(response.data.collabs || []);

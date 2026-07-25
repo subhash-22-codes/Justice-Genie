@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://justice-genie-2fcx.onrender.com/api/:path*"
+    }
+  ]
+}

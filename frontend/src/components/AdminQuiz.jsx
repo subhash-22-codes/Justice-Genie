@@ -20,7 +20,7 @@ const AdminQuiz = () => {
     const fetchParticipants = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/quiz_participants?page=1&limit=100`, {
+        const response = await fetch(`/api/admin/quiz_participants?page=1&limit=100`, {
           method: 'GET',
           credentials: 'include',
         });

@@ -38,7 +38,7 @@ const LawPDF = () => {
       setLoading(true);
       setError(null);
       const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/books${selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''}`,
+        `/api/books${selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''}`,
         { withCredentials: true }
       );
       setBooks(response.data);
@@ -58,7 +58,7 @@ const LawPDF = () => {
     if (!bookId) return;
     try {
       await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/books/${bookId}/${action}`,
+        `/api/books/${bookId}/${action}`,
         { withCredentials: true }
       );
     } catch (err) {

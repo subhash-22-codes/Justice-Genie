@@ -41,7 +41,7 @@ const Quiz = () => {
   ];
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/myaccount`, { withCredentials: true })
+    axios.get(`/api/myaccount`, { withCredentials: true })
       .then((response) => {
         const { username, game_name, quiz_level } = response.data;
         setUsername(username);
@@ -49,7 +49,7 @@ const Quiz = () => {
         setTempGameName(game_name || 'Justice Warrior');
         setUnlockedLevel(quiz_level || 1);
         
-        return axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/leaderboard`, { withCredentials: true });
+        return axios.get(`/api/leaderboard`, { withCredentials: true });
       })
       .then((res) => {
         const sortedLeaderboard = res.data.leaderboard || [];
@@ -67,7 +67,7 @@ const Quiz = () => {
   const handleSubmit = useCallback(() => {
     setIsSubmitting(true);
     axios.post(
-      `${process.env.REACT_APP_BACKEND_URL}/api/submit_quiz`,
+      `/api/submit_quiz`,
       { answers, level: selectedLevel },
       { withCredentials: true }
     )
@@ -88,11 +88,11 @@ const Quiz = () => {
           color: document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#1e293b',
           confirmButtonColor: '#2563eb',
         });
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/myaccount`, { withCredentials: true })
+        axios.get(`/api/myaccount`, { withCredentials: true })
           .then(res => setUnlockedLevel(res.data.quiz_level || 1));
       }
 
-      return axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/leaderboard`, { withCredentials: true });
+      return axios.get(`/api/leaderboard`, { withCredentials: true });
     })
     .then((res) => {
       const sortedLeaderboard = res.data.leaderboard || [];
@@ -141,7 +141,7 @@ const Quiz = () => {
     setQuestions([]);
     setSidebarOpen(false);
 
-    axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/get_quiz?level=${levelId}`, { withCredentials: true })
+    axios.get(`/api/get_quiz?level=${levelId}`, { withCredentials: true })
       .then((response) => {
         setQuestions(response.data.quiz || []);
       })
@@ -178,14 +178,14 @@ const Quiz = () => {
 
   const handleSaveGameName = () => {
     axios.post(
-      `${process.env.REACT_APP_BACKEND_URL}/api/update_game_name`,
+      `/api/update_game_name`,
       { game_name: tempGameName },
       { withCredentials: true }
     )
     .then(() => {
       setGameName(tempGameName);
       setEditingName(false);
-      return axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/leaderboard`, { withCredentials: true });
+      return axios.get(`/api/leaderboard`, { withCredentials: true });
     })
     .then((res) => {
       setLeaderboard(res.data.leaderboard || []);

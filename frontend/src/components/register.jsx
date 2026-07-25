@@ -111,7 +111,7 @@ const Register = () => {
 
         setIsLoading(true);
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/register`, {
+          const response = await fetch(`/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -157,7 +157,7 @@ const Register = () => {
     setIsLoading(true); 
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/verify_code`, {
+      const response = await fetch(`/api/verify_code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ const Register = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/resend_verification_code`, {
+      const response = await fetch(`/api/resend_verification_code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

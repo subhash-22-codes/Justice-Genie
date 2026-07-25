@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
       setAuth({ loggedIn: true, role: storedRole, username: storedUsername, loading: false });
     } else {
       // Optional: fetch backend once if nothing in localStorage
-      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/check-session`, {
+      fetch(`/api/check-session`, {
         method: "GET",
         credentials: "include",
       })

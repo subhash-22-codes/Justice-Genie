@@ -17,7 +17,7 @@ const AdminPanel = () => {
 
 const handleExit = async () => {
   try {
-    await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+    await fetch(`/api/logout`, {
       method: 'POST',
       credentials: 'include',   // 👈 ensures cookie is sent
     });

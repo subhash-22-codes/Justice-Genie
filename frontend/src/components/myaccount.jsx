@@ -187,13 +187,13 @@ const MyAccount = () => {
       const fetchStats = async () => {
         try {
           const accountRes = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
+            `/api/myaccount`,
             { withCredentials: true }
           );
           setGameName(accountRes.data.game_name);
 
           const leaderboardRes = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/leaderboard`,
+            `/api/leaderboard`,
             { withCredentials: true }
           );
 
@@ -215,7 +215,7 @@ const MyAccount = () => {
     const fetchUserDetails = useCallback(async () => {
       try {
           const response = await axios.get(
-              `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
+              `/api/myaccount`,
               { withCredentials: true }
           );
           setUserDetails(response.data);
@@ -257,7 +257,7 @@ const MyAccount = () => {
 
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BACKEND_URL}/api/update_profile_picture`,
+                `/api/update_profile_picture`,
                 formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -305,7 +305,7 @@ const MyAccount = () => {
       
         try {
           const response = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/api/remove_profile_picture`,
+            `/api/remove_profile_picture`,
             {},
             { withCredentials: true }
           );
@@ -359,7 +359,7 @@ const MyAccount = () => {
 
         try {
             await axios.post(
-                `${process.env.REACT_APP_BACKEND_URL}/api/update_profile`,
+                `/api/update_profile`,
                 { username: trimmedUsername || undefined, password: trimmedPassword || undefined },
                 { withCredentials: true }
             );
@@ -378,7 +378,7 @@ const MyAccount = () => {
         const fetchFeedbackStatus = async () => {
            try {
             const response = await axios.get(
-                `${process.env.REACT_APP_BACKEND_URL}/api/get_feedback_status?email=${userDetails.email}`,
+                `/api/get_feedback_status?email=${userDetails.email}`,
                 { withCredentials: true }
             );
 
@@ -403,7 +403,7 @@ const MyAccount = () => {
     
         try {
             await axios.post(
-                `${process.env.REACT_APP_BACKEND_URL}/api/submit_feedback`,
+                `/api/submit_feedback`,
                 {
                 feedbackText,
                 email: userDetails.email,
@@ -425,7 +425,7 @@ const MyAccount = () => {
         const fetchCollabStatus = async () => {
             try {
                 const response = await axios.get(
-                `${process.env.REACT_APP_BACKEND_URL}/api/get_collab_status`,
+                `/api/get_collab_status`,
                 {
                     params: { email: userDetails.email },
                     withCredentials: true,
@@ -498,7 +498,7 @@ const MyAccount = () => {
     
         try {
            const response = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/api/collab`,
+            `/api/collab`,
             {
                 name: data.name,
                 email: data.email,
@@ -560,7 +560,7 @@ const MyAccount = () => {
         if (!confirmation.isConfirmed) return;
       
         try {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/clear_chat`, {
+          const response = await fetch(`/api/clear_chat`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -596,7 +596,7 @@ const MyAccount = () => {
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
         try {
-            await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/delete_account`, { withCredentials: true });
+            await axios.delete(`/api/delete_account`, { withCredentials: true });
     
             showNotification('Account deletion in progress...');
             
@@ -616,7 +616,7 @@ const MyAccount = () => {
 
     const handleLogout = async () => {
         try {
-            await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
+            await fetch(`/api/logout`, {
             method: "POST",
             credentials: "include",
             });
