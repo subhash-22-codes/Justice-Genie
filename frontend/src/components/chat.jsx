@@ -52,27 +52,23 @@ const Chat = () => {
   const [currentMessageId, setCurrentMessageId] = useState(null);
   const [cancelled, setCancelled] = useState(false); 
   const { setAuth } = useContext(AuthContext);
-  const chatCacheRef = useRef({}); // Add this at the top, with your other refs
+  const chatCacheRef = useRef({});
 
   const [copied, setCopied] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  // let controller = new AbortController(); // To cancel fetch if stopped
 
-  const recognitionRef = useRef(null); // Store recognition instance
+  const recognitionRef = useRef(null);
   const [bootLoading, setBootLoading] = useState(false);
-  // In chat.jsx, at the top of your component
   const [isExportPopupOpen, setIsExportPopupOpen] = useState(false);
   const [pdfFilename, setPdfFilename] = useState(`chat_history_${new Date().toISOString().split('T')[0]}`);
-  // In chat.jsx, at the top of your Chat component
   const [analyzingMessageId, setAnalyzingMessageId] = useState(null);
   const handleMicClick = () => {
     if (isListening) {
-      recognitionRef.current?.stop(); // Stop when clicking again
+      recognitionRef.current?.stop();
       setIsListening(false);
       return;
     }
 
-    // Initialize Speech Recognition
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -82,11 +78,11 @@ const Chat = () => {
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
-    recognition.continuous = true; // Keeps listening after short pauses
-    recognition.interimResults = true; // Show words as they are spoken
-    recognition.lang = "en-US"; // Set language
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US"; 
 
-    let finalTranscript = ""; // Stores final recognized text
+    let finalTranscript = ""; 
 
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => {
@@ -99,13 +95,13 @@ const Chat = () => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalTranscript += result[0].transcript + " "; // Store final words
+          finalTranscript += result[0].transcript + " ";
         } else {
-          interimTranscript = result[0].transcript; // Show temporary words
+          interimTranscript = result[0].transcript;
         }
       }
 
-      setInput(finalTranscript + interimTranscript); // Merge final & live text
+      setInput(finalTranscript + interimTranscript);
     };
 
     recognition.onerror = (event) => {
@@ -116,9 +112,9 @@ const Chat = () => {
     recognition.start();
   };
 
-  const [speakingMessageId, setSpeakingMessageId] = useState(null); // 🔹 Track which message is speaking
+  const [speakingMessageId, setSpeakingMessageId] = useState(null); 
 
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent); // 🔹 Detect mobile device
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent); 
   
   const stripHTML = (html) => {
     const doc = new DOMParser().parseFromString(html, "text/html");
@@ -132,7 +128,6 @@ const Chat = () => {
     const cleanText = stripHTML(text);
 
     if (isMobile) {
-      // 🔹 Use browser's built-in speech synthesis for mobile
       const speech = new SpeechSynthesisUtterance(cleanText);
       speech.lang = "en-US";
       speech.rate = 1.0;
@@ -144,13 +139,12 @@ const Chat = () => {
 
       speechSynthesis.speak(speech);
     } else {
-      // 🔹 Call backend API for desktop TTS
       const response = await fetch(
   `${process.env.REACT_APP_BACKEND_URL}/api/text-to-speech`,
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include", // 👈 include session cookie
+    credentials: "include", 
     body: JSON.stringify({ text: cleanText, rate: 150 }),
   }
 );
@@ -162,7 +156,6 @@ const Chat = () => {
         throw new Error(data.error || "Failed to start speech on the server");
       }
 
-      // 🔹 Handle "coming soon" message
       if (data.message?.toLowerCase().includes("coming soon")) {
         showToast("Text-to-Speech is coming soon.", "info");
         setSpeakingMessageId(null);
@@ -197,8 +190,6 @@ const stopSpeech = async () => {
   }
 };
 
-  
-  
   const languages = [
     { name: "English", code: "en", native: "English" },
     { name: "Telugu", code: "te", native: "తెలుగు" },
@@ -243,7 +234,6 @@ const stopSpeech = async () => {
         )
       );
 
-      // Optional: show a notification if it's the placeholder
       if (data.translatedText.includes("coming soon")) {
         showToast("Translation service is coming soon.", "info");
       }
@@ -268,7 +258,7 @@ const stopSpeech = async () => {
   };
   
 const handleCancelTranslation = () => {
-  setCancelled(true); // ✅ Mark translation as canceled
+  setCancelled(true); 
   setLoadingTranslation(null);
   setCurrentMessageId(null);
 };
@@ -276,26 +266,25 @@ const handleCancelTranslation = () => {
 
 
   
-  // ✅ Fetch chat history from MongoDB on component mount
 useEffect(() => {
   if (!username) return;
 
   const fetchMessages = async () => {
     try {
-      setMessages([]); // Clear messages before fetching
+      setMessages([]); 
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/api/get_chat?username=${username}`,
         {
           method: "GET",
-          credentials: "include", // send cookies/session
+          credentials: "include", 
         }
       );
 
       const data = await response.json();
-      setMessages(data.messages || []); // Always use backend data
+      setMessages(data.messages || []); 
     } catch (error) {
       console.error("Error fetching chat history:", error);
-      setMessages([]); // fallback to empty
+      setMessages([]); 
     }
   };
 
@@ -303,10 +292,9 @@ useEffect(() => {
 
   const handleChatClear = () => {
     console.log("[Chat] chatHistoryClear event received! Clearing messages...");
-    setMessages([]); // Clear immediately after delete
+    setMessages([]); 
   };
 
-  // ✅ Listen for clear event
   window.addEventListener("chatHistoryClear", handleChatClear);
 
   return () => {
@@ -315,9 +303,6 @@ useEffect(() => {
 }, [username]);
 
   
-   // ✅ Store messages in MongoDB instead of local storage
-   // This code in your chat.jsx is correct and does not need any more changes.
-
 const handleAnalyze = async (botMessageId) => {
   setAnalyzingMessageId(botMessageId);
   setPopupMessageId(null);
@@ -353,7 +338,6 @@ const handleAnalyze = async (botMessageId) => {
       )
     );
 
-    // This part correctly sends the data to your new backend endpoint
     await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/save_analysis`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -370,7 +354,6 @@ const handleAnalyze = async (botMessageId) => {
 
   setAnalyzingMessageId(null);
 };
-  // Extracted MongoDB store function
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -384,6 +367,7 @@ const handleAnalyze = async (botMessageId) => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -405,7 +389,6 @@ const handleAnalyze = async (botMessageId) => {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
-    // Handle responsive sidebar
     const handleResize = () => {
       if (window.innerWidth > 1024) {
         setSidebarOpen(true);
@@ -414,7 +397,6 @@ const handleAnalyze = async (botMessageId) => {
       }
     };
     
-    // Initial check
     handleResize();
     window.addEventListener('resize', handleResize);
     
@@ -432,10 +414,6 @@ const handleAnalyze = async (botMessageId) => {
     }
   }, [input]);
 
-  // Apply dark mode - toggles the 'dark' class on <html>, which is what
-  // Tailwind's dark: variant looks for (darkMode: 'class' in tailwind.config.js).
-  // Scoped to <html> is safe: only Tailwind classes with a dark: prefix respond
-  // to it, so other pages that don't use dark: are completely unaffected.
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -444,13 +422,11 @@ const handleAnalyze = async (botMessageId) => {
     }
   }, [isDarkMode]);
 
- // Fetch User Data (Ensure unique chat storage per user)
 const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
   try {
     setError(null);
-    setBootLoading(true); // show loader
+    setBootLoading(true);
 
-    // Fetch from backend
     const response = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
       { credentials: "include" }
@@ -462,13 +438,12 @@ const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
     setUsername(data.username);
     setProfilePicture(data.profile_picture || "");
 
-    // Save to sessionStorage for next visits (optional, only user info)
     sessionStorage.setItem("userData", JSON.stringify({
       username: data.username,
       profile_picture: data.profile_picture || ""
     }));
 
-    setBootLoading(false); // hide loader
+    setBootLoading(false); 
   } catch (err) {
     console.error("Error fetching user data:", err);
 
@@ -481,16 +456,12 @@ const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
   }
 }, []);
 
-// -----------------------------
-// Run fetch once on mount or if no cached data
-// -----------------------------
 useEffect(() => {
   const cachedUser = sessionStorage.getItem("userData");
   if (cachedUser) {
     const data = JSON.parse(cachedUser);
     setUsername(data.username);
     setProfilePicture(data.profile_picture || "");
-    // ❌ Removed localStorage chat preload
   } else {
     fetchUserData();
   }
@@ -514,9 +485,6 @@ useEffect(() => {
   }
 }, [username]);
 
-
-// -----------------------------
-// Auto-scroll (unchanged)
 useEffect(() => {
   if (chatBoxRef.current) {
     chatBoxRef.current.scrollTo({
@@ -526,12 +494,8 @@ useEffect(() => {
   }
 }, [messages]);
 
-// -----------------------------
-// Abort Controller (unchanged)
 const abortControllerRef = useRef(null);
 
-// -----------------------------
-// Handle sending message (unchanged)
 const handleSendMessage = async () => {
   if (!input.trim() || isLoading || !isOnline) return;
 
@@ -610,8 +574,6 @@ const handleStopRequest = () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      // SIMPLIFIED: Just send the raw message content.
-      // The backend will handle all formatting.
       body: JSON.stringify({
         messages: messages.map(({ type, content }) => ({
           user: type === 'user' ? 'You' : 'Justice Genie',
@@ -638,7 +600,6 @@ const handleStopRequest = () => {
 
   } catch (error) {
     console.error('Error exporting PDF:', error);
-    // You can use your setError state function here if you have one
     showToast('Failed to export chat history. Please try again.', 'error');
   }
 };
@@ -657,11 +618,11 @@ useEffect(() => {
     const interval = setInterval(() => {
       setLoadingMessage(messages[index]);
       index = (index + 1) % messages.length;
-    }, 6000); // Change message every 4 seconds
+    }, 6000); 
 
     return () => clearInterval(interval);
   }
-}, [isLoading]); // Only runs when `isLoading` changes
+}, [isLoading]); 
 
 
 
@@ -673,10 +634,10 @@ useEffect(() => {
       showCancelButton: true,
       confirmButtonText: "Yes, clear it!",
       cancelButtonText: "Cancel",
-      background: isDarkMode ? '#1e293b' : '#ffffff', // slate-800 / white
-      color: isDarkMode ? '#e2e8f0' : '#1e293b', // slate-200 / slate-800
-      confirmButtonColor: '#dc2626', // red-600 - destructive action
-      cancelButtonColor: isDarkMode ? '#475569' : '#e2e8f0', // slate-600 / slate-200
+      background: isDarkMode ? '#1e293b' : '#ffffff', 
+      color: isDarkMode ? '#e2e8f0' : '#1e293b', 
+      confirmButtonColor: '#dc2626', 
+      cancelButtonColor: isDarkMode ? '#475569' : '#e2e8f0', 
     }).then((result) => {
       if (result.isConfirmed) {
         setMessages([]);
@@ -700,24 +661,17 @@ const handleLogout = useCallback(() => {
       credentials: "include",
     });
 
-    // Clear context
     setAuth({ loggedIn: false, role: null, username: null, loading: false });
 
-    // --- THIS IS THE FIX ---
-    // This one line removes ALL data for the session, including the stale 'userData'.
     sessionStorage.clear(); 
     
-    // You should also clear localStorage if you are storing user-specific data there
     localStorage.removeItem(`chatHistory_${username}`);
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("role");
     localStorage.removeItem("darkMode");
-    // ----------------------
 
-    // Clear chat history from state
     setMessages([]);
 
-    // Navigate to login page
     navigate("/login", { replace: true });
   } catch (error) {
     console.error("Error logging out:", error);
@@ -756,7 +710,6 @@ const handleLogout = useCallback(() => {
     }
   };
 
-  // Modal UX: ESC closes it, background scroll locks while it's open.
   useEffect(() => {
     if (!isExportPopupOpen) return;
 
@@ -970,19 +923,19 @@ return (
 
     {/* Main area */}
     <main className="flex-1 flex flex-col min-w-0">
-      <header className="flex items-center gap-3 h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+      <header className="flex items-center gap-2 sm:gap-3 h-14 sm:h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
         <button
           className="lg:hidden p-2 -ml-2 rounded-md text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
           onClick={toggleSidebar}
           aria-label="Open sidebar"
         >
-          <Menu size={20} />
+          <Menu size={20} className="w-5 h-5" />
         </button>
         <div className="min-w-0">
-          <h2 className="font-poppins font-semibold text-slate-900 dark:text-slate-100 text-[15px] truncate">Understand Your Legal Rights</h2>
+          <h2 className="font-poppins font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-[15px] truncate">Understand Your Legal Rights</h2>
         </div>
         {!isOnline && (
-          <span className="flex items-center gap-1.5 text-xs font-manrope font-medium text-amber-700 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 px-2.5 py-1 rounded-md ml-auto flex-shrink-0">
+          <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-manrope font-medium text-amber-700 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 px-2 sm:px-2.5 py-1 rounded-md ml-auto flex-shrink-0">
             <AlertCircle size={13} />
             Offline
           </span>
@@ -990,23 +943,23 @@ return (
       </header>
 
       {error && (
-        <div className="flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm font-manrope">
+        <div className="flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs sm:text-sm font-manrope">
           <AlertCircle size={15} />
           <span>{error}</span>
         </div>
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6" ref={chatBoxRef}>
-        <div className="max-w-3xl mx-auto space-y-5">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6" ref={chatBoxRef}>
+        <div className="max-w-3xl mx-auto space-y-4 sm:space-y-5">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 sm:py-20 animate-revealUp">
-            <div className="w-16 h-16 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-5 shadow-card">
-              <MessageSquare size={28} className="text-blue-600 dark:text-blue-400" />
+          <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto py-10 sm:py-16 md:py-20 animate-revealUp">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-4 sm:mb-5 shadow-card">
+              <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="font-poppins font-bold text-xl text-slate-900 dark:text-slate-100">Start Your Legal Conversation</h3>
-            <p className="font-manrope text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm">Ask any legal question and get expert guidance from Justice Genie</p>
-            <div className="flex flex-col gap-2.5 mt-7 w-full">
+            <h3 className="font-poppins font-bold text-lg sm:text-xl text-slate-900 dark:text-slate-100">Start Your Legal Conversation</h3>
+            <p className="font-manrope text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm px-4 sm:px-0">Ask any legal question and get expert guidance from Justice Genie</p>
+            <div className="flex flex-col gap-2.5 mt-6 sm:mt-7 w-full">
               {[
                 "What are my rights as a tenant?",
                 "How do I file a small claims case?",
@@ -1015,7 +968,7 @@ return (
                 <button
                   key={q}
                   onClick={() => handleSampleQuestion(q)}
-                  className="group font-manrope text-sm text-left px-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 shadow-card hover:shadow-card-hover hover:border-blue-200 dark:hover:border-blue-500/40 hover:-translate-y-0.5 transition-all duration-200 ease-premium flex items-center justify-between"
+                  className="group font-manrope text-xs sm:text-sm text-left px-3 sm:px-4 py-3 sm:py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 shadow-card hover:shadow-card-hover hover:border-blue-200 dark:hover:border-blue-500/40 hover:-translate-y-0.5 transition-all duration-200 ease-premium flex items-center justify-between"
                 >
                   <span>{q}</span>
                   <Send size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition-colors flex-shrink-0 ml-3" />
@@ -1028,23 +981,23 @@ return (
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex items-start gap-3 animate-revealUp ${message.type === "user" ? "flex-row-reverse" : ""}`}
+            className={`flex items-start gap-2.5 sm:gap-3 animate-revealUp ${message.type === "user" ? "flex-row-reverse" : ""}`}
           >
-            <div className={`w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden mt-0.5 ${message.type === "user" ? "bg-slate-800 dark:bg-slate-700" : "bg-blue-50 dark:bg-blue-500/10"}`}>
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden mt-0.5 ${message.type === "user" ? "bg-slate-800 dark:bg-slate-700" : "bg-blue-50 dark:bg-blue-500/10"}`}>
               {message.type === "user" ? (
                 profilePicture ? (
                   <img src={profilePicture} alt="You" className="w-full h-full object-cover" />
                 ) : (
-                  <User size={16} className="text-white" />
+                  <User className="w-4 h-4 text-white" />
                 )
               ) : (
-                <Zap size={16} className="text-blue-600 dark:text-blue-400" />
+                <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               )}
             </div>
 
-            <div className={`flex flex-col max-w-[88%] sm:max-w-[75%] ${message.type === "user" ? "items-end" : "items-start"}`}>
+            <div className={`flex flex-col max-w-[92%] sm:max-w-[80%] md:max-w-[75%] ${message.type === "user" ? "items-end" : "items-start"}`}>
               <div
-                className={`font-manrope text-[14.5px] leading-relaxed px-4 py-3 rounded-lg shadow-card ${
+                className={`font-manrope text-sm sm:text-[14.5px] leading-relaxed px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg shadow-card ${
                   message.type === "user"
                     ? "bg-slate-800 dark:bg-slate-700 text-white rounded-tr-md"
                     : "bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-tl-md"
@@ -1069,7 +1022,7 @@ return (
                     title="Copy"
                     aria-label="Copy message"
                   >
-                    {copied ? <Check size={15} className="text-green-500" /> : <Clipboard size={15} />}
+                    {copied ? <Check size={14} className="text-green-500" /> : <Clipboard size={14} />}
                   </button>
 
                   <button
@@ -1078,7 +1031,7 @@ return (
                     title="Thumbs Up"
                     aria-label="Mark response as helpful"
                   >
-                    <ThumbsUp size={15} />
+                    <ThumbsUp size={14} />
                   </button>
                   <button
                     onClick={() => setFeedback(feedback === "down" ? null : "down")}
@@ -1086,7 +1039,7 @@ return (
                     title="Thumbs Down"
                     aria-label="Mark response as not helpful"
                   >
-                    <ThumbsDown size={15} />
+                    <ThumbsDown size={14} />
                   </button>
 
                   <div className="relative" ref={menuRef}>
@@ -1102,7 +1055,7 @@ return (
                         title="Translate"
                         aria-label="Translate message"
                       >
-                        <Globe size={15} />
+                        <Globe size={14} />
                       </button>
                     ) : (
                       <button
@@ -1111,12 +1064,12 @@ return (
                         title="Restore"
                         aria-label="Restore original message"
                       >
-                        <RotateCcw size={15} />
+                        <RotateCcw size={14} />
                       </button>
                     )}
 
                     {activeTranslateMessageId === message.id && (
-                      <div className="absolute z-10 bottom-full mb-2 left-0 w-56 max-h-64 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-elevated font-manrope text-sm animate-scaleIn origin-bottom-left">
+                      <div className="absolute z-10 bottom-full mb-2 left-0 sm:-left-10 w-48 sm:w-56 max-h-64 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-elevated font-manrope text-xs sm:text-sm animate-scaleIn origin-bottom-left">
                         {loadingTranslation && currentMessageId === message.id ? (
                           <div className="flex flex-col items-center gap-2 p-4 text-center">
                             <Loader size={18} className="animate-spin text-blue-500" />
@@ -1134,7 +1087,7 @@ return (
                           languages.map(({ name, code, native }) => (
                             <div
                               key={code}
-                              className="px-3.5 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
+                              className="px-3 py-2 sm:px-3.5 sm:py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
                               onClick={() => handleTranslate(message.id, code, message.content)}
                             >
                               {name} <span className="text-slate-400 dark:text-slate-500">({native})</span>
@@ -1152,7 +1105,7 @@ return (
                       title="Listen"
                       aria-label="Listen to message"
                     >
-                      <Volume2 size={15} />
+                      <Volume2 size={14} />
                     </button>
                   ) : (
                     <button
@@ -1161,7 +1114,7 @@ return (
                       title="Stop"
                       aria-label="Stop speaking"
                     >
-                      <SquareDotIcon size={15} />
+                      <SquareDotIcon size={14} />
                     </button>
                   )}
 
@@ -1179,26 +1132,26 @@ return (
                         disabled={analyzingMessageId}
                       >
                         {analyzingMessageId === message.id ? (
-                          <Loader size={15} className="animate-spin" />
+                          <Loader size={14} className="animate-spin" />
                         ) : (
-                          <BarChart size={15} />
+                          <BarChart size={14} />
                         )}
                       </button>
 
                       {popupMessageId === message.id && message.type === "bot" && (
-                        <div className="graph-popup absolute z-10 bottom-full mb-2 left-0 w-60 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-elevated p-4 animate-scaleIn origin-bottom-left">
-                          <p className="font-poppins text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">Analyze this query?</p>
+                        <div className="graph-popup absolute z-10 bottom-full mb-2 left-0 sm:left-auto sm:right-0 w-56 sm:w-60 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-elevated p-3 sm:p-4 animate-scaleIn origin-bottom-left sm:origin-bottom-right">
+                          <p className="font-poppins text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">Analyze this query?</p>
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
-                              className="font-manrope text-xs font-medium px-3 py-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                              className="font-manrope text-[10px] sm:text-xs font-medium px-2 sm:px-3 py-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                               onClick={() => setPopupMessageId(null)}
                             >
                               Cancel
                             </button>
                             <button
                               type="button"
-                              className="font-manrope text-xs font-semibold px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all duration-150"
+                              className="font-manrope text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all duration-150"
                               onClick={() => {
                                 handleAnalyze(message.id);
                               }}
@@ -1217,11 +1170,11 @@ return (
         ))}
 
         {isLoading && (
-          <div className="flex items-start gap-3 animate-revealUp">
-            <div className="w-8 h-8 rounded-md flex-shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 mt-0.5">
-              <Zap size={16} className="text-blue-600 dark:text-blue-400 animate-pulse" />
+          <div className="flex items-start gap-2.5 sm:gap-3 animate-revealUp">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md flex-shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 mt-0.5">
+              <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-pulse" />
             </div>
-            <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg rounded-tl-md bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-card font-manrope text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-2.5 px-3 sm:px-4 py-2 sm:py-3 rounded-lg rounded-tl-md bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-card font-manrope text-xs sm:text-sm text-slate-500 dark:text-slate-400">
               <span className="flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse [animation-delay:-0.3s]"></span>
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse [animation-delay:-0.15s]"></span>
@@ -1246,7 +1199,7 @@ return (
               onChange={(e) => setInput(e.target.value)}
               onInput={(e) => {
                 const el = e.currentTarget;
-                el.style.height = "0px";
+                el.style.height = "auto"; // Changed from 0px for smoother resizing
                 el.style.height = `${Math.min(el.scrollHeight, 192)}px`;
               }}
               onKeyDown={(e) => {
@@ -1261,9 +1214,9 @@ return (
                   : "You're offline. Messages will be sent when you're back online."
               }
               rows={1}
-              style={{ height: "32px" }}
+              // ❌ REMOVED: style={{ height: "32px" }}
               disabled={!isOnline || isLoading}
-              className="w-full resize-none overflow-y-auto bg-transparent border-0 outline-none ring-0 focus:border-0 focus:outline-none focus:ring-0 shadow-none px-5 pt-4 pb-2 text-[15px] leading-7 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 max-h-48 font-manrope"
+              className="w-full resize-none overflow-y-auto bg-transparent border-0 outline-none ring-0 focus:border-0 focus:outline-none focus:ring-0 shadow-none px-4 sm:px-5 pt-3 sm:pt-4 pb-2 text-sm sm:text-[15px] leading-6 sm:leading-7 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 max-h-48 font-manrope"
             />
 
             <div className="flex items-center justify-between px-2 sm:px-3 pb-2 sm:pb-3">
@@ -1275,7 +1228,7 @@ return (
                 title="Export conversation"
                 className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition disabled:opacity-40"
               >
-                <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
+                <Download size={16} className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px]" />
               </button>
 
               <div className="flex items-center gap-1 sm:gap-2">
@@ -1291,9 +1244,9 @@ return (
                   }`}
                 >
                   {isListening ? (
-                    <Mic size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <Mic className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px]" />
                   ) : (
-                    <MicOff size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <MicOff className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px]" />
                   )}
                 </button>
 
@@ -1307,9 +1260,9 @@ return (
                   } disabled:cursor-not-allowed`}
                 >
                   {isLoading ? (
-                    <XCircle size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <XCircle className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px]" />
                   ) : (
-                    <Send size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <Send className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px]" />
                   )}
                 </button>
 
@@ -1338,27 +1291,27 @@ return (
           role="dialog"
           aria-modal="true"
           aria-labelledby="export-pdf-title"
-          className="bg-white dark:bg-slate-800 rounded-lg shadow-elevated w-full max-w-sm p-6 animate-scaleIn"
+          className="bg-white dark:bg-slate-800 rounded-lg shadow-elevated w-full max-w-sm p-5 sm:p-6 animate-scaleIn"
           onClick={(e) => e.stopPropagation()}
         >
-          <h3 id="export-pdf-title" className="font-poppins font-bold text-lg text-slate-900 dark:text-slate-100 mb-1">Export Chat as PDF</h3>
-          <p className="font-manrope text-sm text-slate-500 dark:text-slate-400 mb-4">Enter a filename for your PDF:</p>
+          <h3 id="export-pdf-title" className="font-poppins font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100 mb-1">Export Chat as PDF</h3>
+          <p className="font-manrope text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-4">Enter a filename for your PDF:</p>
           <input
             type="text"
             value={pdfFilename}
             onChange={(e) => setPdfFilename(e.target.value)}
-            className="w-full font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150 mb-5"
+            className="w-full font-manrope text-xs sm:text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150 mb-5"
           />
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setIsExportPopupOpen(false)}
-              className="font-manrope text-sm font-medium px-4 py-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="font-manrope text-xs sm:text-sm font-medium px-4 py-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleExportPDF}
-              className="font-manrope text-sm font-semibold px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-card hover:shadow-card-hover transition-all duration-150"
+              className="font-manrope text-xs sm:text-sm font-semibold px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-card hover:shadow-card-hover transition-all duration-150"
             >
               Download
             </button>
