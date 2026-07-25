@@ -181,7 +181,7 @@ const MyAccount = () => {
     const [hasSubmitted, setHasSubmitted] = useState(false);
     const [gameName, setGameName] = useState('');
     const [rank, setRank] = useState(null);
-    const { setAuth } = useContext(AuthContext);
+    const { setAuth, clearAuth } = useContext(AuthContext);
 
     useEffect(() => {
       const fetchStats = async () => {
@@ -221,6 +221,13 @@ const MyAccount = () => {
           setUserDetails(response.data);
           setLoading(false);
       } catch (error) {
+          if (error.response && error.response.status === 401) {
+            // Session isn't actually valid — don't show a confusing
+            // "failed to load" message, just send the user to log in.
+            clearAuth();
+            navigate("/login", { replace: true });
+            return;
+          }
           console.error('Error fetching user details:', error);
           showNotification('Failed to load user details', 'error');
           setLoading(false);

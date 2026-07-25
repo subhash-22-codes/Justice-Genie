@@ -51,7 +51,7 @@ const Chat = () => {
   const [loadingTranslation, setLoadingTranslation] = useState(null);
   const [currentMessageId, setCurrentMessageId] = useState(null);
   const [cancelled, setCancelled] = useState(false); 
-  const { setAuth } = useContext(AuthContext);
+  const { setAuth, clearAuth } = useContext(AuthContext);
   const chatCacheRef = useRef({});
 
   const [copied, setCopied] = useState(false);
@@ -431,6 +431,14 @@ const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
       `/api/myaccount`,
       { credentials: "include" }
     );
+
+    if (response.status === 401) {
+      // Session isn't actually valid — don't retry like this is a slow
+      // server, just send the user back to log in.
+      clearAuth();
+      navigate("/login", { replace: true });
+      return;
+    }
 
     if (!response.ok) throw new Error("Failed to fetch user data");
 
@@ -1066,7 +1074,7 @@ return (
               )
             ) : (
               <img
-                src="/images/justice_genie-avatar.png"
+                src="/images/justice_genie_avatar.png"
                 alt="Justice Genie"
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover flex-shrink-0 mt-0.5"
               />
