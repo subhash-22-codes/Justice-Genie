@@ -1,17 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
-import { ArrowLeft, LogOut, Camera, Edit2, MessageSquare, Trash2, Upload, AlertTriangle, Loader, UserPlus, Trash2Icon, HelpCircle, Trophy, Star, Gamepad2, Mail, BookOpen, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { 
+  ArrowLeft, LogOut, Camera, Edit2, MessageSquare, Trash2, Upload, 
+  AlertTriangle, Loader, UserPlus, HelpCircle, Trophy, Star, Gamepad2, 
+  Mail, Settings, Menu
+} from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import Swal from "sweetalert2";
 import Mailcheck from 'mailcheck';
-import 'animate.css/animate.min.css'; // Import animate.css for animations
-import { useContext } from "react";
+import 'animate.css/animate.min.css';
 import { AuthContext } from "../context/AuthContext";
 
 const ProfileImage = ({ src, onUploadClick, onRemoveClick }) => (
-    <div className="relative inline-block">
+    <div className="relative inline-block group">
       <div
-        className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer group shadow-card ring-4 ring-white dark:ring-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+        className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer shadow-card ring-2 ring-slate-200 dark:ring-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-transform duration-200 group-hover:scale-[1.02]"
         onClick={onUploadClick}
         role="button"
         tabIndex={0}
@@ -29,30 +32,30 @@ const ProfileImage = ({ src, onUploadClick, onRemoveClick }) => (
           loading="lazy"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/60 flex flex-col items-center justify-center gap-1.5 text-white opacity-0 group-hover:opacity-100 transition-all duration-200 ease-premium">
+        <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/60 flex flex-col items-center justify-center gap-1 text-white opacity-0 group-hover:opacity-100 transition-all duration-200">
           <Camera size={20} />
-          <span className="font-manrope text-xs font-medium">Update Photo</span>
+          <span className="font-manrope text-[10px] font-semibold">Change Photo</span>
         </div>
       </div>
 
       {src && src !== "./images/user.png" && (
         <button
-          className="absolute -bottom-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-md p-2 shadow-card hover:shadow-card-hover active:scale-90 transition-all duration-150 ring-4 ring-white dark:ring-slate-950"
+          className="absolute -bottom-1.5 -right-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl p-1.5 shadow-card active:scale-95 transition-all duration-150 ring-2 ring-white dark:ring-slate-900"
           onClick={onRemoveClick}
           title="Remove Photo"
           aria-label="Remove profile photo"
         >
-          <Trash2 size={14} />
+          <Trash2 size={13} />
         </button>
       )}
     </div>
   );
 
-  ProfileImage.defaultProps = {
-    src: "./images/user.png",
-    onUploadClick: () => {},
-    onRemoveClick: () => {},
-  };
+ProfileImage.defaultProps = {
+  src: "./images/user.png",
+  onUploadClick: () => {},
+  onRemoveClick: () => {},
+};
 
 const ProgressBar = ({ level, rank, gameName, totalScore }) => {
   const MAX_POSSIBLE_SCORE = 75;
@@ -61,50 +64,58 @@ const ProgressBar = ({ level, rank, gameName, totalScore }) => {
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-card p-5 sm:p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-poppins font-bold text-slate-900 dark:text-slate-100">Quiz Progress</h3>
-        <span className="font-manrope text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 rounded-md">
-          Level {level || 1}
+        <div>
+          <h3 className="font-poppins font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100">Performance & Analytics</h3>
+          <p className="font-manrope text-xs text-slate-400 dark:text-slate-500 mt-0.5">Your overall standing across platform challenges</p>
+        </div>
+        <span className="font-poppins text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 px-2.5 py-1 rounded-md">
+          Level {level || 1} Unlocked
         </span>
       </div>
 
-      <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-blue-600 rounded-full transition-all duration-700 ease-premium"
-          style={{ width: `${overallPercentage || 0}%` }}
-        ></div>
-      </div>
-      <div className="flex justify-between mt-2 font-manrope text-xs text-slate-400 dark:text-slate-500">
-        <span>{totalScore || 0} / {MAX_POSSIBLE_SCORE} points</span>
-        <span>{overallPercentage.toFixed(0)}%</span>
+      <div className="space-y-1.5 my-4">
+        <div className="flex justify-between font-manrope text-xs font-semibold text-slate-600 dark:text-slate-300">
+          <span>Progress to Max Rank</span>
+          <span>{overallPercentage.toFixed(0)}%</span>
+        </div>
+        <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+          <div
+            className="h-full bg-blue-600 rounded-full transition-all duration-700 ease-premium"
+            style={{ width: `${overallPercentage || 0}%` }}
+          ></div>
+        </div>
+        <div className="flex justify-between font-manrope text-[11px] text-slate-400 dark:text-slate-500">
+          <span>{totalScore || 0} Points earned</span>
+          <span>Max Target: {MAX_POSSIBLE_SCORE} pts</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mt-5">
-        <div className="flex flex-col items-center text-center gap-1.5 p-3 rounded-md bg-slate-50 dark:bg-slate-800/60">
-          <Trophy size={18} className="text-amber-500" />
+      <div className="grid grid-cols-3 gap-3 pt-1">
+        <div className="flex flex-col items-center text-center gap-1 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+          <Trophy size={16} className="text-amber-500 mb-0.5" />
           <span className="font-poppins font-bold text-sm text-slate-800 dark:text-slate-100">{rank ? `#${rank}` : '—'}</span>
-          <span className="font-manrope text-[11px] text-slate-400 dark:text-slate-500">Rank</span>
+          <span className="font-manrope text-[10px] text-slate-400 dark:text-slate-500">Global Rank</span>
         </div>
-        <div className="flex flex-col items-center text-center gap-1.5 p-3 rounded-md bg-slate-50 dark:bg-slate-800/60">
-          <Star size={18} className="text-blue-500" />
+
+        <div className="flex flex-col items-center text-center gap-1 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+          <Star size={16} className="text-blue-500 mb-0.5" />
           <span className="font-poppins font-bold text-sm text-slate-800 dark:text-slate-100">{totalScore || 0}</span>
-          <span className="font-manrope text-[11px] text-slate-400 dark:text-slate-500">Score</span>
+          <span className="font-manrope text-[10px] text-slate-400 dark:text-slate-500">Total Score</span>
         </div>
-        <div className="flex flex-col items-center text-center gap-1.5 p-3 rounded-md bg-slate-50 dark:bg-slate-800/60">
-          <Gamepad2 size={18} className="text-purple-500" />
-          <span className="font-poppins font-bold text-sm text-slate-800 dark:text-slate-100 truncate max-w-full">{gameName || 'Justice Warrior'}</span>
-          <span className="font-manrope text-[11px] text-slate-400 dark:text-slate-500">Alias</span>
+
+        <div className="flex flex-col items-center text-center gap-1 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+          <Gamepad2 size={16} className="text-purple-500 mb-0.5" />
+          <span className="font-poppins font-bold text-xs text-slate-800 dark:text-slate-100 truncate max-w-full">{gameName || 'Justice Warrior'}</span>
+          <span className="font-manrope text-[10px] text-slate-400 dark:text-slate-500">Alias</span>
         </div>
       </div>
     </div>
   );
 };
 
-// Generic modal wrapper used by every dialog below - styled once here, so
-// every modal in this file gets consistent sizing/spacing automatically.
 const Modal = ({ isOpen, onClose, title, children, className }) => {
     useEffect(() => {
         if (!isOpen) return;
-
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') onClose();
         };
@@ -125,13 +136,13 @@ const Modal = ({ isOpen, onClose, title, children, className }) => {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title"
-                className={`bg-white dark:bg-slate-900 rounded-lg shadow-elevated w-full max-w-md max-h-[90vh] overflow-y-auto animate-scaleIn ${className || ''}`}
+                className={`bg-white dark:bg-slate-900 rounded-lg shadow-elevated w-full max-w-md max-h-[90vh] overflow-y-auto animate-scaleIn border border-slate-100 dark:border-slate-800 ${className || ''}`}
                 onClick={e => e.stopPropagation()}
             >
-                <div className="px-6 pt-6 pb-2">
-                    <h3 id="modal-title" className="font-poppins font-bold text-lg text-slate-900 dark:text-slate-100">{title}</h3>
+                <div className="px-5 pt-5 pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <h3 id="modal-title" className="font-poppins font-semibold text-sm sm:text-[15px] text-slate-900 dark:text-slate-100">{title}</h3>
                 </div>
-                <div className="px-6 pb-6">
+                <div className="p-5">
                   {children}
                 </div>
             </div>
@@ -140,7 +151,6 @@ const Modal = ({ isOpen, onClose, title, children, className }) => {
 };
 
 const MyAccount = () => {
-    // State Management
     const [userDetails, setUserDetails] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [editField, setEditField] = useState({ username: '', password: '' });
@@ -155,6 +165,7 @@ const MyAccount = () => {
     const [loading, setLoading] = useState(true);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigate = useNavigate();
     const [collabData, setCollabData] = useState({
         name: '',
@@ -169,56 +180,52 @@ const MyAccount = () => {
     const [isSubmittingCollab, setIsSubmittingCollab] = useState(false);
     const [hasSubmitted, setHasSubmitted] = useState(false);
     const [gameName, setGameName] = useState('');
-  const [rank, setRank] = useState(null);
-  const { setAuth } = useContext(AuthContext);
-//   const [feedbackStars, setFeedbackStars] = useState([0, 0, 0, 0, 0, 0]); // 5 questions + 1 overall
+    const [rank, setRank] = useState(null);
+    const { setAuth } = useContext(AuthContext);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-  try {
-    // ✅ Include session cookies
-    const accountRes = await axios.get(
-      `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
-      { withCredentials: true }
-    );
-    setGameName(accountRes.data.game_name);
+    useEffect(() => {
+      const fetchStats = async () => {
+        try {
+          const accountRes = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
+            { withCredentials: true }
+          );
+          setGameName(accountRes.data.game_name);
 
-    const leaderboardRes = await axios.get(
-      `${process.env.REACT_APP_BACKEND_URL}/api/leaderboard`,
-      { withCredentials: true } // 👈 include cookies here too if needed
-    );
+          const leaderboardRes = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/leaderboard`,
+            { withCredentials: true }
+          );
 
-    const leaderboard = leaderboardRes.data.leaderboard;
-    const user = accountRes.data.username;
+          const leaderboard = leaderboardRes.data.leaderboard;
+          const user = accountRes.data.username;
 
-    const matched = leaderboard.find(item => item.username === user);
-    if (matched) {
-      setRank(matched.rank);
-    }
-  } catch (err) {
-    console.error('Error fetching rank or game name:', err);
-  }
-};
+          const matched = leaderboard.find(item => item.username === user);
+          if (matched) {
+            setRank(matched.rank);
+          }
+        } catch (err) {
+          console.error('Error fetching rank or game name:', err);
+        }
+      };
 
-
-    fetchStats();
-  }, []);
+      fetchStats();
+    }, []);
 
     const fetchUserDetails = useCallback(async () => {
-    try {
-        const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
-            { withCredentials: true } // 👈 important for cookies
-        );
-        setUserDetails(response.data);
-        setLoading(false);
-    } catch (error) {
-        console.error('Error fetching user details:', error);
-        showNotification('Failed to load user details', 'error');
-        setLoading(false);
-    }
-}, []);
-
+      try {
+          const response = await axios.get(
+              `${process.env.REACT_APP_BACKEND_URL}/api/myaccount`,
+              { withCredentials: true }
+          );
+          setUserDetails(response.data);
+          setLoading(false);
+      } catch (error) {
+          console.error('Error fetching user details:', error);
+          showNotification('Failed to load user details', 'error');
+          setLoading(false);
+      }
+    }, []);
 
     useEffect(() => {
         fetchUserDetails();
@@ -228,8 +235,6 @@ const MyAccount = () => {
         setModals(prev => ({ ...prev, [modalName]: value }));
     };
     
-    // Notification System - uses Swal's toast mode (already used elsewhere in
-    // this file for confirmations), so it needs zero custom CSS to look right.
     const showNotification = (message, type = 'success') => {
         const iconMap = { success: 'success', error: 'error', info: 'info' };
         Swal.fire({
@@ -243,7 +248,6 @@ const MyAccount = () => {
         });
     };
 
-    // File Upload Handler
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -257,13 +261,13 @@ const MyAccount = () => {
                 formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
-                    withCredentials: true, // 👈 include session cookie
+                    withCredentials: true,
                     onUploadProgress: (progressEvent) => {
                     const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     setUploadProgress(progress);
                     },
                 }
-                );
+            );
             const newPictureUrl = response.data.file_path;
 
             setUserDetails(prev => ({
@@ -271,9 +275,9 @@ const MyAccount = () => {
             profile_picture: newPictureUrl
              }));
              const cachedUser = JSON.parse(sessionStorage.getItem("userData")) || {};
-                sessionStorage.setItem("userData", JSON.stringify({
-                    ...cachedUser,
-                    profile_picture: newPictureUrl
+                 sessionStorage.setItem("userData", JSON.stringify({
+                     ...cachedUser,
+                     profile_picture: newPictureUrl
              }));
             
             toggleModal('upload', false);
@@ -292,8 +296,8 @@ const MyAccount = () => {
           text: "Do you really want to remove your profile picture?",
           icon: 'warning',
           showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
+          confirmButtonColor: '#dc2626',
+          cancelButtonColor: '#64748b',
           confirmButtonText: 'Yes, remove it!',
         });
       
@@ -303,13 +307,13 @@ const MyAccount = () => {
           const response = await axios.post(
             `${process.env.REACT_APP_BACKEND_URL}/api/remove_profile_picture`,
             {},
-            { withCredentials: true } // 👈 include session cookie
-            );
+            { withCredentials: true }
+          );
 
           if (response.data.message) {
             setUserDetails(prev => ({
               ...prev,
-              profile_picture: "", // fallback to default
+              profile_picture: "",
             }));
 
              const cachedUser = JSON.parse(sessionStorage.getItem("userData")) || {};
@@ -336,7 +340,6 @@ const MyAccount = () => {
         }
       };
       
-    // Profile Update Handler
     const handleUpdateProfile = async () => {
         const trimmedUsername = editField.username.trim();
         const trimmedPassword = editField.password.trim();
@@ -358,35 +361,33 @@ const MyAccount = () => {
             await axios.post(
                 `${process.env.REACT_APP_BACKEND_URL}/api/update_profile`,
                 { username: trimmedUsername || undefined, password: trimmedPassword || undefined },
-                { withCredentials: true } // 👈 include session cookie
+                { withCredentials: true }
             );
 
             setUserDetails(prev => ({ ...prev, ...editField }));
             setIsEditing(false);
             setEditField({ username: '', password: '' });
             showNotification('Profile updated successfully');
-            } catch (error) {
+          } catch (error) {
             console.error('Error updating profile:', error);
             showNotification('Failed to update profile', 'error');
-            }
+          }
     };
 
-    // Feedback Submission Handler
     useEffect(() => {
         const fetchFeedbackStatus = async () => {
            try {
             const response = await axios.get(
                 `${process.env.REACT_APP_BACKEND_URL}/api/get_feedback_status?email=${userDetails.email}`,
-                { withCredentials: true } // 👈 include session cookie
+                { withCredentials: true }
             );
 
             if (response.data.submitted) {
-                setFeedbackSubmitted(true);  // Show "Thank you" message
+                setFeedbackSubmitted(true);
             }
             } catch (error) {
             console.error('Error fetching feedback status:', error);
             }
-
         };
 
         if (userDetails.email) {
@@ -405,42 +406,36 @@ const MyAccount = () => {
                 `${process.env.REACT_APP_BACKEND_URL}/api/submit_feedback`,
                 {
                 feedbackText,
-                // feedbackStars, // include stars if needed
                 email: userDetails.email,
                 },
-                { withCredentials: true } // 👈 include session cookie
+                { withCredentials: true }
             );
 
             showNotification("Thanks for your feedback! 😊", "success");
             setFeedbackText('');
-            // setFeedbackStars([0, 0, 0, 0, 0, 0]); // reset stars
             setFeedbackSubmitted(true); 
             toggleModal('feedback', false);
-            } catch (error) {
+          } catch (error) {
             console.error("Error submitting feedback:", error);
             showNotification("Failed to submit feedback", "error");
-            }
-
+          }
     };
-    // Collaboration Status
+
     useEffect(() => {
         const fetchCollabStatus = async () => {
             try {
-                console.log("Fetching collab status for:", userDetails.email);
                 const response = await axios.get(
                 `${process.env.REACT_APP_BACKEND_URL}/api/get_collab_status`,
                 {
-                    params: { email: userDetails.email }, // ✅ passing email
-                    withCredentials: true,               // 👈 include session cookie
+                    params: { email: userDetails.email },
+                    withCredentials: true,
                 }
                 );
-                console.log("Collab Status Response:", response.data);
                 setHasSubmitted(response.data.submitted);
             } catch (error) {
                 console.error('Error fetching collaboration status:', error);
             }
         };
-
     
         if (userDetails.email) {
             fetchCollabStatus();
@@ -448,7 +443,6 @@ const MyAccount = () => {
     }, [userDetails.email]);
     
     const handleCollabSubmit = () => {
-        // Validate required fields
         if (
             !collabData.name ||
             !collabData.email ||
@@ -460,13 +454,11 @@ const MyAccount = () => {
             return;
         }
     
-        // Check if already submitted
         if (hasSubmitted) {
             showNotification("You have already submitted a collaboration request.", "info");
             return;
         }
     
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(collabData.email)) {
             showNotification("Invalid email format.", "error");
@@ -479,35 +471,28 @@ const MyAccount = () => {
             secondLevelDomains: ['yahoo', 'hotmail', 'live', 'outlook', 'icloud'],
             topLevelDomains: ['com', 'net', 'org', 'info'],
             suggested: function (suggestion) {
-                // Update modal content
                 document.getElementById('suggestionEmail').textContent = suggestion.full;
                 document.getElementById('currentEmail').textContent = collabData.email;
 
-                // Show modal
                 const modal = document.getElementById('emailModal');
                 modal.classList.remove('hidden');
 
-                // Handle Yes button click (update the email)
                 document.getElementById('confirmBtn').onclick = () => {
-                    // Automatically update the email input field
                     setCollabData({ ...collabData, email: suggestion.full });
-                    modal.classList.add('hidden'); // Hide modal
+                    modal.classList.add('hidden');
                 };
 
-                // Handle No button click (do nothing)
                 document.getElementById('cancelBtn').onclick = () => {
                     showNotification("Please correct your email before submitting.", "info");
-                    modal.classList.add('hidden'); // Hide modal
+                    modal.classList.add('hidden');
                 };
             },
             empty: function () {
-                // If no suggestion, directly submit the email
                 submitCollabData(collabData);
             }
         });
     };
     
-    // Separate submission logic
     const submitCollabData = async (data) => {
         setIsSubmittingCollab(true);
     
@@ -524,13 +509,11 @@ const MyAccount = () => {
                 database: data.database || "Not specified",
                 skills: data.skills || "Not specified",
             },
-            { withCredentials: true } // 👈 send session cookie
+            { withCredentials: true }
             );
-
     
             showNotification(response.data.success, "success");
     
-            // Reset form
             setCollabData({
                 name: '',
                 email: '',
@@ -552,8 +535,6 @@ const MyAccount = () => {
         }
     };
     
-    
-
     const handleClearChat = async () => {
         if (!userDetails.username) {
           Swal.fire({
@@ -582,7 +563,7 @@ const MyAccount = () => {
           const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/clear_chat`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            credentials: "include", // important for session cookies
+            credentials: "include",
             body: JSON.stringify({ username: userDetails.username }),
           });
       
@@ -608,14 +589,12 @@ const MyAccount = () => {
             confirmButtonColor: '#dc2626',
           });
         }
-      };
+    };
       
-      
-    // Account Deletion Handler
-    const [isDeleting, setIsDeleting] = useState(false); // State to track loading
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDeleteAccount = async () => {
-        setIsDeleting(true); // Start loading
+        setIsDeleting(true);
         try {
             await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/delete_account`, { withCredentials: true });
     
@@ -623,14 +602,14 @@ const MyAccount = () => {
             
             setTimeout(() => {
                 showNotification('Account deleted successfully');
-                navigate('/register'); // Redirect after delay
+                navigate('/register');
             }, 2000);
         } catch (error) {
             console.error('Error deleting account:', error);
             showNotification('Failed to delete account', 'error');
         } finally {
             setTimeout(() => {
-                setIsDeleting(false); // Stop loading after delay
+                setIsDeleting(false);
             }, 2000);
         }
     };
@@ -639,491 +618,528 @@ const MyAccount = () => {
         try {
             await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
             method: "POST",
-            credentials: "include", // important for session cookies
+            credentials: "include",
             });
 
-            // Clear frontend session and localStorage
             sessionStorage.removeItem("isLoggedIn");
             localStorage.removeItem("isLoggedIn");
             localStorage.removeItem("role");
             localStorage.removeItem("darkMode");
 
-            // ✅ Reset auth context
             setAuth({ loggedIn: false, role: null, username: null, loading: false });
 
-            // Redirect to login page
             navigate("/login");
         } catch (err) {
             console.error("Logout failed:", err);
         }
-        };
+    };
 
-    // Loading State
     if (loading) {
-        return (
-          <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
-            <div className="w-12 h-12 rounded-lg bg-white dark:bg-slate-900 shadow-card flex items-center justify-center">
-              <Loader size={22} className="animate-spin text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-        );
-    }
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 font-manrope">
+            <img
+                src="/images/jg_original_logo_1.png"
+                alt="Justice Genie"
+                className="w-8 h-8 object-contain mb-4 animate-pulse"
+            />
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                Loading your account details
+                <span className="inline-flex gap-0.5 ml-0.5">
+                    <span className="animate-[bounce_1.4s_infinite_ease-in-out_0s]">.</span>
+                    <span className="animate-[bounce_1.4s_infinite_ease-in-out_0.2s]">.</span>
+                    <span className="animate-[bounce_1.4s_infinite_ease-in-out_0.4s]">.</span>
+                </span>
+            </p>
+        </div>
+    );
+}
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-6 sm:py-10 px-4">
-            <div className="max-w-3xl mx-auto">
+        <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 overflow-hidden font-manrope">
+            {/* Sidebar matching Chat and Quiz */}
+            <aside
+                className={`fixed inset-y-0 left-0 z-40 w-72 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 transform transition-transform duration-300 ease-premium lg:static lg:translate-x-0 ${
+                sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
+            >
+                <div className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-5 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0">
+                    <img
+                        src="/images/jg_original_logo_1.png"
+                        alt="Justice Genie"
+                        className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                    />
+                    </div>
+                    <h1 className="text-sm sm:text-[15px] font-poppins font-bold text-slate-900 dark:text-slate-50 tracking-tight">
+                    Justice Genie
+                    </h1>
+                </div>
+                <button
+                    className="lg:hidden p-2 rounded-md text-slate-400 hover:bg-slate-100 dark:text-slate-500 dark:hover:bg-slate-800 transition-colors"
+                    onClick={() => setSidebarOpen(false)}
+                    aria-label="Close sidebar"
+                >
+                    <ArrowLeft size={18} />
+                </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-4">
+                <button
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-xs sm:text-sm font-manrope font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm"
+                    onClick={() => navigate('/chat')}
+                >
+                    <ArrowLeft size={16} className="text-slate-400 dark:text-slate-500" />
+                    <span>Back to Chat</span>
+                </button>
+
+                {/* Profile Widget inside Sidebar */}
+                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                    <div className="font-poppins text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{userDetails.username}</div>
+                    <div className="flex items-center gap-1.5 mt-1 text-[11px] text-slate-400 dark:text-slate-500 truncate">
+                        <span>{gameName || 'Justice Warrior'}</span>
+                    </div>
+                </div>
+
+                {/* Quick Navigation Links */}
+                <div className="space-y-1 pt-2">
+                    <p className="font-poppins text-[11px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 px-1 mb-2">Navigation</p>
+                    <Link to="/lawpdf" className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs sm:text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" fill="#3B82F6" fillOpacity="0.15" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M14 2V8H20" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M16 13H8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M16 17H8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M10 9H9H8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Digital Law Library
+                    </Link>
+                    <Link to="/chat" className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs sm:text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" fill="#8B5CF6" fillOpacity="0.15" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Chat Assistant
+                    </Link>
+                    <Link to="/quizz" className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs sm:text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z" fill="#10B981" fillOpacity="0.15" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M9 7H15" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M9 11H13" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Genie Quiz
+                    </Link>
+                </div>
+                </div>
+            </aside>
+
+            {/* Main Area */}
+            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
                 {/* Header */}
-                <header className="flex items-center justify-between mb-6">
-                    <button
-                    className="group flex items-center gap-2 px-3 py-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900 hover:text-slate-800 dark:hover:text-slate-100 hover:shadow-card transition-all duration-150"
-                    onClick={() => navigate("/chat")}
-                    >
-                    <ArrowLeft
-                        size={18}
-                        className="transition-transform duration-200 ease-premium group-hover:-translate-x-0.5"
-                    />
-                    <span className="font-manrope text-sm font-medium">Back</span>
-                    </button>
+                <header className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shrink-0">
+                    <div className="flex items-center gap-3">
+                        <button
+                            className="lg:hidden p-2 -ml-2 rounded-md text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+                            onClick={() => setSidebarOpen(true)}
+                            aria-label="Open sidebar"
+                        >
+                            <Menu size={18} />
+                        </button>
+                        <h2 className="font-poppins font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-[15px] flex items-center gap-2">
+                            <Settings className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Account Settings
+                        </h2>
+                    </div>
 
-                    <h1 className="font-poppins font-bold text-lg text-slate-900 dark:text-slate-100">My Account</h1>
-
                     <button
-                    onClick={handleLogout}
-                    className="group flex items-center gap-2 px-3 py-2 rounded-md text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150"
+                        onClick={handleLogout}
+                        className="group flex items-center gap-1.5 px-3 py-1.5 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150 text-xs sm:text-sm font-medium"
                     >
-                    <LogOut
-                        size={18}
-                        className="transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
-                    />
-                    <span className="font-manrope text-sm font-medium">Logout</span>
+                        <LogOut size={16} />
+                        <span>Logout</span>
                     </button>
                 </header>
 
-                {/* Main Content */}
-                <div className="space-y-5">
-                    {/* Profile Section */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-card p-5 sm:p-6 flex items-center gap-5">
-                        <ProfileImage
-                            src={userDetails.profile_picture}
-                            onUploadClick={() => toggleModal('upload', true)}
-                            onRemoveClick={handleRemovePicture}
-                        />
-                        <div className="min-w-0">
-                            <h2 className="font-poppins font-bold text-lg text-slate-900 dark:text-slate-100 truncate">{userDetails.username}</h2>
-                            <p className="font-manrope text-sm text-slate-400 dark:text-slate-500 truncate">{userDetails.email}</p>
+                {/* Content Body */}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                    <div className="max-w-3xl mx-auto space-y-6">
+                        {/* Profile Hero Card */}
+                        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-card p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-5 relative overflow-hidden">
+                            <ProfileImage
+                                src={userDetails.profile_picture}
+                                onUploadClick={() => toggleModal('upload', true)}
+                                onRemoveClick={handleRemovePicture}
+                            />
+
+                            <div className="flex-1 text-center sm:text-left min-w-0">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                                    <h2 className="font-poppins font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100 truncate">{userDetails.username}</h2>
+                                    <span className="self-center sm:self-auto bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-poppins text-[10px] px-2 py-0.5 rounded font-semibold border border-blue-100 dark:border-blue-500/20">Active User</span>
+                                </div>
+                                <p className="font-manrope text-xs sm:text-sm text-slate-400 dark:text-slate-500 truncate mb-3">{userDetails.email}</p>
+                                
+                                <button 
+                                    onClick={() => setIsEditing(true)} 
+                                    className="inline-flex items-center gap-1.5 font-manrope text-xs font-semibold bg-slate-900 dark:bg-slate-800 text-white px-3 py-1.5 rounded-md shadow-sm hover:bg-slate-800 transition-all"
+                                >
+                                    <Edit2 size={13} /> Edit Credentials
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Progress Section */}
-                    <ProgressBar
-                        percentage={userDetails.last_quiz_percentage}
-                        marks={userDetails.last_quiz_marks}
-                        total={userDetails.last_quiz_total}
-                        level={userDetails.quiz_level}
-                        rank={rank}
-                        gameName={gameName}
-                        totalScore={userDetails.totalScore}
-                        />
-
-                    {/* Actions Section */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-card p-5 sm:p-6">
-                        {isEditing ? (
-                            <div className="space-y-3 max-w-sm animate-fadeIn">
-                                <input
-                                    type="text"
-                                    name="username"
-                                    placeholder="New Username"
-                                    value={editField.username}
-                                    onChange={(e) => setEditField(prev => ({
-                                        ...prev,
-                                        username: e.target.value
-                                    }))}
-                                    className="w-full font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150"
-                                />
-                                <input
-                                    type="password"
-                                    name="password"
-                                    placeholder="New Password"
-                                    value={editField.password}
-                                    onChange={(e) => setEditField(prev => ({
-                                        ...prev,
-                                        password: e.target.value
-                                    }))}
-                                    className="w-full font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150"
-                                />
-                                <div className="flex gap-2 pt-1">
+                        {/* Edit Drawer Form if active */}
+                        {isEditing && (
+                            <div className="bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-500/40 rounded-lg shadow-card p-5 animate-fadeIn">
+                                <h3 className="font-poppins font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
+                                    <Settings size={16} className="text-blue-600 dark:text-blue-400" /> Update Account Credentials
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                                    <div>
+                                        <label className="block font-manrope text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">New Username</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter new username"
+                                            value={editField.username}
+                                            onChange={(e) => setEditField(prev => ({ ...prev, username: e.target.value }))}
+                                            className="w-full font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block font-manrope text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">New Password</label>
+                                        <input
+                                            type="password"
+                                            placeholder="Enter new password"
+                                            value={editField.password}
+                                            onChange={(e) => setEditField(prev => ({ ...prev, password: e.target.value }))}
+                                            className="w-full font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-2">
                                     <button
-                                      className="font-manrope text-sm font-semibold px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-card hover:shadow-card-hover transition-all duration-150"
-                                      onClick={handleUpdateProfile}
+                                        className="font-manrope text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                        onClick={() => { setIsEditing(false); setEditField({ username: '', password: '' }); }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="font-manrope text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all"
+                                        onClick={handleUpdateProfile}
                                     >
                                         Save Changes
                                     </button>
-                                    <button
-                                      className="font-manrope text-sm font-medium px-4 py-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                      onClick={() => {
-                                        setIsEditing(false);
-                                        setEditField({ username: '', password: '' });
-                                    }}>
-                                        Cancel
-                                    </button>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                            <button
-                              className="group flex flex-col items-center justify-center gap-2 font-manrope text-xs font-medium px-3 py-4 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-200 dark:hover:border-blue-500/40 hover:shadow-card hover:-translate-y-0.5 transition-all duration-200 ease-premium"
-                              onClick={() => setIsEditing(true)}
-                            >
-                                <Edit2 size={18} className="text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-                                <span>Edit Profile</span>
-                            </button>
-
-                            <button
-                              className="group flex flex-col items-center justify-center gap-2 font-manrope text-xs font-medium px-3 py-4 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-200 dark:hover:border-blue-500/40 hover:shadow-card hover:-translate-y-0.5 transition-all duration-200 ease-premium"
-                              onClick={() => toggleModal('feedback', true)}
-                            >
-                                <MessageSquare size={18} className="text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-                                <span>Feedback</span>
-                            </button>
-
-                            <button
-                              className="group flex flex-col items-center justify-center gap-2 font-manrope text-xs font-medium px-3 py-4 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-200 dark:hover:border-blue-500/40 hover:shadow-card hover:-translate-y-0.5 transition-all duration-200 ease-premium"
-                              onClick={() => toggleModal('collab', true)}
-                            >
-                                <UserPlus size={18} className="text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-                                <span>Collaborate</span>
-                            </button>
-
-                            <button
-                              className="group flex flex-col items-center justify-center gap-2 font-manrope text-xs font-medium px-3 py-4 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-200 dark:hover:border-blue-500/40 hover:shadow-card hover:-translate-y-0.5 transition-all duration-200 ease-premium"
-                              onClick={() => toggleModal('help', true)}
-                            >
-                                <HelpCircle size={18} className="text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-                                <span>Help</span>
-                            </button>
-
-                            <button
-                              className="group flex flex-col items-center justify-center gap-2 font-manrope text-xs font-medium px-3 py-4 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-red-200 dark:hover:border-red-500/30 hover:shadow-card hover:-translate-y-0.5 transition-all duration-200 ease-premium"
-                              onClick={handleClearChat}
-                            >
-                                <Trash2Icon size={18} className="text-slate-400 group-hover:text-red-500 transition-colors" />
-                                <span>Clear Chat</span>
-                            </button>
-
-                            <button
-                              className="group flex flex-col items-center justify-center gap-2 font-manrope text-xs font-medium px-3 py-4 rounded-md border border-red-200 dark:border-red-500/30 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:-translate-y-0.5 transition-all duration-200 ease-premium"
-                              onClick={() => toggleModal('delete', true)}
-                            >
-                                <Trash2 size={18} />
-                                <span>Delete Account</span>
-                            </button>
-                            </div>
                         )}
-                    </div>
-                </div>
 
-                {/* Upload Photo Modal */}
-                <Modal
-                    isOpen={modals.upload}
-                    onClose={() => toggleModal('upload', false)}
-                    title="Update Profile Picture"
-                >
-                    <div className="space-y-3">
-                        <div className="relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg py-10 text-slate-400 dark:text-slate-500 hover:border-blue-300 dark:hover:border-blue-500/50 hover:bg-blue-50/30 dark:hover:bg-blue-500/5 transition-all duration-200">
-                            <Upload size={26} />
-                            <p className="font-manrope text-sm">Click to upload or drag and drop</p>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileUpload}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                            />
-                        </div>
-                        {uploadProgress > 0 && (
-                            <div className="flex items-center gap-2">
-                                <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-blue-600 transition-all duration-200"
-                                        style={{ width: `${uploadProgress}%` }}
-                                    ></div>
-                                </div>
-                                <span className="font-manrope text-xs text-slate-400 dark:text-slate-500">{uploadProgress}%</span>
-                            </div>
-                        )}
-                    </div>
-                </Modal>
-
-                {/* Feedback Modal */}
-                <Modal
-                    isOpen={modals.feedback}
-                    onClose={() => toggleModal('feedback', false)}
-                    title="Share Your Feedback"
-                >
-                    {feedbackSubmitted ? (
-                        <div className="flex flex-col items-center justify-center p-4 animate-fadeIn">
-                            <img
-                                src="/images/ThankyouFeedback.png"
-                                alt="Thank you"
-                                className="w-56 max-w-full h-auto"
-                            />
-                        </div>
-                    ) : (
-                        <>
-                            <textarea
-                                value={feedbackText}
-                                onChange={(e) => setFeedbackText(e.target.value)}
-                                placeholder="We value your thoughts and suggestions..."
-                                rows={4}
-                                className="w-full font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150 resize-none"
-                            />
-                            <div className="flex gap-2 mt-4">
-                                <button
-                                    className="font-manrope text-sm font-semibold px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-card hover:shadow-card-hover transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
-                                    onClick={handleFeedbackSubmit}
-                                    disabled={!feedbackText.trim()}
-                                >
-                                    Submit Feedback
-                                </button>
-                                <button
-                                    className="font-manrope text-sm font-medium px-4 py-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                    onClick={() => {
-                                        toggleModal('feedback', false);
-                                        setFeedbackText('');
-                                    }}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </>
-                    )}
-                </Modal>
-
-                {/* Collaboration Modal */}
-                <Modal
-                    isOpen={modals.collab}
-                    onClose={() => toggleModal('collab', false)}
-                    title="Collaboration Request"
-                    className="max-w-2xl"
-                >
-                <div id="emailModal" className="fixed inset-0 flex items-center justify-center z-[60] hidden bg-slate-900/40 backdrop-blur-[2px]">
-                    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-elevated max-w-md w-full mx-4">
-                        <h2 className="font-poppins text-base font-semibold mb-3 text-slate-800 dark:text-slate-100">
-                        Did you mean
-                        <span id="suggestionEmail" className="font-bold text-blue-600 mx-1"></span>
-                        instead of
-                        <span id="currentEmail" className="font-bold text-red-500 mx-1"></span>?
-                        </h2>
-
-                        <p className="font-manrope text-sm mb-4 text-slate-500 dark:text-slate-400">
-                        Click <strong>Yes</strong> to use the suggested email or <strong>No</strong> to keep your email.
-                        </p>
-
-                        <div className="flex justify-end gap-2">
-                        <button id="confirmBtn" className="font-manrope text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 active:scale-95 transition-all duration-150">Yes</button>
-                        <button id="cancelBtn" className="font-manrope text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">No</button>
-                        </div>
-                    </div>
-                </div>
-                    <div>
-                    {hasSubmitted ? (
-                       <div className="flex flex-col items-center justify-center my-4 text-center animate-fadeIn">
-                        <div className="w-12 h-12 rounded-lg bg-green-50 dark:bg-green-500/10 flex items-center justify-center mb-3">
-                          <UserPlus size={22} className="text-green-600 dark:text-green-400" />
-                        </div>
-                        <p className="font-manrope text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
-                            <strong className="font-semibold text-slate-800 dark:text-slate-100">Request submitted successfully.</strong>
-                            {' '}Our team is reviewing your details and will reach out via email once we verify your status and needs.
-                        </p>
-
-                        <img
-                            src="./images/collab1.png"
-                            alt="Collaboration Success"
-                            className="w-full max-w-xs object-contain"
+                        {/* Progress Section */}
+                        <ProgressBar
+                            percentage={userDetails.last_quiz_percentage}
+                            marks={userDetails.last_quiz_marks}
+                            total={userDetails.last_quiz_total}
+                            level={userDetails.quiz_level}
+                            rank={rank}
+                            gameName={gameName}
+                            totalScore={userDetails.totalScore}
                         />
+
+                        {/* Control Center Grid */}
+                        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-card p-5 sm:p-6">
+                            <h3 className="font-poppins font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100 mb-4">Platform Services & Tools</h3>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button
+                                    className="flex items-center gap-3.5 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all text-left group"
+                                    onClick={() => toggleModal('feedback', true)}
+                                >
+                                    <div className="p-2.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                        <MessageSquare size={18} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-poppins font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100">Send Feedback</h4>
+                                        <p className="font-manrope text-[11px] text-slate-400 dark:text-slate-500">Share your thoughts with us</p>
+                                    </div>
+                                </button>
+
+                                <button
+                                    className="flex items-center gap-3.5 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all text-left group"
+                                    onClick={() => toggleModal('collab', true)}
+                                >
+                                    <div className="p-2.5 rounded-md bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                                        <UserPlus size={18} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-poppins font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100">Collaborate with Us</h4>
+                                        <p className="font-manrope text-[11px] text-slate-400 dark:text-slate-500">Join our development network</p>
+                                    </div>
+                                </button>
+
+                                <button
+                                    className="flex items-center gap-3.5 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all text-left group"
+                                    onClick={() => toggleModal('help', true)}
+                                >
+                                    <div className="p-2.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                        <HelpCircle size={18} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-poppins font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100">Help & Support</h4>
+                                        <p className="font-manrope text-[11px] text-slate-400 dark:text-slate-500">Get assistance or FAQ guides</p>
+                                    </div>
+                                </button>
+
+                                <button
+                                    className="flex items-center gap-3.5 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-red-200 dark:hover:border-red-500/30 hover:bg-red-50/30 dark:hover:bg-red-500/10 transition-all text-left group"
+                                    onClick={handleClearChat}
+                                >
+                                    <div className="p-2.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-red-500 transition-colors">
+                                        <Trash2 size={18} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-poppins font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100">Clear Chat History</h4>
+                                        <p className="font-manrope text-[11px] text-slate-400 dark:text-slate-500">Wipe active session history</p>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-3">
+                                <p className="font-manrope text-[11px] text-slate-400">Danger Zone: Permanent actions</p>
+                                <button
+                                    className="flex items-center gap-1.5 font-manrope text-xs font-semibold px-3.5 py-2 rounded-md border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                                    onClick={() => toggleModal('delete', true)}
+                                >
+                                    <Trash2 size={14} /> Delete Account
+                                </button>
+                            </div>
                         </div>
-                        ) : (
-                            <>
-                           <div className="bg-blue-50/60 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/20 rounded-lg p-4 mb-4">
+                    </div>
+                </div>
+            </main>
 
-                                <h2 className="font-poppins font-semibold text-blue-700 dark:text-blue-400 mb-2">
-                                    Ready to Collaborate?
-                                </h2>
+            {/* Modals */}
+            <Modal
+                isOpen={modals.upload}
+                onClose={() => toggleModal('upload', false)}
+                title="Update Profile Picture"
+            >
+                <div className="space-y-3">
+                    <div className="relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg py-8 text-slate-400 dark:text-slate-500 hover:border-blue-400 hover:bg-blue-50/30 transition-all">
+                        <Upload size={24} className="text-blue-500" />
+                        <p className="font-manrope text-xs">Click to upload or drag & drop</p>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileUpload}
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                    </div>
+                    {uploadProgress > 0 && (
+                        <div className="space-y-1">
+                            <div className="flex justify-between font-manrope text-[11px] text-slate-500">
+                                <span>Uploading...</span>
+                                <span>{uploadProgress}%</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-blue-600 transition-all duration-200"
+                                    style={{ width: `${uploadProgress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </Modal>
 
-                                <p className="font-manrope text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                                    Interested in working on real-world, impactful projects? Fill out the form, and we'll reach out via email—<strong className="font-semibold">make sure to provide a correct email address</strong>.
-                                    <br /><br />
-                                    <strong className="font-semibold">Join us</strong> to gain experience, recognition, and help shape the future of impactful projects.
-                                    <br /><br />
-                                    <span className="text-red-600 dark:text-red-400 font-medium">Note:</span> Deleting your account will remove your collaboration request permanently.
+            <Modal
+                isOpen={modals.feedback}
+                onClose={() => toggleModal('feedback', false)}
+                title="Share Your Feedback"
+            >
+                {feedbackSubmitted ? (
+                    <div className="flex flex-col items-center justify-center p-3 animate-fadeIn">
+                        <img
+                            src="/images/ThankyouFeedback.png"
+                            alt="Thank you"
+                            className="w-48 max-w-full h-auto mb-3"
+                        />
+                        <p className="font-poppins font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100">Thank you for your feedback!</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <textarea
+                            value={feedbackText}
+                            onChange={(e) => setFeedbackText(e.target.value)}
+                            placeholder="We value your thoughts..."
+                            rows={4}
+                            className="w-full font-manrope text-xs sm:text-sm p-3 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none"
+                        />
+                        <div className="flex justify-end gap-2">
+                            <button
+                                className="font-manrope text-xs font-medium px-3 py-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                onClick={() => { toggleModal('feedback', false); setFeedbackText(''); }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="font-manrope text-xs font-semibold px-4 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all disabled:opacity-40"
+                                onClick={handleFeedbackSubmit}
+                                disabled={!feedbackText.trim()}
+                            >
+                                Submit Feedback
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+
+            <Modal
+                isOpen={modals.collab}
+                onClose={() => toggleModal('collab', false)}
+                title="Collaboration Request"
+                className="max-w-lg"
+            >
+            <div id="emailModal" className="fixed inset-0 flex items-center justify-center z-[60] hidden bg-slate-900/50 backdrop-blur-sm">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-lg shadow-elevated max-w-sm w-full mx-4 border border-slate-200 dark:border-slate-800">
+                    <h2 className="font-poppins text-xs font-semibold mb-2 text-slate-800 dark:text-slate-100">
+                      Did you mean <span id="suggestionEmail" className="font-bold text-blue-600"></span> instead of <span id="currentEmail" className="font-bold text-red-500"></span>?
+                    </h2>
+                    <div className="flex justify-end gap-2 mt-3">
+                      <button id="confirmBtn" className="font-manrope text-xs font-semibold bg-blue-600 text-white px-3 py-1 rounded-md">Yes</button>
+                      <button id="cancelBtn" className="font-manrope text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-md">No</button>
+                    </div>
+                </div>
+            </div>
+                <div>
+                {hasSubmitted ? (
+                    <div className="flex flex-col items-center justify-center my-3 text-center animate-fadeIn">
+                      <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-500/10 flex items-center justify-center mb-2">
+                        <UserPlus size={18} className="text-green-600 dark:text-green-400" />
+                      </div>
+                      <p className="font-manrope text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-3 leading-relaxed">
+                          <strong className="font-semibold text-slate-800 dark:text-slate-100">Request submitted successfully.</strong> Our team is reviewing your profile.
+                      </p>
+                      <img
+                          src="./images/collab1.png"
+                          alt="Collaboration Success"
+                          className="w-full max-w-[180px] object-contain"
+                      />
+                    </div>
+                    ) : (
+                        <div className="space-y-3">
+                            <div className="bg-blue-50/60 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/20 rounded-md p-3">
+                                <p className="font-manrope text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    Join the Justice Genie network and contribute to impactful systems. Provide your details below.
                                 </p>
                             </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                                    <input type="text" placeholder="Full Name" value={collabData.name}
-                                        onChange={e => setCollabData({ ...collabData, name: e.target.value })} className="font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <input type="text" placeholder="Full Name" value={collabData.name}
+                                    onChange={e => setCollabData({ ...collabData, name: e.target.value })} className="font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40" />
 
-                                    <input type="email" placeholder="Working Email" value={collabData.email}
-                                        onChange={e => setCollabData({ ...collabData, email: e.target.value })} className="font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150" />
-                                </div>
+                                <input type="email" placeholder="Working Email" value={collabData.email}
+                                    onChange={e => setCollabData({ ...collabData, email: e.target.value })} className="font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40" />
+                            </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                                    <input type="text" placeholder="Collaboration Type e.g., Developer, Legal Expert, Content Creator" value={collabData.collaborationType}
-                                        onChange={e => setCollabData({ ...collabData, collaborationType: e.target.value })} className="font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <input type="text" placeholder="Role (e.g., Developer)" value={collabData.collaborationType}
+                                    onChange={e => setCollabData({ ...collabData, collaborationType: e.target.value })} className="font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40" />
 
-                                    <select value={collabData.language} onChange={e => setCollabData({ ...collabData, language: e.target.value })}
-                                        className="font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150">
-                                        <option value="">Select a Programming Language</option>
-                                        {["JavaScript", "Python", "Java", "C++", "C#", "Ruby", "Swift", "Kotlin", "Go", "PHP", "TypeScript", "Rust", "Dart", "Scala", "Perl"].map(lang => (
-                                            <option key={lang} value={lang}>{lang}</option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <select value={collabData.language} onChange={e => setCollabData({ ...collabData, language: e.target.value })}
+                                    className="font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40">
+                                    <option value="">Primary Language</option>
+                                    {["JavaScript", "Python", "Java", "C++", "C#", "Ruby", "Swift", "Kotlin", "Go", "PHP", "TypeScript", "Rust", "Dart", "Scala", "Perl"].map(lang => (
+                                        <option key={lang} value={lang}>{lang}</option>
+                                    ))}
+                                </select>
+                            </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                                    <input type="text" placeholder="Frameworks: ReactJS,Flask..." value={collabData.frameworks}
-                                        onChange={e => setCollabData({ ...collabData, frameworks: e.target.value })} className="font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <input type="text" placeholder="Frameworks (React, Flask...)" value={collabData.frameworks}
+                                    onChange={e => setCollabData({ ...collabData, frameworks: e.target.value })} className="font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40" />
 
-                                    <input type="text" placeholder="Database: MongoDB,SQL.. (Optional)" value={collabData.database}
-                                        onChange={e => setCollabData({ ...collabData, database: e.target.value })} className="font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150" />
-                                </div>
+                                <input type="text" placeholder="Database (MongoDB, SQL...)" value={collabData.database}
+                                    onChange={e => setCollabData({ ...collabData, database: e.target.value })} className="font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40" />
+                            </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                                    <textarea placeholder="Other Skills Communication,MachineLearning (Optional)" value={collabData.skills}
-                                        onChange={e => setCollabData({ ...collabData, skills: e.target.value })} rows={3} className="font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150 resize-none"></textarea>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <textarea placeholder="Other Skills" value={collabData.skills}
+                                    onChange={e => setCollabData({ ...collabData, skills: e.target.value })} rows={2} className="font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none"></textarea>
 
-                                    <textarea placeholder="Message" value={collabData.message}
-                                        onChange={e => setCollabData({ ...collabData, message: e.target.value })} rows={3} className="font-manrope text-sm px-3.5 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-150 resize-none"></textarea>
-                                </div>
+                                <textarea placeholder="Message" value={collabData.message}
+                                    onChange={e => setCollabData({ ...collabData, message: e.target.value })} rows={2} className="font-manrope text-xs sm:text-sm px-3 py-2 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none"></textarea>
+                            </div>
 
-                                <div className="flex justify-end">
-                                <button onClick={handleCollabSubmit} disabled={isSubmittingCollab} className="font-manrope text-sm font-semibold px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-card hover:shadow-card-hover transition-all duration-150 disabled:opacity-60">
-                            {isSubmittingCollab ? (
-                                <span className="flex items-center gap-2">
-                                <svg
-                                    className="animate-spin h-4 w-4"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                    />
-                                    <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                                    />
-                                </svg>
-                                Submitting...
-                                </span>
-                            ) : (
-                                'Submit Request'
-                            )}
-                            </button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Creator Credits */}
-                    <div className="font-manrope text-xs text-slate-400 dark:text-slate-500 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <p>Developed by <strong>Subhash Yaganti</strong> & <strong>Siri Mahalaxmi Vemula</strong></p>
-                        <p className="mt-1 space-x-2">
-                            <a href="https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">LinkedIn</a>
-                            <span>|</span>
-                            <a href="https://github.com/subhash-22-codes" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">GitHub</a>
-                        </p>
-                    </div>
-                </Modal>
-
-                {/* Delete Account Modal */}
-                <Modal
-                    isOpen={modals.delete}
-                    onClose={() => toggleModal('delete', false)}
-                    title="Delete Account"
-                >
-                    <div className="flex flex-col items-center text-center gap-2">
-                        <div className="w-12 h-12 rounded-lg bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-1">
-                            <AlertTriangle size={22} className="text-red-500" />
-                        </div>
-                        <p className="font-poppins text-sm font-medium text-slate-700 dark:text-slate-200">Are you sure you want to delete your account? This action cannot be undone.</p>
-                        <ul className="font-manrope text-xs text-slate-400 dark:text-slate-500 text-left list-disc list-inside space-y-1 mt-2">
-                            <li>Your profile and personal data will be permanently deleted</li>
-                            <li>All your quiz progress will be lost</li>
-                            <li>You won't be able to recover your account</li>
-                        </ul>
-                    </div>
-
-                    {isDeleting && (
-                        <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-4">
-                            <div className="h-full bg-red-500 animate-pulse w-full"></div>
+                            <div className="flex justify-end pt-1">
+                              <button onClick={handleCollabSubmit} disabled={isSubmittingCollab} className="font-manrope text-xs sm:text-sm font-semibold px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all disabled:opacity-60">
+                              {isSubmittingCollab ? 'Submitting...' : 'Submit Request'}
+                              </button>
+                            </div>
                         </div>
                     )}
+                </div>
+            </Modal>
 
-                    <div className="flex justify-center gap-2 mt-5">
-                        <button
-                            className="flex items-center gap-2 font-manrope text-sm font-semibold px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-card hover:shadow-card-hover transition-all duration-150 disabled:opacity-60"
-                            onClick={handleDeleteAccount}
-                            disabled={isDeleting}
-                        >
-                            {isDeleting ? (
-                                <>
-                                    <Loader size={16} className="animate-spin" /> Deleting...
-                                </>
-                            ) : (
-                                <>
-                                    <Trash2 size={16} /> Delete Account
-                                </>
-                            )}
-                        </button>
-
-                        <button
-                            className="font-manrope text-sm font-medium px-4 py-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-60"
-                            onClick={() => toggleModal('delete', false)}
-                            disabled={isDeleting}
-                        >
-                            Cancel
-                        </button>
+            <Modal
+                isOpen={modals.delete}
+                onClose={() => toggleModal('delete', false)}
+                title="Delete Account"
+            >
+                <div className="flex flex-col items-center text-center gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
+                        <AlertTriangle size={20} className="text-red-500" />
                     </div>
-                </Modal>
-
-                {/* Help & Support Modal */}
-                <Modal
-                isOpen={modals.help}
-                onClose={() => toggleModal('help', false)}
-                title="Help & Support"
-                >
-                <div className="flex flex-col items-center text-center mb-4">
-                        <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-3">
-                            <Mail size={20} className="text-blue-600 dark:text-blue-400" />
-                        </div>
-
-                    <p className="font-poppins text-sm text-slate-600 dark:text-slate-300 mb-4">
-                    If you're facing any issues or have questions, we're here to help!
-                    </p>
-
-                    <ul className="font-manrope text-sm text-slate-500 dark:text-slate-400 text-left space-y-2.5">
-                    <li className="flex items-center gap-2"><Mail size={15} className="text-slate-400 flex-shrink-0" /> Email us: <a href="mailto:justicegenie2.0@gmail.com" className="text-blue-600 hover:underline">justicegenie2.0@gmail.com</a></li>
-                    <li className="flex items-center gap-2"><BookOpen size={15} className="text-slate-400 flex-shrink-0" /> Read our FAQ (Coming Soon)</li>
-                    <li className="flex items-center gap-2"><Settings size={15} className="text-slate-400 flex-shrink-0" /> For urgent issues, contact the admin panel</li>
+                    <p className="font-poppins text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100">Are you sure you want to permanently delete your account?</p>
+                    <ul className="font-manrope text-[11px] text-slate-400 dark:text-slate-500 text-left list-disc list-inside space-y-1 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md w-full">
+                        <li>Profile data and session history will be erased</li>
+                        <li>Quiz scores and rankings will be removed</li>
                     </ul>
                 </div>
 
-                <div className="flex justify-center">
-                <button
-                    className="font-manrope text-sm font-medium px-4 py-2 rounded-md text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    onClick={() => toggleModal('help', false)}
+                <div className="flex justify-end gap-2 mt-5">
+                    <button
+                        className="font-manrope text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        onClick={() => toggleModal('delete', false)}
+                        disabled={isDeleting}
                     >
-                    Close
+                        Cancel
+                    </button>
+                    <button
+                        className="flex items-center gap-1.5 font-manrope text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-700 shadow-sm transition-all disabled:opacity-60"
+                        onClick={handleDeleteAccount}
+                        disabled={isDeleting}
+                    >
+                        {isDeleting ? <Loader size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                        {isDeleting ? 'Deleting...' : 'Delete Permanently'}
                     </button>
                 </div>
-                </Modal>
+            </Modal>
 
-            </div>
+            <Modal
+              isOpen={modals.help}
+              onClose={() => toggleModal('help', false)}
+              title="Help & Support"
+            >
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 rounded-md bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/20">
+                  <Mail size={18} className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-poppins font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100">Support Email</h4>
+                    <a href="mailto:justicegenie2.0@gmail.com" className="font-manrope text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline mt-0.5 inline-block">justicegenie2.0@gmail.com</a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end mt-4">
+                  <button
+                      className="font-manrope text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-md bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 transition-colors"
+                      onClick={() => toggleModal('help', false)}
+                  >
+                      Close
+                  </button>
+              </div>
+            </Modal>
+
+            {/* Mobile Sidebar Overlay */}
+            {sidebarOpen && (
+                <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] z-30 lg:hidden animate-fadeIn" onClick={() => setSidebarOpen(false)}></div>
+            )}
         </div>
     );
 };

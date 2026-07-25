@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
-  Send, Moon, Sun, Trash2, LogOut, MessageSquare,
-  User, FileText, Zap, Loader, Scale, 
-  BookOpen, Download, AlertCircle, Menu,Clipboard,ThumbsDown,ThumbsUp,Globe,Mic,BarChart,XCircle,RotateCcw,MicOff,Volume2,SquareDotIcon,Check
+  Send,  MessageSquare,
+  User,  Zap, Loader, 
+   Download, AlertCircle, Menu,Clipboard,ThumbsDown,ThumbsUp,Globe,Mic,BarChart,XCircle,RotateCcw,MicOff,Volume2,SquareDotIcon,Check
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -689,11 +689,53 @@ const handleLogout = useCallback(() => {
   };
 
   const navItems = [
-    { icon: <FileText size={20} />, label: 'LawPDF', path: '/lawpdf' },
-    { icon: <Scale size={20} />, label: 'Legal Resources', path: '/resources' },
-    { icon: <BookOpen size={20} />, label: 'GenieQuizz', path: '/quizz' },
-    { icon: <User size={20} />, label: 'My Account', path: '/myaccount' }
-  ];
+    { 
+        icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" fill="#3B82F6" fillOpacity="0.15" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 2V8H20" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M16 13H8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M16 17H8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10 9H9H8" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        ), 
+        label: 'Digital Law Library', 
+        path: '/lawpdf' 
+    },
+    { 
+        icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3V21" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 7L12 3L21 7L12 11L3 7Z" fill="#8B5CF6" fillOpacity="0.15" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M5.5 13.5L3 17L12 21L21 17L18.5 13.5" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        ), 
+        label: 'Legal Resources', 
+        path: '/resources' 
+    },
+    { 
+        icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z" fill="#10B981" fillOpacity="0.15" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 7H15" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 11H13" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        ), 
+        label: 'Genie Quiz', 
+        path: '/quizz' 
+    },
+    { 
+        icon: (
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4" fill="#F59E0B" fillOpacity="0.15" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 20C4 17.7909 7.58172 16 12 16C16.4183 16 20 17.7909 20 20" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        ), 
+        label: 'My Account', 
+        path: '/myaccount' 
+    }
+];
   
   const toggleDarkMode = () => {
     setIsDarkMode(prev => {
@@ -727,7 +769,7 @@ const handleLogout = useCallback(() => {
 
 if (bootLoading && !error) {
   return (
-    <div className="relative w-full h-full min-h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900">
+    <div className="relative w-full h-full min-h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
       <div className="absolute top-0 left-0 w-full h-0.5 bg-blue-100 dark:bg-blue-900/40 overflow-hidden">
         <div
           className="absolute top-0 left-0 h-full bg-blue-600 dark:bg-blue-400"
@@ -739,20 +781,20 @@ if (bootLoading && !error) {
         ></div>
       </div>
 
-      <div className="flex flex-col items-center animate-fadeIn">
-        <div className="w-14 h-14 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-5 shadow-card">
+      <div className="flex flex-col items-center animate-fadeIn max-w-sm px-4 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-center mb-5 shadow-card">
           <Loader size={26} className="text-blue-600 dark:text-blue-400 animate-spin" />
         </div>
-        <p className="text-lg font-poppins font-semibold text-slate-800 dark:text-slate-100 text-center">
-          Connecting to Justice Genie
+        <p className="text-base sm:text-lg font-poppins font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          Getting everything ready for you...
         </p>
-        <p className="text-sm font-manrope text-slate-500 dark:text-slate-400 mt-1.5 text-center">
-          This usually takes just a few seconds
+        <p className="text-xs sm:text-sm font-manrope text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+          We are setting up your workspace. Just a moment!
         </p>
 
         <button
           onClick={handleLogout}
-          className="mt-8 px-4 py-2 text-sm font-manrope text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-200"
+          className="mt-6 px-4 py-2 text-xs sm:text-sm font-manrope font-medium text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200"
         >
           Cancel and Logout
         </button>
@@ -763,38 +805,43 @@ if (bootLoading && !error) {
 
 if (error) {
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 md:px-8 py-10">
-      <div className="flex justify-start items-start gap-4">
-        <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex-shrink-0 flex items-center justify-center shadow-card">
-          <AlertCircle className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-        </div>
-
-        <div className="flex-1">
-          <div className="bg-white dark:bg-slate-800 border border-red-100 dark:border-red-500/20 rounded-lg rounded-tl-md shadow-card p-5 max-w-lg">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-poppins font-semibold text-slate-800 dark:text-slate-200">
-                  Connection Error
-                </p>
-                <p className="text-sm font-manrope text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Apologies, I'm having trouble connecting to my services at the moment.
-                </p>
-                {error && (
-                  <p className="text-xs text-red-500/70 dark:text-red-400/60 mt-2 font-mono">
-                    {error}
-                  </p>
-                )}
-              </div>
-            </div>
+    <div className="w-full min-h-[calc(100vh-100px)] flex items-center justify-center px-4 md:px-8 py-10 bg-slate-50 dark:bg-slate-950 font-manrope">
+      <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-card p-6 sm:p-8 animate-fadeIn">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 bg-red-50 dark:bg-red-500/10 rounded-xl flex-shrink-0 flex items-center justify-center border border-red-100 dark:border-red-500/20">
+            <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
           </div>
 
-          <button
-            onClick={() => fetchUserData()}
-            className="mt-3 px-4 py-2 text-sm font-manrope font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] rounded-md shadow-card hover:shadow-card-hover transition-all duration-200 ease-premium"
-          >
-            Try Again
-          </button>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-poppins font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100 tracking-tight">
+              Oops, something went wrong
+            </h3>
+            <p className="text-xs sm:text-sm font-manrope text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              We couldn't load your chat right now. Please check your internet connection and give it another try.
+            </p>
+            {error && (
+              <div className="mt-3 p-3 bg-red-50/60 dark:bg-red-500/5 border border-red-100 dark:border-red-500/10 rounded-xl">
+                <p className="text-[11px] sm:text-xs text-red-600 dark:text-red-400 font-mono break-all">
+                  {error}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-6 flex items-center gap-3">
+              <button
+                onClick={() => fetchUserData()}
+                className="px-4 py-2 text-xs sm:text-sm font-manrope font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.98] rounded-xl shadow-sm transition-all duration-150"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-xs sm:text-sm font-manrope font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors duration-150"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -892,7 +939,23 @@ return (
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-manrope font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors duration-150"
               onClick={toggleDarkMode}
             >
-              {isDarkMode ? <Sun size={17} className="text-slate-400 dark:text-slate-500" /> : <Moon size={17} className="text-slate-400" />}
+              {isDarkMode ? (
+                <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="5" fill="#F59E0B" fillOpacity="0.15" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 2V4" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 20V22" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4.92993 4.92993L6.34993 6.34993" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M17.65 17.65L19.07 19.07" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 12H4" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 12H22" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4.92993 19.07L6.34993 17.65" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M17.65 6.34993L19.07 4.92993" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#6366F1" fillOpacity="0.15" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
               <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
 
@@ -901,7 +964,12 @@ return (
               onClick={handleClearChat}
               disabled={messages.length === 0}
             >
-              <Trash2 size={17} className="text-slate-400 dark:text-slate-500" />
+              <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6H5H21" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" fill="#EF4444" fillOpacity="0.15" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10 11V17" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 11V17" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <span>Clear Chat</span>
             </button>
 
@@ -909,7 +977,11 @@ return (
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-manrope font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150"
               onClick={handleLogout}
             >
-              <LogOut size={17} />
+              <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M16 17L21 12L16 7" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21 12H9" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               <span>Logout</span>
             </button>
           </div>
@@ -983,17 +1055,22 @@ return (
             key={message.id}
             className={`flex items-start gap-2.5 sm:gap-3 animate-revealUp ${message.type === "user" ? "flex-row-reverse" : ""}`}
           >
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden mt-0.5 ${message.type === "user" ? "bg-slate-800 dark:bg-slate-700" : "bg-blue-50 dark:bg-blue-500/10"}`}>
-              {message.type === "user" ? (
-                profilePicture ? (
-                  <img src={profilePicture} alt="You" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-4 h-4 text-white" />
-                )
+           {message.type === "user" ? (
+              profilePicture ? (
+                <img src={profilePicture} alt="You" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0 mt-0.5" />
               ) : (
-                <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              )}
-            </div>
+                <svg className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="#F59E0B" fillOpacity="0.15" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 20C4 17.7909 7.58172 16 12 16C16.4183 16 20 17.7909 20 20" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )
+            ) : (
+              <img
+                src="/images/justice_genie_avatar.png"
+                alt="Justice Genie"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover flex-shrink-0 mt-0.5"
+              />
+            )}
 
             <div className={`flex flex-col max-w-[92%] sm:max-w-[80%] md:max-w-[75%] ${message.type === "user" ? "items-end" : "items-start"}`}>
               <div

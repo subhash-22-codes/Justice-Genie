@@ -1,31 +1,38 @@
 // components/NotFound.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 const NotFound = () => {
   return (
-    <div className="w-full h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
-      {/* SVG illustration slightly larger */}
-      <div className="max-w-full max-h-full flex items-center justify-center scale-[1.1]">
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center px-4 font-manrope">
+      {/* SVG illustration */}
+      <div className="max-w-md w-full flex items-center justify-center mb-2">
         <img
           src="/images/404-error.svg"
           alt="Page not found"
-          className="w-full h-auto max-h-screen object-contain"
+          className="w-full h-auto max-h-[300px] object-contain"
         />
       </div>
 
+      {/* Title */}
+      <h1 className="font-poppins font-bold text-xl sm:text-2xl text-slate-900 dark:text-slate-100 mt-2 text-center">
+        Page Not Found
+      </h1>
+
       {/* Small descriptive text */}
-      <p className="text-gray-600 text-sm md:text-base mt-4 text-center">
-        The page you are looking for is not available.
+      <p className="font-manrope text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 text-center max-w-sm">
+        The page you are looking for is not available or has been moved.
       </p>
 
-      {/* Smaller button */}
+      {/* Action button matching application design system */}
       <div className="mt-6 text-center">
         <Link
-          to="/"
-          className="px-4 py-2 bg-blue-600 text-white text-sm rounded-full shadow hover:bg-blue-700 transition-all duration-300"
+          to="/chat"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-manrope text-xs sm:text-sm font-semibold rounded-xl shadow-sm hover:shadow active:scale-95 transition-all duration-150"
         >
-          Go Back Home
+          <ArrowLeft size={16} />
+          <span>Back to Chat</span>
         </Link>
       </div>
     </div>
