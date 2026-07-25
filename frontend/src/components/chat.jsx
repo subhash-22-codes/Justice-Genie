@@ -462,7 +462,7 @@ const fetchUserData = useCallback(async (retries = 6, delay = 10000) => {
       setError("Server is taking too long to respond. Please refresh later.");
     }
   }
-}, []);
+}, [clearAuth, navigate]);
 
 useEffect(() => {
   const cachedUser = sessionStorage.getItem("userData");
