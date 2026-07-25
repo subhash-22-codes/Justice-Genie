@@ -10,11 +10,19 @@ from flask import Blueprint, request, jsonify, session
 
 from config import logger
 from extensions import chats_collection
+from utils.decorators import login_required
 
 analysis_bp = Blueprint('analysis', __name__)
 
 
 @analysis_bp.route('/api/analyze_probability', methods=['POST'])
+@login_required
+# SECURITY: this endpoint calls the Gemini API on every request. Without a
+# login check, anyone (including bots with no account at all) could hit it
+# directly and run up the Gemini API bill for free. Requiring login doesn't
+# fully stop abuse by itself, but it removes anonymous access and ties every
+# call to a real account — rate limiting this endpoint is still recommended
+# as a High Priority follow-up.
 def analyze_probability():
     logger.info("\n--- NEW ANALYSIS REQUEST ---")
     try:

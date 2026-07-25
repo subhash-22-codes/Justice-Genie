@@ -8,6 +8,7 @@ from flask import Blueprint, request, jsonify, session
 
 from config import logger
 from extensions import model, chats_collection, users_collection, limiter, query_cache_collection
+from utils.decorators import login_required
 
 chat_bp = Blueprint('chat', __name__)
 
@@ -105,14 +106,14 @@ def translate_text():
 
 
 @chat_bp.route('/api/clear_chat', methods=['POST'])
+@login_required
 def clear_chat():
-    data = request.get_json()
-    username = data.get('username')
+    # SECURITY: username now comes from the logged-in session, never from the
+    # request body — otherwise anyone could clear another user's chat history
+    # just by sending that user's username.
+    username = session['username']
 
-    logger.info(f"Received username for chat deletion: {username}")
-
-    if not username:
-        return jsonify({"error": "Username is required"}), 400
+    logger.info(f"Clearing chat history for session user: {username}")
 
     # ✅ Use helper
     result = chats_collection.delete_many({"username": username})
@@ -124,14 +125,18 @@ def clear_chat():
 
 
 @chat_bp.route('/api/store_message', methods=['POST'])
+@login_required
 def store_message():
     try:
         data = request.json
-        username = data.get("username")
+        # SECURITY: username now comes from the logged-in session, never from
+        # the request body — otherwise anyone could write messages into
+        # another user's chat history just by sending that user's username.
+        username = session['username']
         messages = data.get("messages")  # Expecting a list of messages
 
-        if not username or not messages or not isinstance(messages, list):
-            return jsonify({"error": "Username and a list of messages are required"}), 400
+        if not messages or not isinstance(messages, list):
+            return jsonify({"error": "A list of messages is required"}), 400
 
         # Find user ID
         user = users_collection.find_one({"username": username})  # ✅ add ()
@@ -166,11 +171,12 @@ def store_message():
 
 
 @chat_bp.route('/api/get_chat', methods=['GET'])
+@login_required
 def get_chat():
-    username = request.args.get('username')
-
-    if not username:
-        return jsonify({"error": "Username is required"}), 400
+    # SECURITY: username now comes from the logged-in session, never from
+    # the query string — otherwise anyone could read another user's entire
+    # chat history just by changing ?username=... in the URL.
+    username = session['username']
 
     try:
         # Find user ID
