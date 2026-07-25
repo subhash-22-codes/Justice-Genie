@@ -30,10 +30,15 @@ if not SECRET_KEY:
     raise ValueError("No SECRET_KEY set for Flask application")
 
 # ---------------- Session / cookies ----------------
-# Vercel (frontend) and Render (backend) are different domains, so cross-site
-# cookies REQUIRE SameSite=None + Secure=True in production. Locally (http://localhost)
-# Secure=True would break cookies entirely, so this switches automatically with APP_ENV.
-SESSION_COOKIE_SAMESITE = 'None' if APP_ENV == "production" else 'Lax'
+# The frontend now reaches this backend through a Vercel rewrite proxy
+# (see frontend/vercel.json), so from the browser's point of view every
+# request is same-origin, not cross-site. That means the cookie no longer
+# needs SameSite=None (which is what Safari's third-party cookie blocking
+# was rejecting) — SameSite=Lax is safer and works fine here.
+# Secure=True is still required in production since the site is served over
+# HTTPS either way. Locally (http://localhost) Secure=True would break
+# cookies entirely, so this still switches automatically with APP_ENV.
+SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = APP_ENV == "production"
 PERMANENT_SESSION_LIFETIME = timedelta(days=1)
 
