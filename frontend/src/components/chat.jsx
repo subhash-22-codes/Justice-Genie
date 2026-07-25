@@ -1066,7 +1066,7 @@ return (
               )
             ) : (
               <img
-                src="/images/justice_genie_avatar.png"
+                src="/images/justice_genie-avatar.png"
                 alt="Justice Genie"
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover flex-shrink-0 mt-0.5"
               />
