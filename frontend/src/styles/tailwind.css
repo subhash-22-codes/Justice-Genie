@@ -81,12 +81,50 @@ select {
   caret-color: #333;
 
 }
-/* NOTE: previously this file also removed ALL focus outlines/box-shadows on
-   input/textarea/select globally, which killed focus:ring-* utilities
-   everywhere (including ones deliberately added for accessibility) and is
-   itself an accessibility violation - keyboard users need a visible focus
-   indicator. That rule is gone; components should set their own focus style
-   via Tailwind (e.g. focus:ring-2 focus:ring-blue-500) as chat.jsx and
-   myaccount.jsx already do. Components without an explicit focus style will
-   fall back to the browser default outline, which is a correct and
-   accessible (if unstyled) result - better than no indicator at all. */
+/* Accessibility: respect the OS-level "reduce motion" setting. Applies
+   globally and immediately to every animation/transition in the app,
+   including Tailwind's built-in transition utilities and our custom
+   fadeIn/revealUp/scaleIn keyframes - no per-component work needed. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Thin, theme-aware scrollbar for scrollable containers (chat messages,
+   sidebar nav, modal content, dropdowns). Apply via className="custom-scrollbar".
+   The page-level scrollbar-hiding rule above (html, body) is untouched -
+   this is opt-in per element, not global. */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent; /* slate-300 thumb, transparent track */
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225); /* slate-300 */
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(148 163 184); /* slate-400 */
+}
+.dark .custom-scrollbar {
+  scrollbar-color: rgb(71 85 105) transparent; /* slate-600 thumb in dark mode */
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(71 85 105);
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(100 116 139);
+}
+
