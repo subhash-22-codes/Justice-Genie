@@ -181,7 +181,7 @@ const MyAccount = () => {
     const [hasSubmitted, setHasSubmitted] = useState(false);
     const [gameName, setGameName] = useState('');
     const [rank, setRank] = useState(null);
-    const { setAuth, clearAuth } = useContext(AuthContext);
+    const { clearAuth, logout } = useContext(AuthContext);
 
     useEffect(() => {
       const fetchStats = async () => {
@@ -623,18 +623,7 @@ const MyAccount = () => {
 
     const handleLogout = async () => {
         try {
-            await fetch(`/api/logout`, {
-            method: "POST",
-            credentials: "include",
-            });
-
-            sessionStorage.removeItem("isLoggedIn");
-            localStorage.removeItem("isLoggedIn");
-            localStorage.removeItem("role");
-            localStorage.removeItem("darkMode");
-
-            setAuth({ loggedIn: false, role: null, username: null, loading: false });
-
+            await logout();
             navigate("/login");
         } catch (err) {
             console.error("Logout failed:", err);

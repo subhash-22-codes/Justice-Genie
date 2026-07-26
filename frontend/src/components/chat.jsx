@@ -51,7 +51,7 @@ const Chat = () => {
   const [loadingTranslation, setLoadingTranslation] = useState(null);
   const [currentMessageId, setCurrentMessageId] = useState(null);
   const [cancelled, setCancelled] = useState(false); 
-  const { setAuth, clearAuth } = useContext(AuthContext);
+  const { clearAuth, logout } = useContext(AuthContext);
   const chatCacheRef = useRef({});
 
   const [copied, setCopied] = useState(false);
@@ -664,22 +664,9 @@ const handleLogout = useCallback(() => {
     okType: "danger",
     onOk: async () => {
   try {
-    await fetch(`/api/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-
-    setAuth({ loggedIn: false, role: null, username: null, loading: false });
-
-    sessionStorage.clear(); 
-    
+    await logout();
     localStorage.removeItem(`chatHistory_${username}`);
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("role");
-    localStorage.removeItem("darkMode");
-
     setMessages([]);
-
     navigate("/login", { replace: true });
   } catch (error) {
     console.error("Error logging out:", error);
@@ -689,7 +676,7 @@ const handleLogout = useCallback(() => {
       console.log("Logout cancelled");
     },
   });
-}, [username, navigate, setMessages, setAuth]);
+}, [username, navigate, setMessages, logout]);
 
 
   const toggleSidebar = () => {
@@ -1074,7 +1061,7 @@ return (
               )
             ) : (
               <img
-                src="/images/justice_genie_avatar.png"
+                src="/images/justice_genie-avatar.png"
                 alt="Justice Genie"
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover flex-shrink-0 mt-0.5"
               />

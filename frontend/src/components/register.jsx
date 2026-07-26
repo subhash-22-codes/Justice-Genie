@@ -8,12 +8,11 @@ import Mailcheck from 'mailcheck';
 import {
   AlertTriangle, CheckCircle, Loader, Eye, EyeOff, RotateCw
 } from 'lucide-react';
+import GoogleSignInButton from './GoogleSignInButton';
 
 const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [dob, setDob] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
@@ -30,11 +29,6 @@ const Register = () => {
     if (message) setMessage('');
   };
 
-  const validatePhone = (phone) => {
-    const phoneRegex = /^\d{10}$/;
-    return phoneRegex.test(phone);
-  };
-
   const validatePassword = (password) => {
     return password.length >= 6;
   };
@@ -44,24 +38,8 @@ const Register = () => {
     return regex.test(email);
   };
 
-  const validateDob = (dobString) => {
-    if (!dobString) return false;
-    const dobDate = new Date(dobString);
-    return dobDate <= new Date();
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validatePhone(phone)) {
-      toast.error('Phone number must be 10 digits.');
-      return;
-    }
-
-    if (!validateDob(dob)) {
-      toast.error('Date of birth cannot be in the future.');
-      return;
-    }
 
     if (!validatePassword(password)) {
       toast.error('Password must be at least 6 characters long.');
@@ -117,8 +95,6 @@ const Register = () => {
             body: JSON.stringify({
               username,
               email,
-              phone,
-              dob,
               password,
               profession
             }),
@@ -330,46 +306,6 @@ const Register = () => {
                     </label>
                   </div>
 
-                  <div className="relative mt-2 sm:mt-0">
-                    <input
-                      type="tel"
-                      id="phone"
-                      value={phone}
-                      onFocus={handleInputFocus}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="peer w-full py-2 font-manrope text-sm sm:text-base bg-transparent border-0 border-b-2 border-slate-200 dark:border-slate-700 outline-none text-slate-800 dark:text-slate-100 focus:border-blue-600 transition-colors duration-150"
-                      required
-                    />
-                    <label
-                      htmlFor="phone"
-                      className="absolute left-0 top-2 font-manrope text-xs sm:text-sm text-slate-400 dark:text-slate-500 pointer-events-none transition-all duration-200 ease-premium peer-focus:-top-3.5 peer-focus:text-[10px] sm:peer-focus:text-xs peer-focus:text-blue-600 peer-valid:-top-3.5 peer-valid:text-[10px] sm:peer-valid:text-xs peer-valid:text-blue-600"
-                    >
-                      Phone Number
-                    </label>
-                  </div>
-
-                  <div className="relative mt-2 sm:mt-0">
-                    <input
-                      type="date"
-                      id="dob"
-                      value={dob}
-                      max={new Date().toISOString().split('T')[0]}
-                      onFocus={handleInputFocus}
-                      onChange={(e) => setDob(e.target.value)}
-                      className="peer w-full py-2 font-manrope text-sm sm:text-base bg-transparent border-0 border-b-2 border-slate-200 dark:border-slate-700 outline-none text-slate-800 dark:text-slate-100 focus:border-blue-600 transition-colors duration-150 [&::-webkit-calendar-picker-indicator]:dark:filter [&::-webkit-calendar-picker-indicator]:dark:invert"
-                      required
-                    />
-                    <label
-                      htmlFor="dob"
-                      className={`absolute left-0 pointer-events-none transition-all duration-200 ease-premium font-manrope ${
-                        dob 
-                          ? '-top-3.5 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400' 
-                          : 'top-2 text-xs sm:text-sm text-slate-400 dark:text-slate-500 peer-focus:-top-3.5 peer-focus:text-[10px] sm:peer-focus:text-xs peer-focus:text-blue-600'
-                      }`}
-                    >
-                    </label>
-                  </div>
-
                   <div className="relative mt-2 sm:mt-0 sm:col-span-2">
                     <select
                       id="profession"
@@ -465,6 +401,14 @@ const Register = () => {
                   )}
                 </button>
               </form>
+
+              <div className="flex items-center gap-3 my-5">
+                <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-manrope">or</span>
+                <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+              </div>
+
+              <GoogleSignInButton />
 
               <p className="text-center mt-6 text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-manrope">
                 Already have an account?{' '}

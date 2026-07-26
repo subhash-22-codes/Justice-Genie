@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import { Loader, Eye, EyeOff } from 'lucide-react';
+import GoogleSignInButton from './GoogleSignInButton';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -46,6 +47,10 @@ const Login = () => {
       if (!response.ok) throw new Error('Invalid credentials');
 
       const data = await response.json();
+
+      // A previous account's cached name/photo must never survive into a
+      // new login - always start clean the moment a login succeeds.
+      sessionStorage.removeItem("userData");
 
       // Update context immediately
       setAuth({
@@ -201,6 +206,14 @@ const Login = () => {
                 )}
               </button>
             </form>
+
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-manrope">or</span>
+              <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+            </div>
+
+            <GoogleSignInButton />
 
             <p className="text-center mt-6 text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-manrope">
               Don't have an account?{' '}

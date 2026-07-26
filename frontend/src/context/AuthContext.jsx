@@ -56,11 +56,33 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("role");
     localStorage.removeItem("username");
+    sessionStorage.removeItem("userData");
+    setAuth({ loggedIn: false, role: null, username: null, loading: false });
+  }, []);
+
+  // The ONE logout function every page should use. It used to be that
+  // chat.jsx and myaccount.jsx each hand-wrote their own version of this -
+  // and they quietly drifted apart, which is exactly what caused a stale
+  // cached username/photo to survive a logout done from one page but not
+  // the other. Having a single shared version here means there's only one
+  // place left that can get this wrong.
+  const logout = useCallback(async () => {
+    try {
+      await fetch(`/api/logout`, { method: "POST", credentials: "include" });
+    } catch (err) {
+      // Still clear local state even if the network call itself failed -
+      // a failed logout request should never leave someone stuck "logged in".
+    }
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
+    localStorage.removeItem("darkMode");
+    sessionStorage.clear();
     setAuth({ loggedIn: false, role: null, username: null, loading: false });
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth, clearAuth }}>
+    <AuthContext.Provider value={{ auth, setAuth, clearAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );

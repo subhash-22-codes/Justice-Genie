@@ -2,6 +2,7 @@ import { useEffect, useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { Loader, ShieldCheck } from 'lucide-react';
+import BenchmarkLibrary from "./BenchmarkLibrary";
 import {
   FaRobot,
   FaQuestionCircle,
@@ -20,7 +21,7 @@ import {
   FaLock,
   FaSearch,
   FaTimes,
-  FaQuoteLeft
+  FaQuoteLeft,
 } from "react-icons/fa";
 
 export default function LandingPage() {
@@ -49,7 +50,7 @@ export default function LandingPage() {
     }
   }, [auth, navigate]);
 
-  // IntersectionObserver for scroll-reveal animations (Now properly utilized)
+  // IntersectionObserver for scroll-reveal animations
   useEffect(() => {
     if (auth.loading || typeof window === 'undefined') return;
 
@@ -69,7 +70,7 @@ export default function LandingPage() {
 
     // Observe specific sections for fade-in animations
     const timer = setTimeout(() => {
-      const sections = ['how-it-works', 'features', 'stats', 'pricing', 'faq'];
+      const sections = ['how-it-works', 'features', 'benchmark', 'stats', 'pricing', 'faq'];
       sections.forEach(id => {
         const el = document.getElementById(id);
         if (el) observer.observe(el);
@@ -257,6 +258,7 @@ export default function LandingPage() {
             {[
               { label: 'How it Works', id: 'how-it-works' },
               { label: 'Features', id: 'features' },
+              { label: 'Benchmark', id: 'benchmark' },
               { label: 'Pricing', id: 'pricing' },
               { label: 'FAQ', id: 'faq' },
             ].map((item) => (
@@ -464,6 +466,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* BRAND NEW COMPONENT IMPORTED HERE */}
+      <BenchmarkLibrary />
 
       {/* Realistic Social Proof */}
       <section 
@@ -673,6 +678,7 @@ export default function LandingPage() {
                 <ul className="space-y-2 font-manrope text-xs sm:text-sm text-slate-500">
                   <li><a href="#how-it-works" onClick={(e) => handleScrollTo(e, 'how-it-works')} className="hover:text-white transition-colors">How it Works</a></li>
                   <li><a href="#features" onClick={(e) => handleScrollTo(e, 'features')} className="hover:text-white transition-colors">Features</a></li>
+                  <li><a href="#benchmark" onClick={(e) => handleScrollTo(e, 'benchmark')} className="hover:text-white transition-colors">Benchmark</a></li>
                   <li><a href="#pricing" onClick={(e) => handleScrollTo(e, 'pricing')} className="hover:text-white transition-colors">Pricing</a></li>
                   <li><a href="#faq" onClick={(e) => handleScrollTo(e, 'faq')} className="hover:text-white transition-colors">FAQ</a></li>
                 </ul>
