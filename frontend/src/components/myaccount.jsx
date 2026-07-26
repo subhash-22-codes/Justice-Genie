@@ -232,7 +232,7 @@ const MyAccount = () => {
           showNotification('Failed to load user details', 'error');
           setLoading(false);
       }
-    }, []);
+    }, [clearAuth, navigate]);
 
     useEffect(() => {
         fetchUserDetails();
