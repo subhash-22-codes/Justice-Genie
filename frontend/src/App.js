@@ -26,6 +26,9 @@ import AdminFeedback from './components/AdminFeedback';
 import NotFound from './components/NotFound';
 import AdminQuiz from './components/AdminQuiz'; 
 import LandingPage from './components/LandingPage';
+import LegalDocument from './components/LegalDocument';
+import privacyPolicyContent from './content/privacyPolicyContent';
+import termsOfServiceContent from './content/termsOfServiceContent';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -38,6 +41,8 @@ function AnimatedRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/IntroPage" element={<IntroPage />} />
+        <Route path="/privacy-policy" element={<LegalDocument title="Privacy Policy" content={privacyPolicyContent} />} />
+        <Route path="/terms-of-service" element={<LegalDocument title="Terms of Service" content={termsOfServiceContent} />} />
 
         {/* Protected Routes */}
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />

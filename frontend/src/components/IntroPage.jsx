@@ -329,7 +329,7 @@ const IntroPage = () => {
               <h3 className="text-white font-semibold text-lg mb-4">Quick Links</h3>
               <ul className="space-y-2">
                 <li><a href="/AboutUs" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="/PrivacyPolicy" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="/Faqs" className="hover:text-white transition-colors">FAQs</a></li>
                 <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
               </ul>
@@ -337,7 +337,7 @@ const IntroPage = () => {
             <div>
               <h3 className="text-white font-semibold text-lg mb-4">Legal</h3>
               <ul className="space-y-2">
-                <li><a href="/TermsOFService" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="/CookiePolicy" className="hover:text-white transition-colors">Cookie Policy</a></li>
                 <li><a href="/Disclaimer" className="hover:text-white transition-colors">Disclaimer</a></li>
               </ul>

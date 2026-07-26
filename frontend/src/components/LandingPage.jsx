@@ -693,8 +693,8 @@ export default function LandingPage() {
               <div className="col-span-2 sm:col-span-1">
                 <h4 className="font-poppins text-xs sm:text-sm font-semibold text-white mb-3">Legal</h4>
                 <ul className="space-y-2 font-manrope text-xs sm:text-sm text-slate-500 flex flex-row gap-4 sm:flex-col sm:gap-0">
-                  <li><a href="/privacy" onClick={(e) => { e.preventDefault(); navigate('/privacy'); }} className="hover:text-white transition-colors">Privacy Policy</a></li>
-                  <li><a href="/terms" onClick={(e) => { e.preventDefault(); navigate('/terms'); }} className="hover:text-white transition-colors">Terms of Service</a></li>
+                  <li><a href="/privacy-policy" onClick={(e) => { e.preventDefault(); navigate('/privacy-policy'); }} className="hover:text-white transition-colors">Privacy Policy</a></li>
+                  <li><a href="/terms-of-service" onClick={(e) => { e.preventDefault(); navigate('/terms-of-service'); }} className="hover:text-white transition-colors">Terms of Service</a></li>
                 </ul>
               </div>
             </div>

@@ -14,6 +14,7 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [message, setMessage] = useState('');
@@ -40,6 +41,11 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!agreedToTerms) {
+      toast.error('Please agree to the Terms of Service and Privacy Policy to continue.');
+      return;
+    }
 
     if (!validatePassword(password)) {
       toast.error('Password must be at least 6 characters long.');
@@ -384,6 +390,25 @@ const Register = () => {
                     </button>
                   </div>
                 </div>
+
+                <label className="flex items-start gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-manrope mt-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>
+                    I agree to the{' '}
+                    <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                      Terms of Service
+                    </a>{' '}
+                    and{' '}
+                    <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                      Privacy Policy
+                    </a>
+                  </span>
+                </label>
 
                 <button
                   type="submit"

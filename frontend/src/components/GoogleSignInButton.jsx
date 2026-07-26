@@ -143,7 +143,22 @@ const GoogleSignInButton = () => {
     );
   }
 
-  return <div ref={buttonRef} className="w-full flex justify-center my-2" />;
+  return (
+    <div className="w-full">
+      <div ref={buttonRef} className="flex justify-center my-2" />
+      <p className="text-center text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 font-manrope mt-1">
+        By continuing with Google, you agree to our{' '}
+        <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+          Terms
+        </a>{' '}
+        &{' '}
+        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+          Privacy Policy
+        </a>
+        .
+      </p>
+    </div>
+  );
 };
 
 export default GoogleSignInButton;
