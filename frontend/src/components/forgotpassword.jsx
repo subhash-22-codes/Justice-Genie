@@ -89,9 +89,14 @@ const ForgotPassword = () => {
       const response = await fetch(`/api/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, new_password: newPassword })
+        body: JSON.stringify({ email, new_password: newPassword, reset_code: resetCode.trim() })
       });
       const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || 'Failed to reset password. Please try again.');
+        return;
+      }
 
       toast.success(data.message || 'Password reset successful');
       setTimeout(() => navigate('/login'), 2000);
