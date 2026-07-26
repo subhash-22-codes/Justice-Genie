@@ -662,7 +662,7 @@ const MyAccount = () => {
 }
 
     return (
-        <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 overflow-hidden font-manrope">
+        <div className="app-height flex w-full bg-slate-50 dark:bg-slate-950 overflow-hidden font-manrope">
             {/* Sidebar matching Chat and Quiz */}
             <aside
                 className={`fixed inset-y-0 left-0 z-40 w-72 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 transform transition-transform duration-300 ease-premium lg:static lg:translate-x-0 ${
@@ -741,7 +741,7 @@ const MyAccount = () => {
             </aside>
 
             {/* Main Area */}
-            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+            <main className="flex-1 flex flex-col min-w-0 app-height overflow-hidden">
                 {/* Header */}
                 <header className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shrink-0">
                     <div className="flex items-center gap-3">

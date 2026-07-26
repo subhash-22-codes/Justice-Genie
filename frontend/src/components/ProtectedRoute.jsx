@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }) => {
 
 if (auth.loading) {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
+    <div className="app-height flex flex-col items-center justify-center bg-gray-50">
       <div className="flex space-x-4 mb-4">
         
         <FaSpinner className="text-green-500 text-4xl animate-spin" />

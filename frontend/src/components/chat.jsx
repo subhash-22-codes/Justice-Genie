@@ -857,7 +857,7 @@ if (error) {
 }
 
 return (
-  <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 overflow-hidden">
+  <div className="app-height flex w-full bg-slate-50 dark:bg-slate-950 overflow-hidden">
 
     {/* Sidebar */}
     <aside
@@ -1273,7 +1273,10 @@ return (
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-slate-200/70 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl px-3 sm:px-5 py-3">
+      <div
+        className="border-t border-slate-200/70 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl px-3 sm:px-5 py-3"
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      >
         <div className="max-w-3xl mx-auto">
 
           <div className="rounded-[28px] border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm transition-all duration-200 focus-within:border-slate-300 dark:focus-within:border-slate-600 focus-within:shadow-md">

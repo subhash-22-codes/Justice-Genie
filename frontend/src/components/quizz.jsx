@@ -407,7 +407,7 @@ const Quiz = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 overflow-hidden">
+    <div className="app-height flex w-full bg-slate-50 dark:bg-slate-950 overflow-hidden">
       {renderLeaderboard()}
 
       {/* Sidebar */}
@@ -453,7 +453,7 @@ const Quiz = () => {
       </aside>
 
       {/* Main area */}
-      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 app-height overflow-hidden">
         {/* Header */}
         <header className="flex items-center gap-2 sm:gap-3 h-14 sm:h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shrink-0">
           <button

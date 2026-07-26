@@ -5,6 +5,15 @@
   box-sizing: border-box;
 }
 
+/* iPhone Safari fix: 100vh doesn't account for Safari's address bar
+   appearing/disappearing, which can cut off content or misplace the chat
+   input. 100dvh updates live as Safari's UI changes; vh is kept first as a
+   fallback for older browsers that don't support dvh yet. */
+.app-height {
+  height: 100vh;
+  height: 100dvh;
+}
+
 html,
 body {
   margin: 0;
