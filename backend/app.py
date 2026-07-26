@@ -21,6 +21,7 @@ CORS(
 )
 
 from routes.auth import auth_bp
+from routes.google_auth import google_auth_bp
 from routes.chat import chat_bp
 from routes.quiz import quiz_bp
 from routes.books import books_bp
@@ -30,6 +31,7 @@ from routes.feedback import feedback_bp
 from routes.analysis import analysis_bp
 
 app.register_blueprint(auth_bp)
+app.register_blueprint(google_auth_bp)
 app.register_blueprint(chat_bp)
 app.register_blueprint(quiz_bp)
 app.register_blueprint(books_bp)

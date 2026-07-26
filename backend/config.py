@@ -53,6 +53,7 @@ CORS_ORIGINS = [
 IST = timezone('Asia/Kolkata')
 TEST_MODE = False  # Set to True locally to skip actually sending emails
 MONITORING_API_KEY = os.getenv("MONITORING_API_KEY")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
 
 def configure_app(app):

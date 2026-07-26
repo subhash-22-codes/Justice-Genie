@@ -58,8 +58,8 @@ def register():
     unverified_users[email] = {
         'username': username,
         'email': email,
-        'phone': data['phone'],
-        'dob': data['dob'],
+        'phone': data.get('phone'),
+        'dob': data.get('dob'),
         'password': generate_password_hash(data['password']),
         'verification_code': verification_code,
         'code_expiry': datetime.utcnow() + timedelta(minutes=CODE_EXPIRY_MINUTES),
