@@ -1,3 +1,32 @@
-# https://www.robotstxt.org/robotstxt.html
+# Justice Genie - robots.txt
+# Public marketing/auth/legal pages are crawlable.
+# Everything behind login is blocked - there's nothing for a search engine
+# to usefully index there, and it's not meant for anyone but the logged-in
+# user anyway.
+
 User-agent: *
-Disallow:
+
+Allow: /$
+Allow: /register
+Allow: /login
+Allow: /forgotpassword
+Allow: /privacy-policy
+Allow: /terms-of-service
+
+# Legacy/unused duplicate-style landing page - kept out of search entirely
+# so it never competes with the real homepage above.
+Disallow: /IntroPage
+
+# Logged-in-only application pages - nothing here is meant to be indexed.
+Disallow: /chat
+Disallow: /lawpdf
+Disallow: /quizz
+Disallow: /myaccount
+Disallow: /resources
+Disallow: /admin
+Disallow: /user-management
+Disallow: /collab
+Disallow: /feedbacks
+Disallow: /admin/quiz-management
+
+Sitemap: https://justice-genie-mu.vercel.app/sitemap.xml

@@ -41,8 +41,8 @@ function AnimatedRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/IntroPage" element={<IntroPage />} />
-        <Route path="/privacy-policy" element={<LegalDocument title="Privacy Policy" content={privacyPolicyContent} />} />
-        <Route path="/terms-of-service" element={<LegalDocument title="Terms of Service" content={termsOfServiceContent} />} />
+        <Route path="/privacy-policy" element={<LegalDocument title="Privacy Policy" content={privacyPolicyContent} description="How Justice Genie collects, uses, and protects your data, including how your legal questions are processed by AI." path="/privacy-policy" />} />
+        <Route path="/terms-of-service" element={<LegalDocument title="Terms of Service" content={termsOfServiceContent} description="The terms governing your use of Justice Genie, including our not-legal-advice disclaimer." path="/terms-of-service" />} />
 
         {/* Protected Routes */}
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />

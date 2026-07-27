@@ -9,6 +9,7 @@ import {
   AlertTriangle, CheckCircle, Loader, Eye, EyeOff, RotateCw
 } from 'lucide-react';
 import GoogleSignInButton from './GoogleSignInButton';
+import { Helmet } from 'react-helmet-async';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -234,6 +235,11 @@ const Register = () => {
       animate="animate"
       exit="exit"
     >
+      <Helmet>
+        <title>Create Account | Justice Genie</title>
+        <meta name="description" content="Sign up for Justice Genie for free and start asking Indian legal questions, taking quizzes, and exploring our legal document library." />
+        <link rel="canonical" href="https://justice-genie-mu.vercel.app/register" />
+      </Helmet>
       <div className="flex flex-col lg:flex-row w-full max-w-6xl lg:h-[720px] rounded-lg overflow-hidden shadow-elevated bg-white dark:bg-slate-900">
         
         {/* Left panel - brand image */}

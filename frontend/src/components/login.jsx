@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import { Loader, Eye, EyeOff } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import GoogleSignInButton from './GoogleSignInButton';
 
 const Login = () => {
@@ -90,6 +91,11 @@ const Login = () => {
       animate="animate"
       exit="exit"
     >
+      <Helmet>
+        <title>Login | Justice Genie</title>
+        <meta name="description" content="Log in to Justice Genie to continue your AI legal assistant chats, quiz progress, and saved documents." />
+        <link rel="canonical" href="https://justice-genie-mu.vercel.app/login" />
+      </Helmet>
       <div className="flex flex-col lg:flex-row w-full max-w-6xl lg:h-[720px] rounded-lg overflow-hidden shadow-elevated bg-white dark:bg-slate-900">
 
         {/* Left panel - brand image, desktop/laptop only */}

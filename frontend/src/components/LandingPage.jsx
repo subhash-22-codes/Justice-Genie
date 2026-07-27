@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { AuthContext } from "../context/AuthContext";
 import { Loader, ShieldCheck } from 'lucide-react';
 import BenchmarkLibrary from "./BenchmarkLibrary";
@@ -34,7 +35,6 @@ export default function LandingPage() {
   const { auth } = useContext(AuthContext);
   const navigate = useNavigate();
   
-  // Safely check for reduced motion without breaking Server-Side Rendering (Vercel safe)
   const prefersReducedMotion = useRef(false);
 
   useEffect(() => {
@@ -43,14 +43,12 @@ export default function LandingPage() {
     }
   }, []);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (!auth.loading && auth.loggedIn) {
       navigate(auth.role === "admin" ? "/admin" : "/chat", { replace: true });
     }
   }, [auth, navigate]);
 
-  // IntersectionObserver for scroll-reveal animations
   useEffect(() => {
     if (auth.loading || typeof window === 'undefined') return;
 
@@ -68,7 +66,6 @@ export default function LandingPage() {
       { threshold: 0.1 }
     );
 
-    // Observe specific sections for fade-in animations
     const timer = setTimeout(() => {
       const sections = ['how-it-works', 'features', 'benchmark', 'stats', 'pricing', 'faq'];
       sections.forEach(id => {
@@ -83,7 +80,6 @@ export default function LandingPage() {
     };
   }, [auth.loading]);
 
-  // Feature carousel
   useEffect(() => {
     if (prefersReducedMotion.current || isCarouselPaused) return;
     const interval = setInterval(() => {
@@ -92,7 +88,6 @@ export default function LandingPage() {
     return () => clearInterval(interval);
   }, [isCarouselPaused]);
 
-  // Handle Escape key for Modal (Safe for Vercel deployments)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
@@ -102,7 +97,6 @@ export default function LandingPage() {
     
     if (isTeamModalOpen) {
       window.addEventListener('keydown', handleEsc);
-      // Prevent background scrolling when modal is open
       document.body.style.overflow = 'hidden';
     }
     
@@ -112,7 +106,6 @@ export default function LandingPage() {
     };
   }, [isTeamModalOpen]);
 
-  // Scroll handler function (Safe for deployments)
   const handleScrollTo = (e, id) => {
     e.preventDefault();
     if (typeof document !== 'undefined') {
@@ -171,7 +164,7 @@ export default function LandingPage() {
   const pricingTiers = [
     {
       name: "Free",
-      price: "\u20b90",
+      price: "₹0",
       period: "forever",
       badge: null,
       description: "Everything you need to explore Indian legal knowledge, on us.",
@@ -223,6 +216,21 @@ export default function LandingPage() {
     }
   ];
 
+  // Built from the faqs array above, not duplicated by hand - if an answer
+  // ever changes up there, this structured data stays correct automatically.
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer,
+      },
+    })),
+  };
+
   const teamMembers = [
     {
       name: "Subhash Yaganti",
@@ -246,7 +254,12 @@ export default function LandingPage() {
 
   return (
     <div className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">
-      {/* Navigation */}
+      <Helmet>
+        <title>Justice Genie | AI Legal Assistant for Indian Law</title>
+        <meta name="description" content="Get instant, plain-English answers to Indian legal questions, practice with interactive quizzes, and access a curated legal document library - free during early access." />
+        <link rel="canonical" href="https://justice-genie-mu.vercel.app/" />
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      </Helmet>
       <nav className="sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 h-14 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
@@ -290,7 +303,6 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="relative overflow-hidden" id="hero">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 sm:py-14 lg:py-24 grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="animate-revealUp text-center lg:text-left">
@@ -366,7 +378,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Problem / Agitation Section */}
       <section className="py-10 sm:py-12 bg-slate-50 dark:bg-slate-900/50 text-center border-y border-slate-100 dark:border-slate-800">
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="font-poppins text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-50">
@@ -378,7 +389,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How It Works */}
       <section 
         id="how-it-works" 
         className={`py-12 sm:py-20 transition-all duration-1000 ease-out ${isVisible['how-it-works'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
@@ -388,7 +398,6 @@ export default function LandingPage() {
             <h2 className="font-poppins text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-50">How Justice Genie Works</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6 sm:gap-8 relative">
-            {/* Connecting Line for Desktop */}
             <div className="hidden md:block absolute top-1/2 left-1/6 right-1/6 h-0.5 bg-slate-200 dark:bg-slate-800 -z-10 -translate-y-1/2"></div>
             
             {[
@@ -408,7 +417,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section 
         id="features" 
         className={`py-12 sm:py-20 bg-slate-50 dark:bg-slate-900/30 transition-all duration-1000 ease-out ${isVisible['features'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
@@ -467,10 +475,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* BRAND NEW COMPONENT IMPORTED HERE */}
       <BenchmarkLibrary />
 
-      {/* Realistic Social Proof */}
       <section 
         id="stats" 
         className={`py-12 sm:py-20 transition-all duration-1000 ease-out ${isVisible['stats'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
@@ -508,7 +514,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
       <section 
         id="pricing" 
         className={`py-12 sm:py-24 bg-slate-50 dark:bg-slate-900/50 transition-all duration-1000 ease-out ${isVisible['pricing'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
@@ -580,7 +585,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ Section */}
       <section 
         id="faq" 
         className={`py-12 sm:py-20 transition-all duration-1000 ease-out ${isVisible['faq'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
@@ -615,7 +619,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-16 sm:py-20 bg-slate-900 dark:bg-slate-900">
         <div className="max-w-3xl mx-auto px-4 sm:px-8 text-center">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-white/10 flex items-center justify-center mx-auto mb-5 sm:mb-6">
@@ -640,7 +643,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Legal Disclaimer */}
       <section className="bg-slate-950 dark:bg-black py-6 sm:py-8 border-t border-slate-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-8 flex items-start gap-2.5 sm:gap-3">
           <ShieldCheck className="text-slate-500 flex-shrink-0 mt-0.5 w-4 h-4 sm:w-5 sm:h-5" />
@@ -652,7 +654,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-slate-950 dark:bg-black pt-10 sm:pt-14 pb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 pb-8 sm:pb-10 border-b border-slate-800">
@@ -706,7 +707,6 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Team Modal */}
       {isTeamModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-revealUp max-h-[90vh] flex flex-col">
