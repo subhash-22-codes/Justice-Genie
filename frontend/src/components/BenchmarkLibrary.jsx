@@ -107,7 +107,7 @@ export default function BenchmarkLibrary() {
             <div key={bench.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-6 flex flex-col shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900/50 transition-all">
               <div className="flex justify-between items-start mb-3 sm:mb-4">
                 <div>
-                  <span className="text-[9px] sm:text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
+                  <span className="text-[9px] sm:text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-wider bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
                     {bench.topic}
                   </span>
                   <h3 className="font-poppins font-semibold text-base sm:text-lg text-slate-900 dark:text-white mt-2.5 sm:mt-3 line-clamp-1">
@@ -115,7 +115,7 @@ export default function BenchmarkLibrary() {
                   </h3>
                 </div>
                 <div className="flex flex-col items-end flex-shrink-0 ml-2">
-                  <span className="font-manrope text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold mb-1">Overall Winner</span>
+                  <span className="font-manrope text-[9px] sm:text-[10px] text-slate-400 font-semibold mb-1">Overall Winner</span>
                   <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-700">
                     🏆 {bench.winner === "Justice Genie" ? "JG" : bench.winner}
                   </div>
@@ -123,7 +123,7 @@ export default function BenchmarkLibrary() {
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 sm:p-4 border border-slate-100 dark:border-slate-800 mb-4 sm:mb-5 flex-grow">
-                <span className="font-poppins text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase">Query Preview</span>
+                <span className="font-poppins text-[9px] sm:text-[10px] font-semibold text-slate-400">Query Preview</span>
                 <p className="font-manrope text-xs sm:text-sm text-slate-600 dark:text-slate-300 italic mt-1 line-clamp-3">
                   {bench.shortQuery}
                 </p>
