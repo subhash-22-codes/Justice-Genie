@@ -116,8 +116,16 @@ export default function BenchmarkLibrary() {
                 </div>
                 <div className="flex flex-col items-end flex-shrink-0 ml-2">
                   <span className="font-manrope text-[9px] sm:text-[10px] text-slate-400 font-semibold mb-1">Overall Winner</span>
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-700">
-                    🏆 {bench.winner === "Justice Genie" ? "JG" : bench.winner}
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold text-slate-900 dark:text-white dark:bg-slate-800 px-2 sm:px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-700">
+                    {bench.winner === "Justice Genie" ? (
+                      <img
+                        src="/images/jg_original_logo_1.png"
+                        alt="Justice Genie"
+                        className="h-4 w-4 object-contain"
+                      />
+                    ) : (
+                      bench.winner
+                    )}
                   </div>
                 </div>
               </div>
