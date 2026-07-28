@@ -85,7 +85,7 @@ export default function BenchmarkLibrary() {
   ];
 
   return (
-    <section id="benchmarks" className="py-12 sm:py-16 md:py-24 bg-slate-50/50 dark:bg-slate-900/20 border-y border-slate-100 dark:border-slate-800">
+    <section id="benchmark" className="py-12 sm:py-16 md:py-24 bg-slate-50/50 dark:bg-slate-900/20 border-y border-slate-100 dark:border-slate-800">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
