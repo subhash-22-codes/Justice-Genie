@@ -4,110 +4,97 @@
 // the content meaningfully changes.
 const privacyPolicyContent = `# Privacy Policy
 
-**Last Updated: July 27, 2026**
+**Last Updated: July 28, 2026**
 
 ## 1. Introduction
 
-Justice Genie ("we," "us," "our," or the "App") is an AI-powered legal information platform operated by Yaganti Subhash and Vemula Siri Mahalaxmi ("we," "us," or "the operators"), currently offered as an independent academic and portfolio project, not through a registered company.
+This Privacy Policy explains how Justice Genie ("Justice Genie," "we," "our," or "us") collects, uses, and protects information when you use our AI-powered legal information platform (the "Service"). Justice Genie is independently developed and operated by Yaganti Subhash and Vemula Siri Mahalaxmi.
 
-This Privacy Policy explains what information we collect when you use Justice Genie, how we use it, who we share it with, and the choices you have. By creating an account or using the App, you agree to the practices described here.
-
-If you do not agree with this Policy, please do not use Justice Genie.
+By creating an account or otherwise using the Service, you agree to the practices described in this Policy.
 
 ## 2. Information We Collect
 
-**Account information you provide directly:**
-- Username, email address, and password (stored securely as an irreversible hash — we never store or can see your actual password)
-- Your selected profession (e.g., lawyer, student, general public)
+**Information you provide directly**
+- Username, email address, and password (stored as a secure, irreversible hash)
+- Your selected profession
 - If you sign in with Google: your name, email address, and profile picture, as shared with us by Google
 
-**Information generated through your use of the App:**
-- The legal questions you ask and the AI's responses (your "chat history")
+**Information generated through your use of the Service**
+- Questions submitted and responses received through the AI assistant ("chat history")
 - Case-strength analysis requests and results
-- Quiz activity, scores, and leaderboard ranking
-- Feedback you submit
-- A display "game name," if you choose to set one for the leaderboard
+- Quiz activity, scores, and leaderboard standing
+- Feedback submitted through the platform
 
-**Information collected automatically:**
-- Session/login cookies, used solely to keep you logged in — not for advertising or tracking across other websites
-- Basic technical information such as IP address and browser type, primarily for security, rate-limiting, and diagnosing errors
+**Technical information**
+- Session identifiers used to keep you signed in
+- Basic technical data such as IP address and browser type, used for security and service reliability
 
-**Information we do *not* require:** we do not require your phone number or date of birth to create an account.
+**Cookies**
+The Service uses only essential, functional cookies required to maintain your session. We do not use advertising or cross-site tracking cookies.
 
-## 3. How We Use Your Information
+## 3. How We Use Information
 
-We use your information to:
-- Create and manage your account, and verify your identity at signup
-- Provide the core functionality of the App: answering your legal questions, running case-strength analysis, and tracking quiz progress
-- Send you transactional emails (e.g., email verification codes, password reset codes, welcome emails) — we do not send marketing emails
-- Maintain the security of the platform, including detecting and preventing abuse (such as repeated incorrect login or verification attempts)
-- Improve the App's reliability and features
-- Respond to feedback or support requests you send us
+We use collected information to:
+- Provide and operate the Service
+- Authenticate users and maintain account security
+- Detect, prevent, and respond to fraud, abuse, and security incidents
+- Send essential account-related communications (such as verification and password-reset messages)
+- Improve the reliability, performance, and functionality of the Service
+- Comply with applicable legal obligations
 
-## 4. How Your Questions Are Processed by AI (Important)
+We do not sell personal information, and we do not use your information for advertising.
 
-When you ask Justice Genie a legal question, your question text is sent to **Google's Gemini AI API** to generate a response. Google processes this text under its own API terms and data-handling practices, separate from ours. We do not control how Google's infrastructure processes this data beyond what their API commits to.
+## 4. AI Processing
 
-**We strongly recommend you avoid entering highly sensitive personal information** in your questions — such as Aadhaar or other government ID numbers, full names of other individuals involved in a dispute, exact financial account details, or anything you would not want processed by a third-party AI system. Ask your question in a way that describes your legal situation without including this level of identifying detail.
+Questions and content you submit to the Service may be processed by one or more third-party AI providers in order to generate a response. These providers process data under their own terms and privacy practices, independent of this Policy.
 
-## 5. Third-Party Services We Use
+We recommend avoiding the submission of highly sensitive personal information — such as government identification numbers, exact financial details, or identifying information about third parties — when using the AI assistant.
 
-We rely on the following third-party providers to operate Justice Genie. Each has its own privacy practices, which we encourage you to review:
+## 5. Third-Party Service Providers
 
-| Provider | Purpose |
+We rely on trusted third-party providers to operate the Service, including:
+
+| Category | Purpose |
 |---|---|
-| **Google (Gemini API & Sign-In)** | Generates AI responses to your questions; provides the "Sign in with Google" option |
-| **MongoDB Atlas** | Stores your account and chat data securely |
-| **Cloudinary** | Hosts profile pictures and law reference PDF documents |
-| **Brevo** | Sends verification codes, password reset emails, and welcome emails |
-| **Vercel** | Hosts the website you interact with |
-| **Render** | Hosts the backend service that powers the App |
+| **AI Providers** | Generate responses to user questions and analysis requests |
+| **Authentication Providers** | Support account sign-in, including Google Sign-In |
+| **Cloud Hosting Providers** | Host the Service's application and infrastructure |
+| **Cloud Storage Providers** | Store documents and images used by the Service |
+| **Email Service Providers** | Deliver account-related transactional email |
 
-We do not sell your personal information to anyone, for any purpose.
+Each provider processes data solely to the extent necessary to deliver their respective service to us.
 
-## 6. Cookies and Sessions
+## 6. Data Retention
 
-Justice Genie uses a single essential cookie to keep you logged in during your session. We do not use third-party advertising or cross-site tracking cookies.
+We retain account and usage information for as long as your account remains active. Chat history is retained until you clear it or delete your account. Verification and password-reset codes expire automatically after a limited time and are not retained beyond that period. Upon account deletion, associated personal data is permanently removed from our active systems.
 
-## 7. How Long We Keep Your Information
+## 7. Security
 
-- **Account data** is kept for as long as your account exists.
-- **Chat history** is kept until you clear it yourself (via "Clear Chat") or delete your account.
-- **Verification codes** (for signup or password reset) automatically expire after 10 minutes and are removed shortly after.
-- If you delete your account, your personal data is permanently removed from our active database.
+We apply industry-standard technical and organizational safeguards designed to protect information from unauthorized access, alteration, or disclosure. No method of transmission or storage can be guaranteed as completely secure, but we actively maintain and improve these safeguards.
 
-## 8. Data Security
+## 8. Your Rights and Choices
 
-We take reasonable technical measures to protect your data, including:
-- Passwords stored as irreversible hashes, never in plain text
-- All personal data and every account action are checked against your logged-in session — no page or feature can access another user's data
-- Rate-limiting and attempt-limiting on sensitive actions like login and password reset, to reduce the risk of automated attacks
+You may, at any time:
+- Access and update your account information
+- Clear your chat history
+- Delete your account, which permanently removes associated personal data
+- Contact us with any question or concern regarding your information
 
-No system can guarantee absolute security, but we actively work to identify and fix vulnerabilities as we find them.
+## 9. Children's Privacy
 
-## 9. Your Rights and Choices
+The Service is intended for users aged 18 and older. We do not knowingly collect information from individuals under 18. If we become aware that a minor has created an account, we will take steps to remove it.
 
-You can, at any time:
-- **View and edit** your account details from the My Account page
-- **Clear your chat history** at any point
-- **Delete your account entirely**, which permanently removes your personal data from our systems
-- **Contact us** (below) with any question, correction request, or concern about your data
+## 10. International Data Transfers
 
-## 10. Children's Privacy
+Certain third-party providers we rely on may process or store information on servers located outside your country of residence. By using the Service, you consent to this transfer where necessary to provide the Service.
 
-Justice Genie is intended for users aged 18 and older. We do not knowingly collect information from anyone under 18. If you believe a minor has created an account, please contact us and we will remove it.
+## 11. Changes to This Policy
 
-## 11. International Data Transfers
+We may update this Privacy Policy from time to time to reflect changes in our practices or for legal or operational reasons. Material changes will be reflected by updating the date above. Continued use of the Service after changes constitutes acceptance of the updated Policy.
 
-Some of our service providers (Google, Cloudinary, MongoDB Atlas, Vercel, Render) may store or process data on servers located outside India. By using the App, you consent to this transfer, which is necessary for us to provide the service.
+## 12. Contact Us
 
-## 12. Changes to This Policy
-
-We may update this Privacy Policy from time to time as the App evolves. We will update the "Last Updated" date above when we do. Continued use of the App after changes means you accept the updated Policy.
-
-## 13. Contact Us
-
-If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us at:
+Questions regarding this Privacy Policy may be directed to:
 
 **justicegenie2.0@gmail.com**
 `;
