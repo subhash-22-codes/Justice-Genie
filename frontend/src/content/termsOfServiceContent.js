@@ -4,7 +4,7 @@
 // the content meaningfully changes.
 const termsOfServiceContent = `# Terms of Service
 
-**Last Updated: July 28, 2026**
+**Last Updated: July 31, 2026**
 
 ## 1. Acceptance of Terms
 
