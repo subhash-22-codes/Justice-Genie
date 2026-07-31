@@ -45,7 +45,10 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      if (!response.ok) throw new Error('Invalid credentials');
+      if (response.status === 429) {
+        throw new Error('Too many attempts. Please wait about a minute and try again.');
+      }
+      if (!response.ok) throw new Error('Invalid username or password.');
 
       const data = await response.json();
 

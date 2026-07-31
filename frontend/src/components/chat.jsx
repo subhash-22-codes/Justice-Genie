@@ -531,7 +531,8 @@ const handleSendMessage = async () => {
       signal: abortControllerRef.current.signal,
     });
 
-    if (!response.ok) throw new Error("Network response was not ok");
+    if (response.status === 429) throw new Error("You're sending messages a bit too fast — please wait a moment and try again.");
+    if (!response.ok) throw new Error("Something went wrong reaching the assistant. Please try again.");
 
     const data = await response.json();
     const botMessage = {
@@ -560,7 +561,7 @@ const handleSendMessage = async () => {
       console.log("Request was aborted");
     } else {
       console.error("Error:", error);
-      setError("Failed to send message. Please try again.");
+      setError(error.message || "Failed to send message. Please try again.");
     }
     setIsLoading(false);
   }
@@ -1061,7 +1062,7 @@ return (
               )
             ) : (
               <img
-                src="/images/justice_genie-avatar.png"
+                src="/images/justice_genie_avatar.png"
                 alt="Justice Genie"
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover flex-shrink-0 mt-0.5"
               />
