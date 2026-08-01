@@ -44,6 +44,7 @@ collab_collection = db["collaborations"]
 leaderboard_collection = db["leaderboard"]
 chats_collection = db["chats"]
 query_cache_collection = db["query_cache"]  # cached Gemini responses, see routes/chat.py
+chat_metrics_collection = db["chat_metrics"]  # per-request analytics: latency, tokens, cache hit/miss
 
 
 def _ensure_index(collection, keys, **kwargs):
@@ -86,6 +87,11 @@ _ensure_index(books_collection, "category")
 # Cached Gemini responses auto-expire after 7 days, so answers don't go stale
 # forever (laws/interpretations can change, and this keeps the cache small).
 _ensure_index(query_cache_collection, "cached_at", expireAfterSeconds=7 * 24 * 60 * 60)
+
+# Analytics events auto-expire after 90 days - plenty for real usage analysis
+# (cache hit rate, latency, conversation length trends), without growing
+# unbounded on a free-tier database.
+_ensure_index(chat_metrics_collection, "timestamp", expireAfterSeconds=90 * 24 * 60 * 60)
 
 # ---------------- Cloudinary ----------------
 cloudinary.config(

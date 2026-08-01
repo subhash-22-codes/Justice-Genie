@@ -3,11 +3,12 @@ Chat blueprint: the main /api/chat endpoint (query classification + Gemini),
 plus translate, speech stubs, and chat history storage/retrieval.
 """
 import hashlib
+import time
 from datetime import datetime
 from flask import Blueprint, request, jsonify, session
 
 from config import logger
-from extensions import model, chats_collection, users_collection, limiter, query_cache_collection
+from extensions import model, chats_collection, users_collection, limiter, query_cache_collection, chat_metrics_collection
 from utils.decorators import login_required
 
 chat_bp = Blueprint('chat', __name__)
@@ -41,6 +42,29 @@ def set_cached_response(query, intent, response_text):
         }},
         upsert=True
     )
+
+
+def _extract_usage(response):
+    """Pulls real token counts from Gemini's response, if available.
+    Returns (input_tokens, output_tokens), either of which may be None if
+    the SDK/model didn't report usage for this call."""
+    try:
+        usage = response.usage_metadata
+        return usage.prompt_token_count, usage.candidates_token_count
+    except Exception:
+        return None, None
+
+
+def _log_chat_metrics(**fields):
+    """Records one analytics document per /api/chat request. Deliberately
+    wrapped in try/except - a logging failure should never break the actual
+    chat feature for the user."""
+    try:
+        fields['timestamp'] = datetime.utcnow()
+        chat_metrics_collection.insert_one(fields)
+    except Exception as e:
+        logger.warning(f"Failed to log chat metrics (non-fatal): {e}")
+
 
 # The main system prompt used for LEGAL-classified queries in chat().
 GUIDANCE = """
@@ -229,11 +253,11 @@ def classify_query(query):
     
     response = model.generate_content(prompt)
     classification = response.text.strip().upper()
-    
-    if classification in ['LEGAL', 'LEGAL_GENERAL', 'CONVERSATIONAL', 'CREATOR', 'OFF_TOPIC']:
-        return classification
-    else:
-        return 'OFF_TOPIC' # Default fallback
+
+    if classification not in ['LEGAL', 'LEGAL_GENERAL', 'CONVERSATIONAL', 'CREATOR', 'OFF_TOPIC']:
+        classification = 'OFF_TOPIC'  # Default fallback
+
+    return classification, response
 
 # Your final, simplified chat() function
 @chat_bp.route('/api/chat', methods=['POST'])
@@ -242,20 +266,45 @@ def chat():
     if 'username' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
+    request_start = time.time()
+    username = session['username']
+
     data = request.get_json() or {}
     query = (data.get('query') or "").strip()
 
     if not query:
         return jsonify({'error': 'Query cannot be empty.'}), 400
 
+    # Conversation depth: how many messages this user already has stored.
+    # Not a perfectly session-scoped "this conversation" count (there's no
+    # explicit session/thread boundary in the schema today), but a reasonable,
+    # honest proxy for how deep a user's usage typically goes - useful for
+    # sizing the rolling-window feature later.
+    existing_user_doc = chats_collection.find_one({"username": username}, {"messages": 1})
+    prior_message_count = len(existing_user_doc.get("messages", [])) if existing_user_doc else 0
+
     # Check cache first - a hit skips BOTH the classification Gemini call and
     # the main response Gemini call, since both are keyed off the same query text.
     cached_intent, cached_response = get_cached_response(query)
     if cached_response is not None:
         logger.info(f"Cache hit for query (intent={cached_intent})")
+        _log_chat_metrics(
+            username=username,
+            cache_hit=True,
+            intent=cached_intent,
+            prior_message_count=prior_message_count,
+            total_latency_ms=round((time.time() - request_start) * 1000),
+        )
         return jsonify({'response': cached_response})
 
-    intent = classify_query(query)
+    classify_start = time.time()
+    intent, classify_response = classify_query(query)
+    classify_latency_ms = round((time.time() - classify_start) * 1000)
+    classify_input_tokens, classify_output_tokens = _extract_usage(classify_response)
+
+    response_latency_ms = None
+    response_input_tokens = None
+    response_output_tokens = None
 
     try:
         if intent == 'CREATOR':
@@ -271,7 +320,11 @@ def chat():
         elif intent == 'LEGAL':
             logger.info(f"Handling LEGAL query: {query}")
             prompt = f"{GUIDANCE}\nUser Query: {query}"
-            response_text = model.generate_content(prompt).text
+            response_start = time.time()
+            gemini_response = model.generate_content(prompt)
+            response_latency_ms = round((time.time() - response_start) * 1000)
+            response_input_tokens, response_output_tokens = _extract_usage(gemini_response)
+            response_text = gemini_response.text
 
         elif intent == 'LEGAL_GENERAL':
             logger.info(f"Handling LEGAL_GENERAL query: {query}")
@@ -281,7 +334,11 @@ def chat():
             While you specialize in the IPC, provide a helpful general answer.
             User's question: "{query}"
             """
-            response_text = model.generate_content(prompt).text
+            response_start = time.time()
+            gemini_response = model.generate_content(prompt)
+            response_latency_ms = round((time.time() - response_start) * 1000)
+            response_input_tokens, response_output_tokens = _extract_usage(gemini_response)
+            response_text = gemini_response.text
 
         elif intent == 'CONVERSATIONAL':
             logger.info(f"Handling CONVERSATIONAL query: {query}")
@@ -292,7 +349,11 @@ def chat():
             Respond to the user's conversational query in character. Be polite and helpful.
             User's message: "{query}"
             """
-            response_text = model.generate_content(prompt).text
+            response_start = time.time()
+            gemini_response = model.generate_content(prompt)
+            response_latency_ms = round((time.time() - response_start) * 1000)
+            response_input_tokens, response_output_tokens = _extract_usage(gemini_response)
+            response_text = gemini_response.text
 
         else:  # This handles OFF_TOPIC
             logger.info(f"Handling OFF_TOPIC query: {query}")
@@ -301,10 +362,34 @@ def chat():
         # Cache the result for every intent - a repeat of this exact query
         # (from this user or any other) skips Gemini entirely next time.
         set_cached_response(query, intent, response_text)
+
+        _log_chat_metrics(
+            username=username,
+            cache_hit=False,
+            intent=intent,
+            prior_message_count=prior_message_count,
+            classify_latency_ms=classify_latency_ms,
+            classify_input_tokens=classify_input_tokens,
+            classify_output_tokens=classify_output_tokens,
+            response_latency_ms=response_latency_ms,
+            response_input_tokens=response_input_tokens,
+            response_output_tokens=response_output_tokens,
+            total_latency_ms=round((time.time() - request_start) * 1000),
+        )
+
         return jsonify({'response': response_text})
 
     except Exception as e:
         logger.exception(f'Error processing query: {e}')
+        _log_chat_metrics(
+            username=username,
+            cache_hit=False,
+            intent=intent,
+            prior_message_count=prior_message_count,
+            classify_latency_ms=classify_latency_ms,
+            error=str(e),
+            total_latency_ms=round((time.time() - request_start) * 1000),
+        )
         return jsonify({'error': 'There was an error processing your request.'}), 500
 
 
