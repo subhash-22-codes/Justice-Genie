@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Send,  MessageSquare,
-  User,  Zap, Loader, 
+  User, Loader, 
    Download, AlertCircle, Menu,Clipboard,ThumbsDown,ThumbsUp,Globe,Mic,BarChart,XCircle,RotateCcw,MicOff,Volume2,SquareDotIcon,Check
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
@@ -1062,7 +1062,7 @@ return (
               )
             ) : (
               <img
-                src="/images/justice_genie_avatar.png"
+                src="/images/justice_genie-avatar.png"
                 alt="Justice Genie"
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover flex-shrink-0 mt-0.5"
               />
@@ -1244,8 +1244,12 @@ return (
 
         {isLoading && (
           <div className="flex items-start gap-2.5 sm:gap-3 animate-revealUp">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md flex-shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 mt-0.5">
-              <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-pulse" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <img
+                src="/images/justice_genie_think.png"
+                alt="Justice Genie Thinking"
+                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+              />
             </div>
             <div className="flex items-center gap-2.5 px-3 sm:px-4 py-2 sm:py-3 rounded-lg rounded-tl-md bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-card font-manrope text-xs sm:text-sm text-slate-500 dark:text-slate-400">
               <span className="flex gap-1">
