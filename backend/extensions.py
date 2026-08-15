@@ -131,10 +131,10 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY_FALL_BACK"))
 # Cloud projects with a "no longer available to new users" 404 - this is a
 # known, actively-reported inconsistency between Google's own docs/dashboard
 # and actual API enforcement (see Google AI Developer Forum, Aug 2026), not
-# a mistake in this project's setup. Using gemini-3-flash instead, which we
+# a mistake in this project's setup. Using gemini-2.5-flash instead, which we
 # directly confirmed is available with real quota on this specific account's
 # AI Studio dashboard.
-model_fallback = genai.GenerativeModel('gemini-3-flash')
+model_fallback = genai.GenerativeModel('gemini-2.5-flash')
 model_fallback._client = _genai_client_internal.get_default_generative_client()
 
 genai.configure(api_key=os.getenv("GEMINI_ANALYZE_API_KEY"))
