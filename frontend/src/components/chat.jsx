@@ -28,6 +28,20 @@ const showToast = (message, icon = 'info') => {
   });
 };
 
+// Formats the resetAt ISO timestamp into something like "12:00 AM — about 6 hours from now",
+// matching the calm, factual tone the limit message uses.
+const formatResetTime = (resetAtIso) => {
+  try {
+    const reset = new Date(resetAtIso);
+    const now = new Date();
+    const hoursUntil = Math.max(1, Math.round((reset - now) / (1000 * 60 * 60)));
+    const timeStr = reset.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    return `${timeStr} — about ${hoursUntil} hour${hoursUntil === 1 ? '' : 's'} from now`;
+  } catch {
+    return "at midnight";
+  }
+};
+
 const Chat = () => {
   const [messages, setMessages] = useState([]); // Removed localStorage
   const [input, setInput] = useState('');
@@ -535,6 +549,20 @@ const handleSendMessage = async () => {
     if (!response.ok) throw new Error("Something went wrong reaching the assistant. Please try again.");
 
     const data = await response.json();
+
+    if (data.limitReached) {
+      const limitMessage = {
+        id: Date.now().toString(),
+        type: "limit",
+        reason: data.reason,
+        resetAt: data.resetAt,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, limitMessage]);
+      setIsLoading(false);
+      return;
+    }
+
     const botMessage = {
       id: Date.now().toString(),
       type: "bot",
@@ -1047,6 +1075,25 @@ return (
         )}
 
         {messages.map((message) => (
+          message.type === "limit" ? (
+            <div key={message.id} className="flex justify-center animate-revealUp">
+              <div className="max-w-[92%] sm:max-w-[75%] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg px-4 sm:px-5 py-3.5 sm:py-4">
+                <p className="font-poppins font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">
+                  {message.reason === "user_limit"
+                    ? "You've reached today's message limit"
+                    : "Justice Genie has reached today's capacity"}
+                </p>
+                <p className="font-manrope text-[13px] sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  {message.reason === "user_limit"
+                    ? "To keep Justice Genie free for everyone, each account gets a daily limit on AI responses."
+                    : "A lot of people are using Justice Genie right now, and we've hit today's shared limit."}
+                </p>
+                <p className="font-manrope text-[12.5px] sm:text-[13px] text-slate-400 dark:text-slate-500 mt-2">
+                  Resets at <span className="font-semibold text-slate-500 dark:text-slate-400">{formatResetTime(message.resetAt)}</span>
+                </p>
+              </div>
+            </div>
+          ) : (
           <div
             key={message.id}
             className={`flex items-start gap-2.5 sm:gap-3 animate-revealUp ${message.type === "user" ? "flex-row-reverse" : ""}`}
@@ -1062,7 +1109,7 @@ return (
               )
             ) : (
               <img
-                src="/images/justice_genie-avatar.png"
+                src="/images/justice_genie_avatar.png"
                 alt="Justice Genie"
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover flex-shrink-0 mt-0.5"
               />
@@ -1240,15 +1287,16 @@ return (
               )}
             </div>
           </div>
+          )
         ))}
 
         {isLoading && (
           <div className="flex items-start gap-2.5 sm:gap-3 animate-revealUp">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md flex-shrink-0 flex items-center justify-center dark:bg-blue-500/10 mt-0.5 overflow-hidden">
               <img
                 src="/images/justice_genie_think.png"
-                alt="Justice Genie Thinking"
-                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                alt="Justice Genie"
+                className="w-full h-full object-contain"
               />
             </div>
             <div className="flex items-center gap-2.5 px-3 sm:px-4 py-2 sm:py-3 rounded-lg rounded-tl-md bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-card font-manrope text-xs sm:text-sm text-slate-500 dark:text-slate-400">
