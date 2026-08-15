@@ -2,14 +2,12 @@
 Analysis blueprint: case-strength analysis (Gemini) + saving analysis
 results onto a stored chat message.
 """
-import os
 import re
 import json
-import google.generativeai as genai
 from flask import Blueprint, request, jsonify, session
 
 from config import logger
-from extensions import chats_collection
+from extensions import chats_collection, analyze_model
 from utils.decorators import login_required
 
 analysis_bp = Blueprint('analysis', __name__)
@@ -37,11 +35,11 @@ def analyze_probability():
         if not user_query or not bot_response:
             return jsonify({"error": "User query and bot response are required"}), 400
 
-        api_key = os.getenv("GEMINI_ANALYZE_API_KEY")
-        if not api_key:
-            return jsonify({"error": "Gemini API key not configured"}), 500
-        
-        genai.configure(api_key=api_key)
+        # SECURITY/CORRECTNESS FIX: this used to call genai.configure() with
+        # a different key on every single request, which was flagged in
+        # extensions.py as a real (if rare) race condition risk against
+        # chat.py's model. analyze_model is now pre-bound to its own key at
+        # startup instead - no global state is touched here anymore.
 
         prompt = f"""
         ### Task:
@@ -74,8 +72,7 @@ def analyze_probability():
         """
         
         logger.info("\n--- STEP 2: SENDING PROMPT TO AI ---")
-        model = genai.GenerativeModel("gemini-2.5-flash")
-        response = model.generate_content(prompt)
+        response = analyze_model.generate_content(prompt)
         
         logger.info("\n--- STEP 3: RAW AI RESPONSE ---")
         logger.info(response.text)

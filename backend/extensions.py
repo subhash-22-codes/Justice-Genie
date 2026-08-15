@@ -45,6 +45,7 @@ leaderboard_collection = db["leaderboard"]
 chats_collection = db["chats"]
 query_cache_collection = db["query_cache"]  # cached Gemini responses, see routes/chat.py
 chat_metrics_collection = db["chat_metrics"]  # per-request analytics: latency, tokens, cache hit/miss
+daily_usage_collection = db["daily_usage"]  # per-user + global daily message counters, see Mission-Save Phase 3
 
 
 def _ensure_index(collection, keys, **kwargs):
@@ -93,6 +94,10 @@ _ensure_index(query_cache_collection, "cached_at", expireAfterSeconds=7 * 24 * 6
 # unbounded on a free-tier database.
 _ensure_index(chat_metrics_collection, "timestamp", expireAfterSeconds=90 * 24 * 60 * 60)
 
+# Daily usage counters (Mission-Save) only ever need to track "today" - a
+# short TTL keeps this collection tiny instead of accumulating forever.
+_ensure_index(daily_usage_collection, "created_at", expireAfterSeconds=3 * 24 * 60 * 60)
+
 # ---------------- Cloudinary ----------------
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -101,14 +106,33 @@ cloudinary.config(
     secure=True
 )
 
-# ---------------- Gemini (main chat model) ----------------
-# Note: the /api/analyze-case route (in app.py) reconfigures genai with a
-# different key (GEMINI_ANALYZE_API_KEY) at request time. Since genai.configure()
-# sets global module state, concurrent requests hitting chat + analyze at the
-# same time could theoretically use the wrong key for a moment. Flagged for a
-# later day - not touched in this refactor pass.
+# ---------------- Gemini (main chat model, fallback model, and analyzer) ----------------
+# IMPORTANT: genai.configure() sets GLOBAL module state - calling it more than
+# once means whichever key was configured LAST wins for any model that hasn't
+# been used yet. This used to be a real, flagged bug: analysis.py reconfigured
+# the global key per-request, which could theoretically race with chat.py's
+# model on its very first call after a fresh server start.
+#
+# The fix: force each model to bind to its OWN client immediately, right here
+# at startup, before any request ever comes in. Once a GenerativeModel's
+# internal client is set, it's cached forever and never re-reads the global
+# config again - so from this point on, each model is permanently locked to
+# the correct key regardless of what any other code configures afterward.
+# get_default_generative_client() only builds a local client object - it does
+# NOT make a network call, so this costs zero Gemini quota to do.
+from google.generativeai import client as _genai_client_internal
+
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel('gemini-2.5-flash')
+model._client = _genai_client_internal.get_default_generative_client()
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY_FALL_BACK"))
+model_fallback = genai.GenerativeModel('gemini-2.5-flash-lite')
+model_fallback._client = _genai_client_internal.get_default_generative_client()
+
+genai.configure(api_key=os.getenv("GEMINI_ANALYZE_API_KEY"))
+analyze_model = genai.GenerativeModel('gemini-2.5-flash')
+analyze_model._client = _genai_client_internal.get_default_generative_client()
 
 # ---------------- Rate limiting ----------------
 # NOTE: default storage is in-memory, which resets on restart and isn't shared

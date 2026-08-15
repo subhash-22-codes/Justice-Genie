@@ -4,11 +4,14 @@ plus translate, speech stubs, and chat history storage/retrieval.
 """
 import hashlib
 import time
-from datetime import datetime
+import pytz
+from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, session
+from pymongo import ReturnDocument
 
 from config import logger
-from extensions import model, chats_collection, users_collection, limiter, query_cache_collection, chat_metrics_collection
+from google.api_core.exceptions import ResourceExhausted
+from extensions import model, model_fallback, chats_collection, users_collection, limiter, query_cache_collection, chat_metrics_collection, daily_usage_collection
 from utils.decorators import login_required
 
 chat_bp = Blueprint('chat', __name__)
@@ -28,6 +31,59 @@ def get_cached_response(query):
     cached = query_cache_collection.find_one({'_id': _cache_key(query)})
     if cached:
         return cached.get('intent'), cached.get('response')
+    return None, None
+
+
+import re
+
+CREATOR_RESPONSE = (
+    "I was created by two passionate developers:\n\n"
+    "**Subhash Yaganti** (Full-Stack & UI/UX)\n"
+    "[LinkedIn](https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/) | [GitHub](https://github.com/subhash-22-codes)\n\n"
+    "**Siri Mahalaxmi Vemula** (Backend & System Architecture)\n"
+    "[LinkedIn](https://www.linkedin.com/in/vemula-siri-mahalaxmi-b4b624319/) | [GitHub](https://github.com/armycodes)\n\n"
+    "They combined their skills in technology and an interest in law to build me."
+)
+
+OFF_TOPIC_RESPONSE = "I am Justice Genie, your assistant for questions related to Indian law. I cannot help with topics outside of that scope."
+
+# Deliberately conservative: these only match if the ENTIRE message (after
+# trimming punctuation) is just a greeting/thanks - "hi, what are my rights
+# as a tenant" must NOT match this, only a bare "hi" should. False positives
+# here would silently break real questions, so we'd rather under-match than
+# over-match.
+_GREETING_RE = re.compile(r'^(hi+|hello+|hey+|hii+|helo|yo|namaste|good\s*(morning|afternoon|evening|night))[\s!.,?]*$', re.IGNORECASE)
+_THANKS_RE = re.compile(r'^(thanks?|thank\s*you|thx|ty|tysm)[\s!.,]*$', re.IGNORECASE)
+_CREATOR_RE = re.compile(r'\b(who\s+(made|created|built|developed)\s+(you|this|it|justice\s*genie|jg)|who\s+(are|is)\s+(your|the)\s+(creator|creators|developer|developers|innovator|innovators))\b', re.IGNORECASE)
+
+_GREETING_RESPONSES = [
+    "Namaste! I'm doing great, thank you for asking! ✨ I'm Justice Genie, your legal AI assistant for Indian law. How can I help you today?",
+    "Hello! Great to see you. I'm Justice Genie - ask me anything about Indian law and I'll do my best to help.",
+]
+_THANKS_RESPONSES = [
+    "You're most welcome! Feel free to come back anytime you have another legal question.",
+    "Happy to help! Let me know if anything else comes up.",
+]
+
+
+def check_prefilter(query):
+    """Catches obvious greetings/thanks/creator-questions before any Gemini
+    call happens. Returns (intent, response_text) on a match, else (None, None).
+    Deliberately narrow scope - anything even slightly ambiguous falls
+    through to the real model instead of risking a wrong short-circuit."""
+    stripped = query.strip()
+
+    if _CREATOR_RE.search(stripped):
+        return 'CREATOR', CREATOR_RESPONSE
+
+    if _GREETING_RE.match(stripped):
+        import random
+        return 'CONVERSATIONAL', random.choice(_GREETING_RESPONSES)
+
+    if _THANKS_RE.match(stripped):
+        import random
+        return 'CONVERSATIONAL', random.choice(_THANKS_RESPONSES)
+
     return None, None
 
 
@@ -64,6 +120,76 @@ def _log_chat_metrics(**fields):
         chat_metrics_collection.insert_one(fields)
     except Exception as e:
         logger.warning(f"Failed to log chat metrics (non-fatal): {e}")
+
+
+# ---------------- Mission-Save: daily usage limits ----------------
+# Real, measured Gemini free-tier capacity (confirmed directly from Google's
+# own dashboard, not estimated): 20/day on the primary model + 20/day on the
+# fallback = 40/day combined, total, across every user of the app.
+#
+# PER_USER_DAILY_LIMIT: how many real AI messages one account gets per day.
+# GLOBAL_DAILY_SAFETY_LIMIT: a safety cutoff below the true 40 ceiling, so the
+# app degrades gracefully with a friendly message instead of a raw Gemini
+# error once real usage gets close to the actual wall.
+PER_USER_DAILY_LIMIT = 5
+GLOBAL_DAILY_SAFETY_LIMIT = 35
+
+IST = pytz.timezone('Asia/Kolkata')
+
+
+def _today_ist_str():
+    return datetime.now(IST).strftime('%Y-%m-%d')
+
+
+def _next_midnight_ist_iso():
+    now_ist = datetime.now(IST)
+    tomorrow_midnight = (now_ist + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    return tomorrow_midnight.isoformat()
+
+
+def check_and_track_usage(username):
+    """Atomically increments the per-user counter first, checks it, and ONLY
+    if the user is within their own limit does it go on to increment+check
+    the global counter too. This ordering is deliberate: if someone keeps
+    hitting "send" after already being blocked by their personal cap, those
+    attempts never touch the global counter - so the app's shared daily
+    budget only ever gets consumed by requests that had a real chance of
+    reaching Gemini, not wasted on already-blocked retries.
+
+    Uses MongoDB's atomic $inc (never a read-then-write), specifically to
+    avoid the exact race-condition pattern found elsewhere in this codebase
+    during the product audit (see quiz.py's submit_quiz).
+
+    Returns a dict: {'allowed': bool, 'reason': None|'user_limit'|'global_limit', 'reset_at': iso str}
+    """
+    today = _today_ist_str()
+    reset_at = _next_midnight_ist_iso()
+
+    user_doc = daily_usage_collection.find_one_and_update(
+        {'_id': f'user:{username}:{today}'},
+        {
+            '$inc': {'count': 1},
+            '$setOnInsert': {'type': 'user', 'username': username, 'date': today, 'created_at': datetime.utcnow()},
+        },
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
+    if user_doc['count'] > PER_USER_DAILY_LIMIT:
+        return {'allowed': False, 'reason': 'user_limit', 'reset_at': reset_at}
+
+    global_doc = daily_usage_collection.find_one_and_update(
+        {'_id': f'global:{today}'},
+        {
+            '$inc': {'count': 1},
+            '$setOnInsert': {'type': 'global', 'date': today, 'created_at': datetime.utcnow()},
+        },
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
+    if global_doc['count'] > GLOBAL_DAILY_SAFETY_LIMIT:
+        return {'allowed': False, 'reason': 'global_limit', 'reset_at': reset_at}
+
+    return {'allowed': True, 'reason': None, 'reset_at': reset_at}
 
 
 # The main system prompt used for LEGAL-classified queries in chat().
@@ -222,44 +348,54 @@ def get_chat():
         return jsonify({"error": str(e)}), 500
 
 
-def classify_query(query):
-    """
-    Classifies the user's query into one of four categories.
-    """
-    prompt = f"""
-    Analyze the user's query and classify it into one of four categories based on its intent.
-    The categories are: LEGAL, LEGAL_GENERAL, CONVERSATIONAL, or OFF_TOPIC.
-    - LEGAL: The query is about a specific Indian law, IPC section, or a concrete legal situation.
-    - LEGAL_GENERAL: The query is a broad, philosophical, or definitional question about the legal system itself.
-    - CREATOR: Questions about who made, created, developed, built, or are the innovators of the Justice Genie.
-    - CONVERSATIONAL: The query is a greeting, a question about you (the AI), a thank you, or other small talk.
-    - OFF_TOPIC: The query is about something completely unrelated to law.
+def build_merged_prompt(query):
+    """One prompt that both classifies AND answers in a single Gemini call,
+    instead of the old two-call approach (classify, then respond).
+    Output format is deliberately simple to parse: first line is
+    "INTENT: <CATEGORY>", everything after is the actual answer."""
+    return f"""You are 'Justice Genie', an expert AI legal assistant specializing in the Indian Penal Code (IPC).
 
-    Respond with ONLY the category name.
+STEP 1 - Classify the user's query into exactly one category: LEGAL, LEGAL_GENERAL, CONVERSATIONAL, or OFF_TOPIC.
+- LEGAL: a specific Indian law, IPC section, or concrete legal situation.
+- LEGAL_GENERAL: a broad, philosophical, or definitional question about the legal system itself.
+- CONVERSATIONAL: a greeting, small talk, or a question about you (the AI).
+- OFF_TOPIC: unrelated to law entirely.
 
-    Examples:
-    Query: "What is the punishment for theft?" -> LEGAL
-    Query: "What is Law?" -> LEGAL_GENERAL
-    Query: "who made you?" -> CREATOR
-    Query: "Hello there" -> CONVERSATIONAL
-    Query: "Why do we have courts?" -> LEGAL_GENERAL
-    Query: "who developed this application?" -> CREATOR
-    Query: "How do I cook biryani?" -> OFF_TOPIC
-    Query: "who are the innovators of jg?" -> CREATOR
+STEP 2 - On the very first line of your response, output ONLY: INTENT: <CATEGORY>
 
-    Now, classify this query:
-    Query: "{query}" ->
-    """
-    
-    response = model.generate_content(prompt)
-    classification = response.text.strip().upper()
+STEP 3 - Starting from the second line, answer the query:
+- If LEGAL, follow this exact structure:
+{GUIDANCE}
+- If LEGAL_GENERAL: give a clear, concise general answer (2-4 paragraphs), noting your IPC specialty where relevant.
+- If CONVERSATIONAL: respond briefly and warmly, in character as Justice Genie.
+- If OFF_TOPIC: respond with exactly this line: "{OFF_TOPIC_RESPONSE}"
 
-    if classification not in ['LEGAL', 'LEGAL_GENERAL', 'CONVERSATIONAL', 'CREATOR', 'OFF_TOPIC']:
-        classification = 'OFF_TOPIC'  # Default fallback
+User Query: "{query}"
+"""
 
-    return classification, response
 
-# Your final, simplified chat() function
+def parse_merged_response(raw_text):
+    """Splits the model's raw output into (intent, answer_text). Falls back
+    to OFF_TOPIC if the model didn't follow the expected INTENT: line format,
+    rather than crashing on an unexpected response shape."""
+    lines = raw_text.strip().split("\n", 1)
+    first_line = lines[0].strip().upper()
+
+    if first_line.startswith("INTENT:"):
+        intent = first_line.replace("INTENT:", "").strip()
+        answer = lines[1].strip() if len(lines) > 1 else ""
+    else:
+        # Model didn't follow the format - treat the whole thing as the
+        # answer rather than losing the response entirely.
+        intent = "LEGAL_GENERAL"
+        answer = raw_text.strip()
+
+    if intent not in ['LEGAL', 'LEGAL_GENERAL', 'CONVERSATIONAL', 'OFF_TOPIC']:
+        intent = 'LEGAL_GENERAL'
+
+    return intent, answer
+
+
 @chat_bp.route('/api/chat', methods=['POST'])
 @limiter.limit("15 per minute")
 def chat():
@@ -276,104 +412,90 @@ def chat():
         return jsonify({'error': 'Query cannot be empty.'}), 400
 
     # Conversation depth: how many messages this user already has stored.
-    # Not a perfectly session-scoped "this conversation" count (there's no
-    # explicit session/thread boundary in the schema today), but a reasonable,
-    # honest proxy for how deep a user's usage typically goes - useful for
-    # sizing the rolling-window feature later.
     existing_user_doc = chats_collection.find_one({"username": username}, {"messages": 1})
     prior_message_count = len(existing_user_doc.get("messages", [])) if existing_user_doc else 0
 
-    # Check cache first - a hit skips BOTH the classification Gemini call and
-    # the main response Gemini call, since both are keyed off the same query text.
+    # 1) Cache check - zero Gemini calls on a hit.
     cached_intent, cached_response = get_cached_response(query)
     if cached_response is not None:
         logger.info(f"Cache hit for query (intent={cached_intent})")
         _log_chat_metrics(
-            username=username,
-            cache_hit=True,
-            intent=cached_intent,
-            prior_message_count=prior_message_count,
+            username=username, cache_hit=True, pre_filtered=False,
+            intent=cached_intent, prior_message_count=prior_message_count,
             total_latency_ms=round((time.time() - request_start) * 1000),
         )
         return jsonify({'response': cached_response})
 
-    classify_start = time.time()
-    intent, classify_response = classify_query(query)
-    classify_latency_ms = round((time.time() - classify_start) * 1000)
-    classify_input_tokens, classify_output_tokens = _extract_usage(classify_response)
+    # 2) Pre-filter check - zero Gemini calls for obvious greetings/thanks/creator questions.
+    pf_intent, pf_response = check_prefilter(query)
+    if pf_response is not None:
+        logger.info(f"Pre-filter matched (intent={pf_intent}), no Gemini call needed")
+        set_cached_response(query, pf_intent, pf_response)
+        _log_chat_metrics(
+            username=username, cache_hit=False, pre_filtered=True,
+            intent=pf_intent, prior_message_count=prior_message_count,
+            total_latency_ms=round((time.time() - request_start) * 1000),
+        )
+        return jsonify({'response': pf_response})
 
-    response_latency_ms = None
-    response_input_tokens = None
-    response_output_tokens = None
+    # 3) Daily usage limit check - only applies here, since cache hits and
+    # pre-filtered messages never touch Gemini and shouldn't count against
+    # anyone's limited daily allowance.
+    usage_check = check_and_track_usage(username)
+    if not usage_check['allowed']:
+        logger.info(f"Usage limit reached for {username}: {usage_check['reason']}")
+        _log_chat_metrics(
+            username=username, cache_hit=False, pre_filtered=False,
+            limit_reached=usage_check['reason'], prior_message_count=prior_message_count,
+            total_latency_ms=round((time.time() - request_start) * 1000),
+        )
+        return jsonify({
+            'limitReached': True,
+            'reason': usage_check['reason'],
+            'resetAt': usage_check['reset_at'],
+        })
+
+    # 4) Real Gemini call - ONE call does both classification and answering,
+    # instead of the old two-call (classify, then respond) approach.
+    generation_latency_ms = None
+    generation_input_tokens = None
+    generation_output_tokens = None
+    intent = None
+    used_fallback = False
 
     try:
-        if intent == 'CREATOR':
-            response_text = (
-                "I was created by two passionate developers:\n\n"
-                "**Subhash Yaganti** (Full-Stack & UI/UX)\n"
-                "[LinkedIn](https://www.linkedin.com/in/subhash-yaganti-a8b3b626a/) | [GitHub](https://github.com/subhash-22-codes)\n\n"
-                "**Siri Mahalaxmi Vemula** (Backend & System Architecture)\n"
-                "[LinkedIn](https://www.linkedin.com/in/vemula-siri-mahalaxmi-b4b624319/) | [GitHub](https://github.com/armycodes)\n\n"
-                "They combined their skills in technology and an interest in law to build me."
-            )
+        prompt = build_merged_prompt(query)
+        gen_start = time.time()
 
-        elif intent == 'LEGAL':
-            logger.info(f"Handling LEGAL query: {query}")
-            prompt = f"{GUIDANCE}\nUser Query: {query}"
-            response_start = time.time()
+        try:
             gemini_response = model.generate_content(prompt)
-            response_latency_ms = round((time.time() - response_start) * 1000)
-            response_input_tokens, response_output_tokens = _extract_usage(gemini_response)
-            response_text = gemini_response.text
+        except ResourceExhausted:
+            # Primary model's daily quota is exhausted - fall back to the
+            # secondary model (separate key, separate quota pool) instead of
+            # failing the request outright. This is the ONLY exception we
+            # fall back on - anything else (a real bug, a malformed prompt,
+            # a genuine outage) should surface normally, not be silently
+            # retried against a different model.
+            logger.warning("Primary Gemini model quota exhausted - retrying with fallback model")
+            used_fallback = True
+            gemini_response = model_fallback.generate_content(prompt)
 
-        elif intent == 'LEGAL_GENERAL':
-            logger.info(f"Handling LEGAL_GENERAL query: {query}")
-            prompt = f"""
-            You are 'Justice Genie', an expert legal AI assistant.
-            Answer the user's broad, philosophical, or definitional question about law in a clear and concise way.
-            While you specialize in the IPC, provide a helpful general answer.
-            User's question: "{query}"
-            """
-            response_start = time.time()
-            gemini_response = model.generate_content(prompt)
-            response_latency_ms = round((time.time() - response_start) * 1000)
-            response_input_tokens, response_output_tokens = _extract_usage(gemini_response)
-            response_text = gemini_response.text
+        generation_latency_ms = round((time.time() - gen_start) * 1000)
+        generation_input_tokens, generation_output_tokens = _extract_usage(gemini_response)
 
-        elif intent == 'CONVERSATIONAL':
-            logger.info(f"Handling CONVERSATIONAL query: {query}")
-            # This prompt can be the simpler one now, or the detailed one. 
-            # The react-markdown component will handle either perfectly.
-            prompt = f"""
-            You are 'Justice Genie', a friendly and professional legal AI assistant for Indian law.
-            Respond to the user's conversational query in character. Be polite and helpful.
-            User's message: "{query}"
-            """
-            response_start = time.time()
-            gemini_response = model.generate_content(prompt)
-            response_latency_ms = round((time.time() - response_start) * 1000)
-            response_input_tokens, response_output_tokens = _extract_usage(gemini_response)
-            response_text = gemini_response.text
-
-        else:  # This handles OFF_TOPIC
-            logger.info(f"Handling OFF_TOPIC query: {query}")
-            response_text = "I am Justice Genie, your assistant for questions related to Indian law. I cannot help with topics outside of that scope."
+        intent, response_text = parse_merged_response(gemini_response.text)
 
         # Cache the result for every intent - a repeat of this exact query
         # (from this user or any other) skips Gemini entirely next time.
         set_cached_response(query, intent, response_text)
 
         _log_chat_metrics(
-            username=username,
-            cache_hit=False,
-            intent=intent,
-            prior_message_count=prior_message_count,
-            classify_latency_ms=classify_latency_ms,
-            classify_input_tokens=classify_input_tokens,
-            classify_output_tokens=classify_output_tokens,
-            response_latency_ms=response_latency_ms,
-            response_input_tokens=response_input_tokens,
-            response_output_tokens=response_output_tokens,
+            username=username, cache_hit=False, pre_filtered=False,
+            intent=intent, prior_message_count=prior_message_count,
+            used_fallback=used_fallback,
+            generation_latency_ms=generation_latency_ms,
+            generation_input_tokens=generation_input_tokens,
+            generation_output_tokens=generation_output_tokens,
             total_latency_ms=round((time.time() - request_start) * 1000),
         )
 
@@ -382,11 +504,10 @@ def chat():
     except Exception as e:
         logger.exception(f'Error processing query: {e}')
         _log_chat_metrics(
-            username=username,
-            cache_hit=False,
-            intent=intent,
-            prior_message_count=prior_message_count,
-            classify_latency_ms=classify_latency_ms,
+            username=username, cache_hit=False, pre_filtered=False,
+            intent=intent, prior_message_count=prior_message_count,
+            used_fallback=used_fallback,
+            generation_latency_ms=generation_latency_ms,
             error=str(e),
             total_latency_ms=round((time.time() - request_start) * 1000),
         )
