@@ -134,7 +134,7 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY_FALL_BACK"))
 # a mistake in this project's setup. Using gemini-2.5-flash instead, which we
 # directly confirmed is available with real quota on this specific account's
 # AI Studio dashboard.
-model_fallback = genai.GenerativeModel('gemini-2.5-flash')
+model_fallback = genai.GenerativeModel('gemini-3.6-flash')
 model_fallback._client = _genai_client_internal.get_default_generative_client()
 
 genai.configure(api_key=os.getenv("GEMINI_ANALYZE_API_KEY"))
