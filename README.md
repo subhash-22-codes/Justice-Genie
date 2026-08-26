@@ -1,4 +1,4 @@
-# ⚖️ Justice Genie 2.0
+# ⚖️ Justice Genie
 
 **AI-powered legal assistance platform for Indian law** — helping individuals and small businesses understand their legal rights through conversational AI, interactive learning, and curated legal resources.
 
@@ -17,12 +17,10 @@
 - [Core System Components](#core-system-components)
 - [Data Layer](#data-layer)
 - [AI / Intelligence Layer](#ai--intelligence-layer)
-- [Integrations](#integrations)
 - [Authentication & Security](#authentication--security)
 - [Environment Configuration](#environment-configuration)
 - [Local Development](#local-development)
 - [Production / Deployment](#production--deployment)
-- [Testing](#testing)
 - [Current Status](#current-status)
 - [Roadmap / Future Work](#roadmap--future-work)
 - [Upcoming Release](#upcoming-release)
@@ -33,7 +31,7 @@
 
 ## What Is Justice Genie?
 
-Justice Genie 2.0 bridges the gap between complex legal systems and everyday users. The Indian legal system — with its extensive Indian Penal Code (IPC), procedural rules, and landmark case law — is difficult for non-lawyers to navigate. Justice Genie provides:
+Justice Genie bridges the gap between complex legal systems and everyday users. The Indian legal system — with its extensive Indian Penal Code (IPC), procedural rules, and landmark case law — is difficult for non-lawyers to navigate. Justice Genie provides:
 
 - **Instant AI-generated legal explanations** grounded in IPC sections, relevant statutes, and landmark case references
 - **Case strength analysis** that evaluates the strengths, weaknesses, and critical gaps in a described legal situation
@@ -48,22 +46,20 @@ The goal is **legal awareness, accessibility, and empowerment** — not replacin
 
 | Capability | Description | Status |
 |---|---|---|
-| **AI Legal Chat** | Conversational assistant powered by Google Gemini, specializing in IPC and Indian law. Classifies queries (Legal, Legal General, Conversational, Off-Topic) and responds with structured legal analysis including applicable sections, key elements, punishments, nuances, and landmark cases. | ✅ Implemented |
-| **Case Strength Analysis** | Gemini-powered analysis of a legal query's strength, producing a score (0–95), key strengths/weaknesses, and critical missing information, visualized as a Chart.js doughnut gauge. | ✅ Implemented |
-| **Legal Quiz System** | Multi-level quiz engine with 15 randomized questions per level, 80% pass threshold for progression, cumulative scoring, per-level high scores, and a global leaderboard with dense ranking. | ✅ Implemented |
-| **Legal Document Library** | Browsable and searchable collection of legal PDFs (IPC, Indian law references) stored on Cloudinary, with view/download tracking. | ✅ Implemented |
-| **Chat History & PDF Export** | Per-user chat persistence in MongoDB, with export to professionally formatted PDF (supports mixed English/Hindi/Telugu text via Noto Sans font families). | ✅ Implemented |
-| **User Account Management** | Profile pictures (Cloudinary), game name customization, quiz stats dashboard, account deletion with data cleanup and goodbye email. | ✅ Implemented |
-| **Admin Panel** | Paginated user management, collaboration request review, feedback review, quiz participant oversight, account locking (time-based), and a monitoring metrics endpoint. | ✅ Implemented |
-| **Collaboration System** | Users can submit collaboration requests with technical skills/experience; reviewed by admins; confirmation email sent on submission. | ✅ Implemented |
-| **Feedback System** | Star-rating + text feedback submission (one per user), tracked in user profile, viewable by admins. | ✅ Implemented |
-| **Google Sign-In** | Full OAuth 2.0 flow via Google Identity Services — auto-account creation, username collision handling, and seamless session integration with existing email/password accounts. | ✅ Implemented |
-| **Transactional Email** | Branded HTML emails for verification, welcome, password reset, collaboration confirmation, account lock alerts, and account deletion farewell — sent via Brevo API. | ✅ Implemented |
-| **Response Caching** | SHA-256 normalized query hashing with a 7-day TTL cache of Gemini responses, reducing API costs and latency for repeated questions. | ✅ Implemented |
-| **Usage Rate Limiting** | Per-user (5/day) and global (35/day) daily Gemini call limits with atomic MongoDB counters, plus per-endpoint Flask rate limiting. | ✅ Implemented |
+| **AI Legal Chat** | Conversational assistant powered by Google Gemini, specializing in IPC and Indian law. Classifies queries and responds with structured legal analysis including applicable sections, key elements, punishments, nuances, and landmark cases. | ✅ Implemented |
+| **Case Strength Analysis** | AI-powered analysis of a legal situation's strength, producing a score, key strengths/weaknesses, and critical missing information — visualized as a Chart.js doughnut gauge. | ✅ Implemented |
+| **Legal Quiz System** | Multi-level quiz engine with randomized questions, progressive difficulty, cumulative scoring, per-level high scores, and a global leaderboard. | ✅ Implemented |
+| **Legal Document Library** | Browsable collection of legal reference PDFs stored on Cloudinary, with category filtering and view/download tracking. | ✅ Implemented |
+| **Chat History & PDF Export** | Per-user chat persistence with export to professionally formatted PDF supporting mixed English, Hindi, and Telugu text. | ✅ Implemented |
+| **User Account Management** | Profile pictures, game name customization, quiz stats dashboard, and full account deletion with data cleanup. | ✅ Implemented |
+| **Admin Panel** | Paginated user management, collaboration/feedback review, quiz oversight, temporary account locking, and a monitoring metrics endpoint. | ✅ Implemented |
+| **Google Sign-In** | OAuth 2.0 via Google Identity Services — auto-account creation, username collision handling, and seamless integration with existing accounts. | ✅ Implemented |
+| **Transactional Email** | Branded HTML emails for verification, welcome, password reset, collaboration confirmation, account alerts, and account deletion — sent via Brevo. | ✅ Implemented |
+| **Response Caching** | Query-level caching of Gemini responses with automatic expiry, reducing API costs and latency for repeated questions. | ✅ Implemented |
+| **Usage Rate Limiting** | Per-user and global daily Gemini call limits, plus per-endpoint HTTP rate limiting via Flask-Limiter. | ✅ Implemented |
 | **Dark Mode** | User-toggleable dark theme on the chat interface. | ✅ Implemented |
 | **Voice Features** | Text-to-speech, speech-to-text. Routes exist but return placeholder messages in production. | ⏳ Stubbed |
-| **Translation** | Multilingual translation endpoint. Route exists but returns a placeholder message in production. | ⏳ Stubbed |
+| **Translation** | Multilingual translation endpoint. Route exists but returns a placeholder in production. | ⏳ Stubbed |
 
 ---
 
@@ -211,67 +207,36 @@ graph TB
 ```
 JusticeGenie2.0-Original/
 ├── backend/
-│   ├── app.py                  # Flask app factory, blueprint registration, health check
-│   ├── config.py               # Env loading, logging, session/cookie config, CORS origins
-│   ├── extensions.py           # MongoDB, Cloudinary, Gemini, Brevo, rate limiter setup + indexes
-│   ├── speech_features.py      # Local-only speech functions (not used in production)
-│   ├── requirements.txt        # Python dependencies
-│   ├── .env.example            # Environment variable template
-│   ├── .python-version         # Python 3.11.11
-│   ├── routes/
-│   │   ├── auth.py             # Register, verify OTP, login, logout, forgot/reset password
-│   │   ├── google_auth.py      # Google Sign-In (ID token verification, auto-signup)
-│   │   ├── chat.py             # Main AI chat endpoint, caching, pre-filtering, usage limits
-│   │   ├── analysis.py         # Case strength analysis (Gemini) + saving to chat history
-│   │   ├── quiz.py             # Quiz retrieval, submission, scoring, leaderboard
-│   │   ├── books.py            # Legal document library + collaboration requests
-│   │   ├── account.py          # Profile pics, account info, PDF export, account deletion
-│   │   ├── admin.py            # User management, feedback review, monitoring metrics
-│   │   └── feedback.py         # Feedback submission + status check
+│   ├── app.py              # Flask app factory, blueprint registration, health check
+│   ├── config.py            # Environment, logging, session/cookie config, CORS
+│   ├── extensions.py        # MongoDB, Cloudinary, Gemini, Brevo, rate limiter init
+│   ├── requirements.txt     # Python dependencies
+│   ├── .env.example         # Environment variable template
+│   ├── routes/              # Flask blueprints
+│   │   ├── auth.py          #   Email/password auth (register, OTP, login, password reset)
+│   │   ├── google_auth.py   #   Google Sign-In flow
+│   │   ├── chat.py          #   AI chat endpoint (caching, limits, Gemini calls)
+│   │   ├── analysis.py      #   Case strength analysis
+│   │   ├── quiz.py          #   Quiz engine + leaderboard
+│   │   ├── books.py         #   Legal document library + collaboration requests
+│   │   ├── account.py       #   User profile, PDF export, account deletion
+│   │   ├── admin.py         #   Admin panel endpoints + monitoring
+│   │   └── feedback.py      #   User feedback
 │   └── utils/
-│       ├── decorators.py       # @login_required and @admin_required decorators
-│       └── email.py            # Brevo email sender + HTML templates
+│       ├── decorators.py    #   Auth decorators (@login_required, @admin_required)
+│       └── email.py         #   Brevo email sender + HTML templates
 │
 ├── frontend/
-│   ├── package.json            # React dependencies and scripts
-│   ├── vercel.json             # Vercel rewrite rules (/api/* -> Render backend)
-│   ├── tailwind.config.js      # Design system v2 config (fonts, animations, shadows)
-│   ├── public/
-│   │   ├── index.html          # SEO meta tags, Open Graph, Google Fonts, favicons
-│   │   ├── sitemap.xml         # Search engine sitemap
-│   │   ├── robots.txt          # Crawler directives
-│   │   └── og-image.png        # Social media preview image
+│   ├── package.json         # React dependencies and scripts
+│   ├── vercel.json          # Vercel rewrite rules (/api/* → Render backend)
+│   ├── tailwind.config.js   # Design system config
+│   ├── public/              # Static assets, SEO (sitemap, robots.txt, OG image)
 │   └── src/
-│       ├── App.js              # Router, AnimatePresence, ToastContainer, AuthProvider
-│       ├── context/
-│       │   └── AuthContext.jsx  # Session verification, auth state, shared logout
-│       ├── components/
-│       │   ├── LandingPage.jsx  # Public landing page
-│       │   ├── IntroPage.jsx    # Product introduction
-│       │   ├── login.jsx        # Email/password + Google sign-in
-│       │   ├── register.jsx     # Registration with OTP verification
-│       │   ├── forgotpassword.jsx # Password reset flow
-│       │   ├── chat.jsx         # Main AI chat interface (dark mode, analysis, export)
-│       │   ├── AnalysisReport.jsx # Chart.js case strength visualization
-│       │   ├── quizz.jsx        # Multi-level legal quiz
-│       │   ├── lawpdf.jsx       # Legal document library browser
-│       │   ├── myaccount.jsx    # User profile and stats dashboard
-│       │   ├── resources.jsx    # Resources and collaboration form
-│       │   ├── BenchmarkLibrary.jsx # Legal benchmark reference
-│       │   ├── AdminPanel.jsx   # Admin dashboard
-│       │   ├── UserManagement.jsx # Admin user management
-│       │   ├── AdminCollab.jsx  # Admin collaboration review
-│       │   ├── AdminFeedback.jsx # Admin feedback review
-│       │   ├── AdminQuiz.jsx    # Admin quiz management
-│       │   ├── GoogleSignInButton.jsx # Google Identity Services button
-│       │   ├── LegalDocument.jsx # Privacy Policy / Terms of Service renderer
-│       │   ├── ProtectedRoute.jsx # Auth-gated route wrapper
-│       │   └── NotFound.jsx     # 404 page
-│       ├── content/
-│       │   ├── privacyPolicyContent.js  # Privacy Policy text
-│       │   └── termsOfServiceContent.js # Terms of Service text
-│       └── styles/
-│           └── tailwind.css     # Tailwind base imports
+│       ├── App.js           # Router, page transitions, auth provider
+│       ├── context/         # AuthContext (session verification, shared logout)
+│       ├── components/      # 21 React components (pages + shared UI)
+│       ├── content/         # Legal text (Privacy Policy, Terms of Service)
+│       └── styles/          # Tailwind imports
 │
 ├── .gitignore
 └── README.md
@@ -281,61 +246,47 @@ JusticeGenie2.0-Original/
 
 ## Core System Components
 
-### Chat Engine (`routes/chat.py`)
+### Chat Engine
 
-The heart of the application. A single `/api/chat` endpoint handles the full request lifecycle:
+The main `/api/chat` endpoint implements a multi-stage pipeline designed to minimize Gemini API costs while providing quality responses:
 
-1. **Cache check** — SHA-256 hash of the normalized query hits the `query_cache` collection (7-day TTL). On hit, returns immediately with zero Gemini cost.
-2. **Pre-filter** — Regex-based matching catches bare greetings, thanks, and "who created you" queries without any API call.
-3. **Daily usage check** — Atomic `$inc` operations on per-user and global daily counters (resets at midnight IST). Users get 5 Gemini calls/day; the app has a 35/day global safety cutoff below the actual API quota ceiling.
-4. **Merged Gemini call** — A single prompt that classifies the query intent (LEGAL, LEGAL_GENERAL, CONVERSATIONAL, OFF_TOPIC) and generates the response in one API call (formerly two calls: classify then respond).
-5. **Fallback model** — If the primary Gemini model returns `ResourceExhausted`, automatically retries with a fallback model on a separate API key and quota pool.
-6. **Metrics logging** — Every request logs latency, token counts, cache/pre-filter hits, intent, and fallback usage to `chat_metrics` (90-day TTL).
+1. **Cache check** — Normalized query hashing returns previously cached responses instantly, with no API call.
+2. **Pre-filter** — Common greetings, thanks, and meta-questions are handled with pattern matching — zero API cost.
+3. **Daily usage check** — Per-user and global daily counters prevent runaway API spend on the free tier.
+4. **Merged Gemini call** — A single prompt classifies the query intent (Legal, Legal General, Conversational, Off-Topic) and generates the response in one API call.
+5. **Automatic fallback** — If the primary model's quota is exhausted, the request is transparently retried with a fallback model on a separate quota pool.
+6. **Metrics logging** — Per-request analytics (latency, token counts, cache hits, intent distribution) are recorded with automatic expiry.
 
-### Admin System (`routes/admin.py`)
+### Admin System
 
-Protected by the `@admin_required` decorator. Provides:
-- Paginated user listing with lock status
-- Collaboration request and feedback review
-- Quiz participant overview with correct dense-ranked leaderboard positions
-- Temporary account locking (5-minute locks with email notification)
-- `/monitor/metrics` — API-key-authenticated dashboard endpoint returning user counts, quiz statistics, and leaderboard highlights
+Role-protected admin dashboard providing paginated user management, collaboration/feedback review, quiz participant oversight with ranked leaderboard, temporary account locking with email notification, and an API-key-authenticated monitoring metrics endpoint.
 
-### PDF Export (`routes/account.py`)
+### PDF Export
 
-Generates professionally formatted PDFs using ReportLab with:
-- Proper heading hierarchy (title, subtitle, query/response labels)
-- Markdown rendering (bold, italic, newlines)
-- **Multi-script Unicode support** — text is split by script (Latin, Devanagari, Telugu) and rendered with the appropriate Noto Sans font family, so mixed English/Hindi/Telugu content displays correctly.
-- Footer with page numbers and disclaimer
+Generates professionally formatted PDFs using ReportLab with markdown rendering and **multi-script Unicode support** — mixed English, Hindi, and Telugu text renders correctly using Noto Sans font families.
 
 ---
 
 ## Data Layer
 
-**Database:** MongoDB (local `mongod` in development, MongoDB Atlas in production)  
-**Database name:** `law_chatbot`
+**Database:** MongoDB (local instance in development, MongoDB Atlas in production)
 
-### Collections
+The application uses 10 collections across user management, chat, quizzes, content, and analytics:
 
-| Collection | Purpose | Key Indexes | TTL |
-|---|---|---|---|
-| `users` | User accounts (credentials, profile, quiz progress, feedback status) | `username` (unique), `email` (unique) | — |
-| `chats` | Per-user chat message history (used by both chat and PDF export) | `user_id`, `username` | — |
-| `quizzquestions` | Quiz question bank (question, options, correct answer, explanation, level) | — | — |
-| `leaderboard` | Cumulative quiz scores per user | `username` (unique), `score` (descending) | — |
-| `books` | Legal document metadata (title, category, Cloudinary file path, view/download counts) | `category` | — |
-| `collaborations` | Collaboration requests from users | `submitted_by`, `email` | — |
-| `feedback` | User feedback (text + star ratings) | — | — |
-| `query_cache` | Cached Gemini responses keyed by SHA-256 query hash | `cached_at` (TTL) | **7 days** |
-| `chat_metrics` | Per-request analytics (latency, tokens, cache hits, intent distribution) | `timestamp` (TTL) | **90 days** |
-| `daily_usage` | Per-user and global daily Gemini call counters | `created_at` (TTL) | **3 days** |
+| Collection | Purpose |
+|---|---|
+| `users` | User accounts — credentials, profile, quiz progress, feedback status |
+| `chats` | Per-user chat message history (also used for PDF export) |
+| `quizzquestions` | Quiz question bank with questions, options, correct answers, and explanations |
+| `leaderboard` | Cumulative quiz scores per user for the global leaderboard |
+| `books` | Legal document metadata (title, category, Cloudinary file URL, view/download counts) |
+| `collaborations` | Collaboration requests submitted by users |
+| `feedback` | User feedback (text + star ratings) |
+| `query_cache` | Cached Gemini responses — auto-expires to keep answers fresh |
+| `chat_metrics` | Per-request analytics (latency, tokens, cache hits) — auto-expires |
+| `daily_usage` | Daily Gemini call counters (per-user and global) — auto-expires |
 
-### Key Data Relationships
-
-- A **user** has one **chat** document (containing an array of messages), one optional **leaderboard** entry, one optional **collaboration** request, and one optional **feedback** entry.
-- Each chat message can have an embedded `analysis` sub-document (case strength results) saved via array filter update.
-- The `users` document accumulates quiz state: `quiz_level` (current unlocked level), `level_scores` (per-level high scores), `last_quiz_marks`, `last_quiz_percentage`.
+Key relationships: each user has one chat document (containing an array of messages), one optional leaderboard entry, and one optional collaboration/feedback record. Chat messages can carry embedded case-analysis results. The user document tracks quiz progression across levels.
 
 ---
 
@@ -343,40 +294,20 @@ Generates professionally formatted PDFs using ReportLab with:
 
 Justice Genie uses **Google Gemini** as its sole AI provider. There is no local model, no fine-tuning, and no RAG pipeline at this time.
 
-### Model Configuration
+### How It Works
 
-Three model instances are created at server startup, each bound to a dedicated API key:
+Three separate Gemini model instances are configured at startup — a primary chat model, a fallback model (separate quota pool), and a dedicated analysis model — each bound to its own API key to isolate quotas and avoid configuration conflicts.
 
-| Instance | Model | API Key | Purpose |
-|---|---|---|---|
-| `model` | `gemini-2.5-flash` | `GEMINI_API_KEY` | Primary chat (classify + answer) |
-| `model_fallback` | `gemini-3.6-flash` | `GEMINI_API_KEY_FALL_BACK` | Fallback when primary quota is exhausted |
-| `analyze_model` | `gemini-2.5-flash` | `GEMINI_ANALYZE_API_KEY` | Case strength analysis |
+**Chat:** A merged prompt instructs Gemini to both classify the query intent and generate the response in a single API call. Legal responses follow a structured template covering applicable IPC sections, key elements, punishment, important nuances, landmark cases, and a disclaimer.
 
-### Prompt Engineering
-
-- **Chat prompt** — A merged prompt instructs Gemini to first classify the query into one of four intent categories, then respond according to category-specific formatting rules. Legal responses follow a strict template: Primary IPC Section(s), Key Elements, Punishment, Important Nuances, Landmark Case Example, and Disclaimer.
-- **Analysis prompt** — Instructs Gemini to return a structured JSON object with `case_strength`, `strength_score`, `key_strengths`, `key_weaknesses`, and `critical_missing_info`. Score ranges are constrained by strength category (Weak: 10–35, Moderate: 40–65, Strong: 70–95).
+**Case Analysis:** A separate prompt asks Gemini to evaluate a legal situation and return a structured assessment (case strength, key strengths/weaknesses, critical missing information).
 
 ### Cost Optimization
 
-- **Response caching** — Identical queries (after normalization) are served from MongoDB for 7 days without touching Gemini.
-- **Pre-filtering** — Obvious greetings, thanks, and creator questions are handled entirely with regex — zero API cost.
-- **Daily usage limits** — Hard per-user and global daily caps prevent runaway API spend on the free tier.
-- **Single-call classification** — Merged prompt (classify + answer in one call) halved Gemini usage compared to the original two-call design.
-
----
-
-## Integrations
-
-| Service | Purpose | How It's Used |
-|---|---|---|
-| **Google Gemini API** | Core AI responses and case analysis | Three model instances with separate API keys/quotas |
-| **MongoDB Atlas** | Production database | Stores all user data, chats, quiz questions, analytics |
-| **Cloudinary** | File hosting | Profile picture uploads (auto-resized), legal PDF storage and serving |
-| **Brevo (Sendinblue)** | Transactional email | Verification codes, welcome emails, password resets, collaboration confirmations, account lock alerts, goodbye emails |
-| **Google Identity Services** | Social authentication | "Sign in with Google" button, ID token, server-side verification |
-| **Google Fonts** | Typography | Poppins, Manrope, Montserrat, Sora, Urbanist, Space Grotesk, Jura, Courgette |
+- **Response caching** — Identical queries are served from a cached response store without touching Gemini.
+- **Pre-filtering** — Common greetings and meta-questions are handled with pattern matching at zero API cost.
+- **Daily usage limits** — Per-user and global daily caps prevent runaway API spend on the free tier.
+- **Single-call design** — Merged classification + response generation in one call halved Gemini usage compared to the original two-call approach.
 
 ---
 
@@ -384,25 +315,18 @@ Three model instances are created at server startup, each bound to a dedicated A
 
 ### Authentication Methods
 
-1. **Email/Password** — Registration requires OTP verification (6-digit code via Brevo email, 10-minute expiry, max 5 attempts). Passwords are hashed with Werkzeug's PBKDF2.
-2. **Google Sign-In** — ID token verified server-side against the configured `GOOGLE_CLIENT_ID`. Auto-links to existing accounts by verified email. Handles username collisions via a "pick a username" flow.
+1. **Email/Password** — Registration requires email OTP verification. Passwords are hashed with Werkzeug's PBKDF2.
+2. **Google Sign-In** — ID token verified server-side. Auto-links to existing accounts by verified email. Handles username collisions via a "pick a username" flow.
 
-### Session Management
+### Session & Security
 
-- Server-side Flask sessions with a 1-day lifetime.
-- `SameSite=Lax` cookie policy (safe because the Vercel rewrite proxy makes requests same-origin).
-- `Secure=true` in production (HTTPS), automatically disabled for local development (HTTP).
-
-### Security Measures
-
-- **Session-based identity** — Username and email are always read from the session, never from request bodies or query strings, preventing users from acting as other accounts.
-- **OTP brute-force protection** — Maximum 5 attempts per verification code; code invalidated after expiry or exceeded attempts.
-- **Password reset verification** — The reset-password endpoint re-verifies the reset code (with expiry and attempt limits), preventing direct bypass of the verification step.
-- **Rate limiting** — Login: 10/min, Chat: 15/min, applied via Flask-Limiter.
-- **Admin authorization** — All admin routes use the `@admin_required` decorator (checks `session['role'] == 'admin'`).
-- **Monitoring API key** — The `/monitor/metrics` endpoint uses constant-time comparison (`secrets.compare_digest`) against a separate API key.
-- **Account locking** — Admins can temporarily lock accounts (5-minute time-based locks stored in MongoDB).
-- **Global error handler** — Unhandled exceptions return generic JSON errors; full details are logged server-side only.
+- **Server-side Flask sessions** — `SameSite=Lax` cookie policy (enabled by the Vercel rewrite proxy making all requests same-origin), `Secure` flag in production.
+- **Session-based identity** — User identity is always read from the server session, never from client-supplied request data.
+- **OTP brute-force protection** — Verification codes have expiry windows and attempt limits; invalidated after either is exceeded.
+- **Rate limiting** — Per-endpoint rate limiting on sensitive routes (login, chat) via Flask-Limiter.
+- **Admin authorization** — All admin routes are protected by a role-check decorator.
+- **API-key-protected monitoring** — The metrics endpoint uses constant-time key comparison.
+- **Global error handler** — Unhandled exceptions return generic JSON; full details are logged server-side only.
 
 ---
 
@@ -523,52 +447,39 @@ PDF export falls back to Helvetica (ASCII only) if fonts are missing.
 
 ---
 
-## Testing
-
-The project currently uses **Create React App's built-in test setup** (Jest + React Testing Library), with `setupTests.js` present in the frontend. Test files can be run with:
-
-```bash
-cd frontend
-npm test
-```
-
-The backend does not have a dedicated test suite at this time. The `TEST_MODE` flag in `config.py` can be set to `True` to skip actual email sending during local development and manual testing.
-
----
-
 ## Current Status
 
 ### What's Implemented
 
-Justice Genie 2.0 has undergone substantial development and is a working, deployed application:
+Justice Genie is a working, deployed application with substantial engineering work completed:
 
-- **Full authentication system** — Email/password with OTP verification, Google Sign-In with username collision handling, forgot/reset password flow, session management
-- **AI legal chat engine** — Merged classification and response in a single Gemini call, with response caching, pre-filtering, daily usage limits, and automatic fallback to a secondary model
-- **Case strength analysis** — Gemini-powered analysis with structured JSON output and Chart.js visualization
-- **Multi-level quiz system** — Progressive difficulty, cumulative scoring, per-level high scores, competitive leaderboard with dense ranking
-- **Legal document library** — Category-filtered browsing, Cloudinary-hosted PDFs with view/download analytics
-- **User account system** — Profile pictures via Cloudinary, game names, quiz stats dashboard, PDF export of chat history with multilingual support, full account deletion with cascading data cleanup
-- **Admin dashboard** — User management with pagination, collaboration/feedback review, quiz oversight, account locking, monitoring metrics endpoint
-- **Transactional email system** — Six distinct branded HTML email templates sent via Brevo
-- **Production deployment** — Frontend on Vercel, backend on Render, database on MongoDB Atlas, with a Vercel rewrite proxy solving cross-origin cookie issues
-- **SEO infrastructure** — Open Graph tags, Twitter Cards, sitemap, robots.txt, favicons, per-page meta tags via react-helmet-async
-- **Observability** — Per-request chat metrics (latency, token usage, cache hit rates, intent distribution) with 90-day auto-expiry
-- **Design system v2** — Premium visual language with Manrope/Poppins typography, soft layered shadows, scroll-reveal animations, and dark mode
+- **Full authentication system** — Email/password with OTP verification, Google Sign-In, forgot/reset password flow
+- **AI legal chat engine** — Gemini-powered with response caching, pre-filtering, daily usage limits, and automatic model fallback
+- **Case strength analysis** — AI analysis with structured output and Chart.js visualization
+- **Multi-level quiz system** — Progressive difficulty, cumulative scoring, and competitive leaderboard
+- **Legal document library** — Category-filtered browsing with Cloudinary-hosted PDFs
+- **User account system** — Profile management, quiz stats, multilingual PDF export, full account deletion with data cleanup
+- **Admin dashboard** — User management, collaboration/feedback review, quiz oversight, account locking, monitoring metrics
+- **Transactional email** — Branded HTML emails for the full user lifecycle (verification, welcome, reset, alerts, farewell)
+- **Production deployment** — Frontend on Vercel, backend on Render, database on MongoDB Atlas
+- **SEO & observability** — Open Graph, Twitter Cards, sitemap, per-request chat analytics with auto-expiry
+- **Design system v2** — Manrope/Poppins typography, layered shadows, scroll-reveal animations, dark mode
 
 ### Known Limitations
 
-- **Voice features are stubbed** — Text-to-speech, speech-to-text, and translation endpoints exist but return placeholder messages in the production deployment. The local-only `speech_features.py` uses `pyttsx3` and `SpeechRecognition`, which require system-level audio dependencies not available on Render.
-- **Single-worker deployment** — Rate limiter state is in-memory and resets on restart. Not suitable for multi-worker scaling without adding Redis.
-- **In-memory unverified users** — Registration OTPs are stored in server memory (`unverified_users` dict), which resets on redeploy and doesn't share across workers.
-- **No automated backend tests** — Backend relies on manual testing and the `TEST_MODE` flag for email-skipping.
+- **Voice features are stubbed** — Text-to-speech, speech-to-text, and translation endpoints exist but return placeholder responses in production (require system-level audio dependencies not available on the hosting platform).
+- **Single-worker deployment** — Rate limiter and some registration state are in-memory; resets on restart and not shared across workers. Adequate for current scale but would need Redis for multi-worker scaling.
+- **No automated backend tests** — Backend testing is currently manual.
 
 ---
 
 ## Roadmap / Future Work
 
-### RAG-Based Knowledge Retrieval (In Development)
+### BNS Transition & RAG-Based Knowledge Retrieval (In Development)
 
-The project is evolving toward a **Retrieval-Augmented Generation (RAG)** architecture to improve the accuracy and groundedness of AI responses. **Subhash and Siri are currently working on this direction.** The goals include:
+The next release of Justice Genie is planned to transition the legal knowledge and corpus from the older **IPC (Indian Penal Code)** framework to the newer **BNS (Bharatiya Nyaya Sanhita)** framework. While the current implementation remains IPC-based, this upcoming transition to BNS will serve as an essential foundation for evolving the project toward a **Retrieval-Augmented Generation (RAG)** architecture. 
+
+**Subhash and Siri are currently working on this direction.** The goals include:
 
 - **Source-aware responses** — AI answers grounded in specific legal documents, statutes, and case law rather than relying solely on the model's training data
 - **Document retrieval** — Embedding and indexing the existing legal document library for semantic search
@@ -595,20 +506,12 @@ The project is targeting a new release around **September 1, 2026**. This repres
 
 ## Project Ownership & Contribution
 
-This project is a **jointly developed academic and research project**.
+Justice Genie is a **jointly developed academic and research project** by:
 
-### Co-Creator: Vemula Siri Mahalaxmi
-- AI Logic & Prompt Engineering
-- Backend (Flask + Gemini Integration + API Integration)
-- System Design & Documentation
-- Feature Architecture & Flow
+- **Vemula Siri Mahalaxmi** — AI logic, prompt engineering, backend architecture, system design
+- **Yaganti Subhash** — Frontend development, API integration, UI/UX
 
-### Co-Creator: Yaganti Subhash
-- Frontend Development (React UI)
-- API Integration
-- UI/UX Enhancements
-
-> **Repository Notice:** This repository was originally created under Yaganti Subhash's GitHub account and later forked by Vemula Siri Mahalaxmi. Forking does not indicate sole ownership. The project was designed, developed, and documented collaboratively by both contributors.
+> **Repository Notice:** This repository was originally created under Yaganti Subhash's GitHub account and later forked by Vemula Siri Mahalaxmi. The project was designed, developed, and documented collaboratively by both contributors.
 
 ---
 
